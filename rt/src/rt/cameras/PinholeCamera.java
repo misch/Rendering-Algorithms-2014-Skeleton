@@ -34,16 +34,17 @@ public class PinholeCamera implements Camera {
 		c.setColumn(3, new Vector4f(eye));
 		c.m33 = 1;
 		
-		// TODO: inverse projection matrix p 
 		Matrix4f p = new Matrix4f();
+		float t = (float)Math.tan(Math.toRadians(fov)/2);
+		float r = aspect*t;
+		p.m00 = 2*r/width;
+		p.m02 = r;
+		p.m11 = 2*t/height;
+		p.m12 = t;
+		p.m22 = 1;
+		p.m33 = 1;
 		
-		// TODO: inverse viewport matrix v
-		Matrix4f v = new Matrix4f();
-		
-		// Make the matrix c*p*v that transforms a viewport pixel coordinate
-		// to a world space point
-		//p.mul(v);
-		//c.mul(p);
+		c.mul(p);
 		m = c;
 	}
 	
