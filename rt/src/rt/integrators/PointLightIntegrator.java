@@ -1,17 +1,19 @@
 package rt.integrators;
 
 import java.util.Iterator;
+
 import javax.vecmath.*;
+
 import rt.HitRecord;
 import rt.Integrator;
 import rt.Intersectable;
 import rt.LightList;
-import rt.LightSource;
+import rt.LightGeometry;
 import rt.Ray;
 import rt.Sampler;
 import rt.Scene;
 import rt.Spectrum;
-import rt.LightSource.LightSample;
+import rt.StaticVecmath;
 
 /**
  * Integrator for Whitted style ray tracing. This is a basic version that needs to be extended!
@@ -41,16 +43,15 @@ public class PointLightIntegrator implements Integrator {
 			Spectrum brdfValue;
 			
 			// Iterate over all light sources
-			Iterator<LightSource> it = lightList.iterator();
+			Iterator<LightGeometry> it = lightList.iterator();
 			while(it.hasNext())
 			{
-				LightSource lightSource = it.next();
+				LightGeometry lightSource = it.next();
 				
-				// Make direction from hit point to light source position				
-				LightSample lightSample = lightSource.getLightSample(null);
-				Vector3f lightPos = lightSample.position;
-				Vector3f lightDir = new Vector3f(lightPos);
-				lightDir.sub(hitRecord.position);
+				// Make direction from hit point to light source position; this is only supposed to work with point lights
+				float dummySample[] = new float[2];
+				HitRecord lightHit = lightSource.sample(dummySample);
+				Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
 				float d = lightDir.length();
 				lightDir.normalize();
 				
@@ -61,7 +62,7 @@ public class PointLightIntegrator implements Integrator {
 				Spectrum s = new Spectrum(brdfValue);
 				
 				// Multiply with emission
-				s.mult(lightSample.emission);
+				s.mult(lightHit.material.evaluateEmission(lightHit, StaticVecmath.negate(lightDir)));
 				
 				// Multiply with cosine of surface normal and incident direction
 				float ndotl = hitRecord.normal.dot(lightDir);
