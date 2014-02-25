@@ -17,20 +17,20 @@ public class PinholeCamera implements Camera {
 		
 		// Camera to world matrix c
 		Vector3f wAxis = new Vector3f(eye);
-		wAxis.sub(up);
+		wAxis.sub(lookAt);
 		wAxis.normalize();
 		
 		Vector3f uAxis = new Vector3f();
-		uAxis.cross(lookAt,wAxis);
+		uAxis.cross(up,wAxis);
 		uAxis.normalize();
 		
 		Vector3f vAxis = new Vector3f();
 		vAxis.cross(wAxis,uAxis);
 
 		Matrix4f c = new Matrix4f();
-		c.setColumn(0, new Vector4f(wAxis));
-		c.setColumn(1, new Vector4f(uAxis));
-		c.setColumn(2, new Vector4f(vAxis));
+		c.setColumn(0, new Vector4f(uAxis));
+		c.setColumn(1, new Vector4f(vAxis));
+		c.setColumn(2, new Vector4f(wAxis));
 		c.setColumn(3, new Vector4f(eye));
 		c.m33 = 1;
 		
