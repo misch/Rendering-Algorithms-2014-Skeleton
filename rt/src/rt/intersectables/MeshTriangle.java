@@ -49,6 +49,7 @@ public class MeshTriangle implements Intersectable {
 		float z2 = vertices[v2*3+2];
 		
 		
+		
 		Vector3f a = new Vector3f(x0,y0,z0);
 		Vector3f b = new Vector3f(x1,y1,z1);
 		Vector3f c = new Vector3f(x2,y2,z2);
@@ -57,10 +58,12 @@ public class MeshTriangle implements Intersectable {
 		
 		Vector3f bToa = new Vector3f(a);
 		bToa.sub(b);
+		
 		Vector3f cToa = new Vector3f(a);
 		cToa.sub(c);
+		
 		Vector3f rightHand = new Vector3f(a);
-		a.sub(r.origin);
+		rightHand.sub(r.origin);
 		
 		Matrix3f matrix = new Matrix3f();
 		matrix.setColumn(0, bToa);
@@ -86,13 +89,13 @@ public class MeshTriangle implements Intersectable {
 		gamma = detA1/detA;
 		t = detA2/detA;
 		
-		if (beta+gamma > 0 && beta+gamma < 1){
+		if (beta+gamma > 0 && beta+gamma < 1  && beta > 0 && gamma > 0){
 			Vector3f position = new Vector3f(r.direction);
 			position.scaleAdd(t, r.origin);
 			
 			Vector3f normal = new Vector3f();
 			Vector3f aTob = new Vector3f(b);
-			b.sub(a);
+			aTob.sub(a);
 			Vector3f aToc = new Vector3f(c);
 			aToc.sub(a);
 			

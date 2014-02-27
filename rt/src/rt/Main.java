@@ -18,7 +18,8 @@ public class Main {
 	 * The scene to be rendered.
 	 */
 //	public static Scene scene = new rt.testscenes.Camera();
-	public static Scene scene = new rt.testscenes.Blinn();
+//	public static Scene scene = new rt.testscenes.Blinn();
+	public static Scene scene = new rt.testscenes.MeshTest();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
