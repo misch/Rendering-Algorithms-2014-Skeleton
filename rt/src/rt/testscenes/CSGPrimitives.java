@@ -11,9 +11,9 @@ import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
 import rt.integrators.DebugIntegratorFactory;
 import rt.integrators.PointLightIntegratorFactory;
+import rt.intersectables.CSGCone;
 import rt.intersectables.CSGCylinder;
 import rt.intersectables.CSGPlane;
-import rt.intersectables.CSGSphere;
 import rt.lightsources.PointLight;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
@@ -55,10 +55,11 @@ public class CSGPrimitives extends Scene {
 		
 		// CSG Primitive
 		CSGCylinder cylinder = new CSGCylinder(new Vector3f(0,0,0), 0.5f);
+		CSGCone cone = new CSGCone(new Vector3f(0,0,0));
 		
 		IntersectableList intersectableList = new IntersectableList();
-		intersectableList.add(groundPlane);
-		intersectableList.add(cylinder);
+//		intersectableList.add(groundPlane);
+		intersectableList.add(cone);
 		
 		root = intersectableList;
 		
