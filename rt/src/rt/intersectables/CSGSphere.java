@@ -7,6 +7,7 @@ import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
 import rt.Material;
+import rt.MathUtil;
 import rt.Ray;
 import rt.Spectrum;
 import rt.materials.Diffuse;
@@ -51,7 +52,7 @@ public class CSGSphere extends CSGSolid {
 		if (discriminant < 0) {
 			return boundaries;
 		} else {
-			Point2f roots = midnightFormula(a, b, c);
+			Point2f roots = MathUtil.midnightFormula(a, b, discriminant);
 			t_near = Math.min(roots.x, roots.y);
 			t_far = Math.max(roots.x, roots.y);
 
@@ -89,13 +90,4 @@ public class CSGSphere extends CSGSolid {
 
 		return new HitRecord(t, position, normal, wIn, this, material, 0.f, 0.f);
 	}
-
-	private Point2f midnightFormula(float a, float b, float discriminant) {
-		Point2f point = new Point2f();
-		point.x = (float) ((-b + Math.sqrt(discriminant)) / (2 * a));
-		point.y = (float) ((-b - Math.sqrt(discriminant)) / (2 * a));
-
-		return point;
-	}
-
 }
