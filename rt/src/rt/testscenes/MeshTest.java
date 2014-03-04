@@ -41,8 +41,8 @@ public class MeshTest extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify which integrator and sampler to use
-//		integratorFactory = new PointLightIntegratorFactory();
-		integratorFactory = new DebugIntegratorFactory();
+		integratorFactory = new PointLightIntegratorFactory();
+//		integratorFactory = new DebugIntegratorFactory();
 		samplerFactory = new OneSamplerFactory();
 
 		Mesh mesh;
@@ -61,7 +61,7 @@ public class MeshTest extends Scene {
 		 * but only after the stupid triangle is actually correctly rendered!*/
 		// mesh = new Mesh(vertices, normals, indices);
 		
-		IntersectableList intersectableList = new IntersectableList();
+		IntersectableList intersectableList = new rt.intersectables.IntersectableList();
 		intersectableList.add(mesh);	
 		
 		root = intersectableList;

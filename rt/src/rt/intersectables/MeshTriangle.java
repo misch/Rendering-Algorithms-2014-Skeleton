@@ -48,7 +48,10 @@ public class MeshTriangle implements Intersectable {
 		float z1 = vertices[v1*3+2];
 		float z2 = vertices[v2*3+2];
 		
-		
+		float normals[] = mesh.normals;
+		Vector3f n0 = new Vector3f(normals[v0*3], normals[v0*3+1], normals[v0*3+2]);
+		Vector3f n1 = new Vector3f(normals[v1*3], normals[v1*3+1], normals[v1*3+2]);
+		Vector3f n2 = new Vector3f(normals[v2*3], normals[v2*3+1], normals[v2*3+2]);
 		
 		Vector3f a = new Vector3f(x0,y0,z0);
 		Vector3f b = new Vector3f(x1,y1,z1);
@@ -102,11 +105,27 @@ public class MeshTriangle implements Intersectable {
 			normal.cross(aTob, aToc);
 			normal.normalize();
 			
+			Vector3f interpolatedNormal = new Vector3f();
+			Vector3f weighted_n0 = new Vector3f(n0);
+			weighted_n0.normalize();
+			weighted_n0.scale(1-beta-gamma);
+			
+			Vector3f weighted_n1 = new Vector3f(n1);
+			weighted_n1.normalize();
+			weighted_n1.scale(beta);
+			
+			Vector3f weighted_n2 = new Vector3f(n2);
+			weighted_n2.normalize();
+			weighted_n2.scale(gamma);
+			
+			interpolatedNormal.add(weighted_n0, weighted_n1);
+			interpolatedNormal.add(weighted_n2);
+			interpolatedNormal.normalize();
 			// wIn is incident direction; convention is that it points away from surface
 			Vector3f wIn = new Vector3f(r.direction);
 			wIn.negate();
 			
-			return new HitRecord(t,position,normal,wIn,this,mesh.material,0.f,0.f);
+			return new HitRecord(t,position,interpolatedNormal,wIn,this,mesh.material,0.f,0.f);
 		}
 		else{
 			return null;

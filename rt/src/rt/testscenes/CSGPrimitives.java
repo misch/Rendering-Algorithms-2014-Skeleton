@@ -2,18 +2,17 @@ package rt.testscenes;
 
 import javax.vecmath.Vector3f;
 
-import rt.IntersectableList;
 import rt.LightGeometry;
 import rt.LightList;
 import rt.Scene;
 import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
-import rt.integrators.DebugIntegratorFactory;
 import rt.integrators.PointLightIntegratorFactory;
 import rt.intersectables.CSGCone;
 import rt.intersectables.CSGCylinder;
 import rt.intersectables.CSGPlane;
+import rt.intersectables.IntersectableList;
 import rt.lightsources.PointLight;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
