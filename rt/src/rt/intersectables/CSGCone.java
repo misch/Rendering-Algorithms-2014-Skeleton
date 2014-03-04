@@ -50,17 +50,7 @@ public class CSGCone extends CSGSolid {
 		float b = 2 * r.direction.dot(centerToRayFlippedY);
 
 		float c = centerToRay.dot(centerToRayFlippedY);
-		
-		/* Stefan */
-//		float a = direction.lengthSquared() - r.direction.z*r.direction.z;
-//		float b = 2*(r.direction.x * r.origin.x +
-//		r.direction.y * r.origin.y -
-//		r.direction.z * r.origin.z);
-//		float c = r.origin.x * r.origin.x +
-//		r.origin.y * r.origin.y -
-//		r.origin.z * r.origin.z;
-		/**/		
-		
+			
 
 		float discriminant = b * b - 4 * a * c;
 		if (discriminant < 0) {
@@ -93,16 +83,25 @@ public class CSGCone extends CSGSolid {
 		Vector3f position = new Vector3f(r.direction);
 		position.scaleAdd(t, r.origin);
 
-		Vector3f normal = new Vector3f(position);
-		normal.sub(center);
-		normal.y = 0; // TODO: Correct normals!
-		normal.normalize();
+		Vector3f normalCyl = new Vector3f(position); // b!
+		normalCyl.sub(center);
+		normalCyl.y = 0; // TODO: Correct normals!
+//		normalCyl.normalize();
+		
+		Vector3f a = new Vector3f(0,0,1);
+		
+		Vector3f tangent = new Vector3f();
+		tangent.cross(a,normalCyl);
+		
+		Vector3f normal = new Vector3f();
+		normal.cross(r.direction,tangent);
+		normal.normalize();	
 
 		// wIn is incident direction; convention is that it points away from
 		// surface
 		Vector3f wIn = new Vector3f(r.direction);
 		wIn.negate();
 
-		return new HitRecord(t, position, normal, wIn, this, material, 0.f, 0.f);
+		return new HitRecord(t, position, normalCyl, wIn, this, material, 0.f, 0.f);
 	}
 }

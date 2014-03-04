@@ -65,6 +65,7 @@ public class CSGPrimitives extends Scene {
 		
 		// Light sources
 		LightGeometry pl1 = new PointLight(new Vector3f(.5f, .5f, 2.f), new Spectrum(1.f, 1.f, 1.f));
+//		LightGeometry pl1 = new PointLight(new Vector3f(0.f, 0.f, 1.f), new Spectrum(1.f, 1.f, 1.f));
 		LightGeometry pl2 = new PointLight(new Vector3f(-.75f, .75f, 2.f), new Spectrum(1.f, 1.f, 1.f));
 		lightList = new LightList();
 		lightList.add(pl1);

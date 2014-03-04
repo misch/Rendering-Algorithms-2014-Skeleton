@@ -3,6 +3,7 @@ package rt.testscenes;
 import javax.vecmath.Vector3f;
 
 import rt.*;
+import rt.IntersectableList;
 import rt.cameras.*;
 import rt.films.*;
 import rt.integrators.*;
