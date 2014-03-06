@@ -3,7 +3,6 @@ package rt.testscenes;
 import javax.vecmath.Vector3f;
 
 import rt.*;
-import rt.IntersectableList;
 import rt.cameras.*;
 import rt.films.*;
 import rt.integrators.*;
@@ -48,7 +47,7 @@ public class Blinn extends Scene {
 		
 		// Sphere with Blinn material
 		CSGSphere sphere = new CSGSphere(new Vector3f(0,0,0), 1);
-//		sphere.material = new rt.materials.Blinn(new Spectrum(.8f, 0.f, 0.f), new Spectrum(.4f, .4f, .4f), 50.f);
+		sphere.material = new rt.materials.Blinn(new Spectrum(.8f, 0.f, 0.f), new Spectrum(.4f, .4f, .4f), 50.f);
 		
 		IntersectableList intersectableList = new IntersectableList();
 		intersectableList.add(groundPlane);
