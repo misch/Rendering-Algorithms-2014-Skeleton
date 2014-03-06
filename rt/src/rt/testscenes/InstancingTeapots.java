@@ -33,6 +33,7 @@ public class InstancingTeapots extends Scene {
 		
 		// Specify integrator to be used
 		integratorFactory = new PointLightIntegratorFactory();
+//		integratorFactory = new DebugIntegratorFactory();
 		
 		// Specify pixel sampler to be used
 		samplerFactory = new OneSamplerFactory();

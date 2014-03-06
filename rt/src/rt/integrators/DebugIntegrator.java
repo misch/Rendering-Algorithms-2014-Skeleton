@@ -27,17 +27,20 @@ public class DebugIntegrator implements Integrator {
 	public Spectrum integrate(Ray r) {
 		HitRecord hitRecord = scene.getIntersectable().intersect(r);
 		
-		if(hitRecord != null)
+		if(hitRecord != null){
 			
-			if(hitRecord.t > 0.f)
-				// Ok, hit point was "in front" of ray origin
-				return new Spectrum(0.f,1.f,0.f);
-			else
-				// Weird, a hit point "behind" the ray origin was returned, 
-				// this shouldn't happen in general!			
-				return new Spectrum(1.f,0.f,0.f);
-		else 
-			return new Spectrum(0.f,0.f,0.f);
+//			if(hitRecord.t > 0.f)
+//				// Ok, hit point was "in front" of ray origin
+//				return new Spectrum(0.f,1.f,0.f);
+//			else
+//				// Weird, a hit point "behind" the ray origin was returned, 
+//				// this shouldn't happen in general!			
+//				return new Spectrum(1.f,0.f,0.f);
+//		else 
+//			return new Spectrum(0.f,0.f,0.f);
+			return new Spectrum(Math.abs(hitRecord.normal.x),Math.abs(hitRecord.normal.y),Math.abs(hitRecord.normal.z));
+		}
+		return new Spectrum(0.f,0.f,0.f);
 		
 		// Other potential debugging visualizations
 		// return new Spectrum(r.direction.x/2.f+0.5f, r.direction.y/2.f+0.5f, 0.f);

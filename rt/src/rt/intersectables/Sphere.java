@@ -29,6 +29,9 @@ public class Sphere implements Intersectable {
 		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 	}
 	
+	public Sphere(){
+		this(new Vector3f(0,0,0),1);
+	}
 	@Override
 	public HitRecord intersect(Ray r) {
 		float t;

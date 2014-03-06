@@ -19,8 +19,10 @@ public class Main {
 	 */
 //	public static Scene scene = new rt.testscenes.Camera();
 //	public static Scene scene = new rt.testscenes.Blinn();
-	public static Scene scene = new rt.testscenes.MeshTest();
+//	public static Scene scene = new rt.testscenes.MeshTest();
 //	public static Scene scene = new rt.testscenes.CSGPrimitives();
+//	public static Scene scene = new rt.testscenes.InstancingTest();
+	public static Scene scene = new rt.testscenes.InstancingTeapots();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
@@ -141,7 +143,7 @@ public class Main {
 		
 		// Wait for threads to end
 		int printed = 0;
-		System.out.printf("Rendering image:\n");
+		System.out.printf("Rendering image: " + scene.getOutputFilename()+ "\n");
 		System.out.printf("0%%                                                50%%                                           100%%\n");
 		System.out.printf("|---------|---------|---------|---------|---------|---------|---------|---------|---------|---------\n");
 		synchronized(tasksLeft)
