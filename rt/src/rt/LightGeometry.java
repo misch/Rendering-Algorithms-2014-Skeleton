@@ -5,7 +5,7 @@ package rt;
  * this interface, and they store a reference to a {@link Material}
  * with an emission term. As an examples, see {@link rt.lightsources.PointLight}.
  */
-public interface LightGeometry extends Intersectable {
+public interface LightGeometry extends Intersectable{
 
 	/**
 	 * Sample a point on a light geometry.
