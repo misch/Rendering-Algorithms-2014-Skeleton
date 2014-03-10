@@ -59,9 +59,11 @@ public class PointLightIntegrator implements Integrator {
 				Ray shadowRay = new Ray(hitRecord.position,lightDir);
 				HitRecord shadowHit = root.intersect(shadowRay);
 				
-				float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-				if (shadowHit != null && d > lengthShadowHitToHitRecord && shadowHit.t > 1e-5){
-					continue;
+				if(shadowHit != null){
+					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
+					if (d > lengthShadowHitToHitRecord && shadowHit.t > 1e-5){
+						continue;
+					}
 				}
 				
 				// Evaluate the BRDF
