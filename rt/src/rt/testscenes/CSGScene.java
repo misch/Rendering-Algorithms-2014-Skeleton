@@ -21,6 +21,7 @@ import rt.intersectables.IntersectableList;
 import rt.intersectables.Plane;
 import rt.lightsources.PointLight;
 import rt.materials.Diffuse;
+import rt.materials.XYZGrid;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
 
@@ -110,11 +111,11 @@ public class CSGScene extends Scene {
 		soap = new CSGInstance(soap, trans);
 		
 		// Ground and back plane
-//		XYZGrid grid = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));
+		XYZGrid grid = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));
 		Plane groundPlane = new Plane(new Vector3f(0.f, 1.f, 0.f), 1.5f);
-//		groundPlane.material = grid;
+		groundPlane.material = grid;
 		Plane backPlane = new Plane(new Vector3f(0.f, 0.f, 1.f), 3.15f);
-//		backPlane.material = grid;		
+		backPlane.material = grid;		
 		
 		// Collect objects in intersectable list
 		IntersectableList intersectableList = new IntersectableList();

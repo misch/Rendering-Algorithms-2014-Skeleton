@@ -22,8 +22,9 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.MeshTest();
 //	public static Scene scene = new rt.testscenes.CSGPrimitives();
 //	public static Scene scene = new rt.testscenes.InstancingTest();
-	public static Scene scene = new rt.testscenes.InstancingTeapots();
+//	public static Scene scene = new rt.testscenes.InstancingTeapots();
 //	public static Scene scene = new rt.testscenes.Blinn();
+	public static Scene scene = new rt.testscenes.CSGScene();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
