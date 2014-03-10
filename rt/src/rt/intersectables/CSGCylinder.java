@@ -33,6 +33,10 @@ public class CSGCylinder extends CSGSolid {
 
 		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 	}
+	
+	public CSGCylinder(){
+		this(new Vector3f(0,0,0), 1);
+	}
 
 	@Override
 	ArrayList<IntervalBoundary> getIntervalBoundaries(Ray r) {
@@ -40,11 +44,11 @@ public class CSGCylinder extends CSGSolid {
 
 		float t_near, t_far;
 
-		Vector2f direction2D = new Vector2f(r.direction.x, r.direction.z);
+		Vector2f direction2D = new Vector2f(r.direction.x, r.direction.y);
 		float a = direction2D.lengthSquared();
 
-		Vector2f rayOrigin2D = new Vector2f(r.origin.x, r.origin.z);
-		Vector2f center2D = new Vector2f(center.x, center.z);
+		Vector2f rayOrigin2D = new Vector2f(r.origin.x, r.origin.y);
+		Vector2f center2D = new Vector2f(center.x, center.y);
 		Vector2f centerToRay = new Vector2f();
 		centerToRay.sub(rayOrigin2D, center2D);
 
@@ -68,7 +72,7 @@ public class CSGCylinder extends CSGSolid {
 		b1.type = BoundaryType.START;
 
 		b2.hitRecord = intersectCylinder(r, t_far);
-		b2.t = t_near;
+		b2.t = t_far;
 		b2.type = BoundaryType.END;
 
 		boundaries.add(b1);
@@ -83,7 +87,7 @@ public class CSGCylinder extends CSGSolid {
 
 		Vector3f normal = new Vector3f(position);
 		normal.sub(center);
-		normal.y = 0;
+		normal.z = 0;
 		normal.normalize();
 
 		// wIn is incident direction; convention is that it points away from

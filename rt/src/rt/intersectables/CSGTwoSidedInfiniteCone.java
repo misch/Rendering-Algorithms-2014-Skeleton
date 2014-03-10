@@ -22,13 +22,21 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 	 * Makes a CSG cone.
 	 * 
 	 * @param center
-	 *            the point where the cone has radius 0            
-	**/
+	 *            the point where the cone has radius 0
+	 **/
 
-	public CSGTwoSidedInfiniteCone(Vector3f center) {
+	public CSGTwoSidedInfiniteCone(Vector3f center, Material material) {
 		this.center = center;
 
-		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+		this.material = material;
+	}
+
+	public CSGTwoSidedInfiniteCone(Vector3f center) {
+		this(center, new Diffuse(new Spectrum(1.f, 1.f, 1.f)));
+	}
+
+	public CSGTwoSidedInfiniteCone(Material material) {
+		this(new Vector3f(0, 0, 0), material);
 	}
 
 	@Override
@@ -37,44 +45,41 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 		float t_near, t_far;
 
-		Vector3f directionFlippedY = new Vector3f(r.direction);
-//		Vector2f direction = new Vector2f(r.direction.x,r.direction.y);
-		directionFlippedY.y *= -1;
-		float a = r.direction.dot(directionFlippedY);
+		Vector3f directionFlippedZ = new Vector3f(r.direction);
+		// Vector2f direction = new Vector2f(r.direction.x,r.direction.y);
+		directionFlippedZ.z *= -1;
+		float a = r.direction.dot(directionFlippedZ);
 
 		Vector3f centerToRay = new Vector3f();
 		centerToRay.sub(r.origin, center);
-		Vector3f centerToRayFlippedY = new Vector3f(centerToRay);
-		centerToRayFlippedY.y *= -1;
+		Vector3f centerToRayFlippedZ = new Vector3f(centerToRay);
+		centerToRayFlippedZ.z *= -1;
 
-		float b = 2 * r.direction.dot(centerToRayFlippedY);
+		float b = 2 * r.direction.dot(centerToRayFlippedZ);
 
-		float c = centerToRay.dot(centerToRayFlippedY);
-			
+		float c = centerToRay.dot(centerToRayFlippedZ);
 
-		float discriminant = b * b - 4 * a * c;
-		
-			Point2f roots = MathUtil.midnightFormula(a, b, c);
-			if (roots == null)
-				return boundaries;
-			
-			t_near = Math.min(roots.x, roots.y);
-			t_far = Math.max(roots.x, roots.y);
+		Point2f roots = MathUtil.midnightFormula(a, b, c);
+		if (roots == null)
+			return boundaries;
 
-			IntervalBoundary b1, b2;
-			b1 = new IntervalBoundary();
-			b2 = new IntervalBoundary();
+		t_near = Math.min(roots.x, roots.y);
+		t_far = Math.max(roots.x, roots.y);
 
-			b1.hitRecord = intersectCone(r, t_near);
-			b1.t = t_near;
-			b1.type = BoundaryType.START;
+		IntervalBoundary b1, b2;
+		b1 = new IntervalBoundary();
+		b2 = new IntervalBoundary();
 
-			b2.hitRecord = intersectCone(r, t_far);
-			b2.t = t_near;
-			b2.type = BoundaryType.END;
+		b1.hitRecord = intersectCone(r, t_near);
+		b1.t = t_near;
+		b1.type = BoundaryType.START;
 
-			boundaries.add(b1);
-			boundaries.add(b2);
+		b2.hitRecord = intersectCone(r, t_far);
+		b2.t = t_far;
+		b2.type = BoundaryType.END;
+
+		boundaries.add(b1);
+		boundaries.add(b2);
 
 		return boundaries;
 	}
@@ -85,23 +90,24 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 		Vector3f normalCyl = new Vector3f(position); // b!
 		normalCyl.sub(center);
-		normalCyl.y = 0; // TODO: Correct normals!
-//		normalCyl.normalize();
-		
-		Vector3f a = new Vector3f(0,0,1);
-		
+		normalCyl.z = 0;
+
+		Vector3f a = new Vector3f(0, 0, 1);
+
 		Vector3f tangent = new Vector3f();
-		tangent.cross(a,normalCyl);
-		
+		tangent.cross(a, normalCyl);
+
 		Vector3f normal = new Vector3f();
-		normal.cross(r.direction,tangent);
-		normal.normalize();	
+		normal.cross(position, tangent);
+		normal.normalize();
 
 		// wIn is incident direction; convention is that it points away from
 		// surface
 		Vector3f wIn = new Vector3f(r.direction);
 		wIn.negate();
+		wIn.normalize();
 
-		return new HitRecord(t, position, normalCyl, wIn, this, material, 0.f, 0.f);
+		return new HitRecord(t, position, normalCyl, wIn, this, material, 0.f,
+				0.f);
 	}
 }
