@@ -18,10 +18,8 @@ public class CSGUnitCylinder extends CSGSolid {
 		CSGCylinder infinite = new CSGCylinder();
 		infinite.material = material;
 		
-		CSGPlane upperPlane = new CSGPlane(new Vector3f(0,0,1),-1.f);
-		upperPlane.material = material;
-		CSGPlane lowerPlane = new CSGPlane(new Vector3f(0,0,-1),0);
-		lowerPlane.material = material;
+		CSGPlane upperPlane = new CSGPlane(new Vector3f(0,0,1),-1.f, material);
+		CSGPlane lowerPlane = new CSGPlane(new Vector3f(0,0,-1),0, material);
 		
 		CSGNode node = new CSGNode(infinite, upperPlane, OperationType.INTERSECT);
 		root = new CSGNode(node,lowerPlane,CSGNode.OperationType.INTERSECT);

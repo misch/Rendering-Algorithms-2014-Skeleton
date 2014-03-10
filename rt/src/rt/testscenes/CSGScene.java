@@ -10,15 +10,18 @@ import rt.Scene;
 import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
+import rt.integrators.PointLightIntegratorFactory;
 import rt.intersectables.CSGInstance;
 import rt.intersectables.CSGNode;
 import rt.intersectables.CSGPlane;
 import rt.intersectables.CSGSolid;
 import rt.intersectables.CSGTwoSidedInfiniteCone;
+import rt.intersectables.CSGUnitCylinder;
 import rt.intersectables.IntersectableList;
 import rt.intersectables.Plane;
 import rt.lightsources.PointLight;
 import rt.materials.Diffuse;
+import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
 
 public class CSGScene extends Scene {
@@ -46,11 +49,13 @@ public class CSGScene extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify which integrator and sampler to use
-		integratorFactory = new WhittedIntegratorFactory();
-		samplerFactory = new UniformSamplerFactory();		
+//		integratorFactory = new WhittedIntegratorFactory();
+		integratorFactory = new PointLightIntegratorFactory();
+//		samplerFactory = new UniformSamplerFactory();
+		samplerFactory = new OneSamplerFactory();
 		
-		Material refractive = new Refractive(1.3f);
-		
+//		Material refractive = new Refractive(1.3f);
+		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 		// Make a conical "bowl" by subtracting cross-sections of two cones
 		CSGSolid outerCone = coneCrossSection(60.f, refractive);
 		// Make an inner cone and subtract it
@@ -105,11 +110,11 @@ public class CSGScene extends Scene {
 		soap = new CSGInstance(soap, trans);
 		
 		// Ground and back plane
-		XYZGrid grid = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));
+//		XYZGrid grid = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));
 		Plane groundPlane = new Plane(new Vector3f(0.f, 1.f, 0.f), 1.5f);
-		groundPlane.material = grid;
+//		groundPlane.material = grid;
 		Plane backPlane = new Plane(new Vector3f(0.f, 0.f, 1.f), 3.15f);
-		backPlane.material = grid;		
+//		backPlane.material = grid;		
 		
 		// Collect objects in intersectable list
 		IntersectableList intersectableList = new IntersectableList();
