@@ -9,7 +9,7 @@ import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
 import rt.integrators.PointLightIntegratorFactory;
-import rt.intersectables.CSGCone;
+import rt.intersectables.CSGTwoSidedInfiniteCone;
 import rt.intersectables.CSGCylinder;
 import rt.intersectables.CSGPlane;
 import rt.intersectables.IntersectableList;
@@ -54,7 +54,7 @@ public class CSGPrimitives extends Scene {
 		
 		// CSG Primitive
 		CSGCylinder cylinder = new CSGCylinder(new Vector3f(0,0,0), 0.5f);
-		CSGCone cone = new CSGCone(new Vector3f(0,0,0));
+		CSGTwoSidedInfiniteCone cone = new CSGTwoSidedInfiniteCone(new Vector3f(0,0,0));
 		
 		IntersectableList intersectableList = new IntersectableList();
 //		intersectableList.add(groundPlane);

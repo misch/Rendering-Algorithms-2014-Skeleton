@@ -13,7 +13,7 @@ import rt.Ray;
 import rt.Spectrum;
 import rt.materials.Diffuse;
 
-public class CSGCone extends CSGSolid {
+public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 	Vector3f center;
 	public Material material;
@@ -25,7 +25,7 @@ public class CSGCone extends CSGSolid {
 	 *            the point where the cone has radius 0            
 	**/
 
-	public CSGCone(Vector3f center) {
+	public CSGTwoSidedInfiniteCone(Vector3f center) {
 		this.center = center;
 
 		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));

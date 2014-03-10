@@ -3,15 +3,22 @@ package rt.testscenes;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
-import rt.*;
+import rt.LightGeometry;
+import rt.LightList;
+import rt.Material;
+import rt.Scene;
+import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
-import rt.integrators.WhittedIntegratorFactory;
-import rt.intersectables.*;
-import rt.lightsources.*;
-import rt.materials.*;
-import rt.materials.XYZGrid;
-import rt.samplers.*;
+import rt.intersectables.CSGInstance;
+import rt.intersectables.CSGNode;
+import rt.intersectables.CSGPlane;
+import rt.intersectables.CSGSolid;
+import rt.intersectables.CSGTwoSidedInfiniteCone;
+import rt.intersectables.IntersectableList;
+import rt.intersectables.Plane;
+import rt.lightsources.PointLight;
+import rt.materials.Diffuse;
 import rt.tonemappers.ClampTonemapper;
 
 public class CSGScene extends Scene {
