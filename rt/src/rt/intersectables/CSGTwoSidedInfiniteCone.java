@@ -53,10 +53,11 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 			
 
 		float discriminant = b * b - 4 * a * c;
-		if (discriminant < 0) {
-			return boundaries;
-		} else {
-			Point2f roots = MathUtil.midnightFormula(a, b, discriminant);
+		
+			Point2f roots = MathUtil.midnightFormula(a, b, c);
+			if (roots == null)
+				return boundaries;
+			
 			t_near = Math.min(roots.x, roots.y);
 			t_far = Math.max(roots.x, roots.y);
 
@@ -74,7 +75,6 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 			boundaries.add(b1);
 			boundaries.add(b2);
-		}
 
 		return boundaries;
 	}

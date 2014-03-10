@@ -48,30 +48,27 @@ public class CSGSphere extends CSGSolid {
 
 		float c = centerToRay.dot(centerToRay) - radius * radius;
 
-		float discriminant = b * b - 4 * a * c;
-		if (discriminant < 0) {
+		Point2f roots = MathUtil.midnightFormula(a, b, c);
+		if (roots == null)
 			return boundaries;
-		} else {
-			Point2f roots = MathUtil.midnightFormula(a, b, discriminant);
-			t_near = Math.min(roots.x, roots.y);
-			t_far = Math.max(roots.x, roots.y);
 
-			IntervalBoundary b1, b2;
-			b1 = new IntervalBoundary();
-			b2 = new IntervalBoundary();
+		t_near = Math.min(roots.x, roots.y);
+		t_far = Math.max(roots.x, roots.y);
 
-			b1.hitRecord = intersectSphere(r, t_near);
-			b1.t = t_near;
-			b1.type = BoundaryType.START;
+		IntervalBoundary b1, b2;
+		b1 = new IntervalBoundary();
+		b2 = new IntervalBoundary();
 
-			b2.hitRecord = intersectSphere(r, t_far);
-			b2.t = t_near;
-			b2.type = BoundaryType.END;
+		b1.hitRecord = intersectSphere(r, t_near);
+		b1.t = t_near;
+		b1.type = BoundaryType.START;
 
-			boundaries.add(b1);
-			boundaries.add(b2);
-		}
+		b2.hitRecord = intersectSphere(r, t_far);
+		b2.t = t_near;
+		b2.type = BoundaryType.END;
 
+		boundaries.add(b1);
+		boundaries.add(b2);
 		return boundaries;
 	}
 

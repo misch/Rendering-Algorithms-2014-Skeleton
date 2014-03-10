@@ -40,11 +40,11 @@ public class CSGCylinder extends CSGSolid {
 
 		float t_near, t_far;
 
-		Vector2f direction2D = new Vector2f(r.direction.x,r.direction.z);
+		Vector2f direction2D = new Vector2f(r.direction.x, r.direction.z);
 		float a = direction2D.lengthSquared();
 
-		Vector2f rayOrigin2D = new Vector2f(r.origin.x,r.origin.z);
-		Vector2f center2D = new Vector2f(center.x,center.z);
+		Vector2f rayOrigin2D = new Vector2f(r.origin.x, r.origin.z);
+		Vector2f center2D = new Vector2f(center.x, center.z);
 		Vector2f centerToRay = new Vector2f();
 		centerToRay.sub(rayOrigin2D, center2D);
 
@@ -52,29 +52,27 @@ public class CSGCylinder extends CSGSolid {
 
 		float c = centerToRay.dot(centerToRay) - radius * radius;
 
-		float discriminant = b * b - 4 * a * c;
-		if (discriminant < 0) {
+		Point2f roots = MathUtil.midnightFormula(a, b, c);
+		if (roots == null)
 			return boundaries;
-		} else {
-			Point2f roots = MathUtil.midnightFormula(a, b, discriminant);
-			t_near = Math.min(roots.x, roots.y);
-			t_far = Math.max(roots.x, roots.y);
+		
+		t_near = Math.min(roots.x, roots.y);
+		t_far = Math.max(roots.x, roots.y);
 
-			IntervalBoundary b1, b2;
-			b1 = new IntervalBoundary();
-			b2 = new IntervalBoundary();
+		IntervalBoundary b1, b2;
+		b1 = new IntervalBoundary();
+		b2 = new IntervalBoundary();
 
-			b1.hitRecord = intersectCylinder(r, t_near);
-			b1.t = t_near;
-			b1.type = BoundaryType.START;
+		b1.hitRecord = intersectCylinder(r, t_near);
+		b1.t = t_near;
+		b1.type = BoundaryType.START;
 
-			b2.hitRecord = intersectCylinder(r, t_far);
-			b2.t = t_near;
-			b2.type = BoundaryType.END;
+		b2.hitRecord = intersectCylinder(r, t_far);
+		b2.t = t_near;
+		b2.type = BoundaryType.END;
 
-			boundaries.add(b1);
-			boundaries.add(b2);
-		}
+		boundaries.add(b1);
+		boundaries.add(b2);
 
 		return boundaries;
 	}
