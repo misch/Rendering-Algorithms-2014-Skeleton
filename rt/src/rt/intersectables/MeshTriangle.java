@@ -92,7 +92,7 @@ public class MeshTriangle implements Intersectable {
 		gamma = detA1/detA;
 		t = detA2/detA;
 		
-		if (beta+gamma > 0 && beta+gamma < 1  && beta > 0 && gamma > 0){
+		if (beta+gamma > 0 && beta+gamma < 1  && beta > 0 && gamma > 0 && t > 0){
 			Vector3f position = new Vector3f(r.direction);
 			position.scaleAdd(t, r.origin);
 			

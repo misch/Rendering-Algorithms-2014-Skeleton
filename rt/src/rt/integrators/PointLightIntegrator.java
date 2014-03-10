@@ -57,11 +57,14 @@ public class PointLightIntegrator implements Integrator {
 				lightDir.normalize();
 				
 				Ray shadowRay = new Ray(hitRecord.position,lightDir);
+				Vector3f scaledLightDir = new Vector3f(lightDir);
+				scaledLightDir.scale(1e-5f);
+				shadowRay.origin.add(scaledLightDir);
 				HitRecord shadowHit = root.intersect(shadowRay);
-				
+
 				if(shadowHit != null){
 					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord && shadowHit.t > 1e-5){
+					if (d > lengthShadowHitToHitRecord){
 						continue;
 					}
 				}
