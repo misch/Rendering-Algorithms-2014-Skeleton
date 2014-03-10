@@ -60,31 +60,13 @@ public class CSGInstance extends CSGSolid {
 	ArrayList<IntervalBoundary> getIntervalBoundaries(Ray r) {
 		Ray rayObjCoords = transformRay(r);
 		
-//		HitRecord hitRecord = object.intersect(rayObjCoords);
 		ArrayList<IntervalBoundary> boundary = object.getIntervalBoundaries(rayObjCoords);
 
-		
-		if (boundary.isEmpty()){ // if no intersection occurred
-			return boundary;
+		for(IntervalBoundary bound : boundary){
+			bound.hitRecord = transformBack(bound.hitRecord);				
 		}
-		else{
-			HitRecord hitRecordWorld1 = transformBack(boundary.get(0).hitRecord);
-			HitRecord hitRecordWorld2 = transformBack(boundary.get(1).hitRecord);
-			
-			IntervalBoundary b1 = new IntervalBoundary();
-			b1.hitRecord = hitRecordWorld1;
-			b1.t = hitRecordWorld1.t;
-			b1.type = boundary.get(0).type;
-			
-			IntervalBoundary b2 = new IntervalBoundary();
-			b2.hitRecord = hitRecordWorld1;
-			b2.t = hitRecordWorld1.t;
-			b2.type = boundary.get(1).type;
-			
-			boundary = new ArrayList<IntervalBoundary>();
-			boundary.add(b1); boundary.add(b2);
-			return boundary;
-		}
+	
+		return boundary;
 	}
-
 }
+
