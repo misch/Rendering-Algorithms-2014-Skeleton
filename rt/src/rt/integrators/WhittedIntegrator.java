@@ -2,13 +2,14 @@ package rt.integrators;
 
 import java.util.Iterator;
 
-import javax.vecmath.*;
+import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
 import rt.Integrator;
 import rt.Intersectable;
-import rt.LightList;
 import rt.LightGeometry;
+import rt.LightList;
+import rt.Material.ShadingSample;
 import rt.Ray;
 import rt.Sampler;
 import rt.Scene;
@@ -18,12 +19,13 @@ import rt.StaticVecmath;
 /**
  * Integrator for Whitted style ray tracing. This is a basic version that needs to be extended!
  */
-public class PointLightIntegrator implements Integrator {
+public class WhittedIntegrator implements Integrator {
 
 	LightList lightList;
 	Intersectable root;
+	static final int MAX_DEPTH = 10;
 	
-	public PointLightIntegrator(Scene scene)
+	public WhittedIntegrator(Scene scene)
 	{
 		this.lightList = scene.getLightList();
 		this.root = scene.getIntersectable();
@@ -37,6 +39,19 @@ public class PointLightIntegrator implements Integrator {
 	public Spectrum integrate(Ray r) {
 
 		HitRecord hitRecord = root.intersect(r);
+		
+		int depth = 0;
+		while(hitRecord != null && hitRecord.material.hasSpecularReflection() && depth < MAX_DEPTH){
+			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
+			
+			Vector3f posPlusEps = new Vector3f();
+			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
+//			Ray reflectedRay = new Ray(hitRecord.position, sample.w);
+			Ray reflectedRay = new Ray(posPlusEps, sample.w);
+			hitRecord = root.intersect(reflectedRay);
+			depth++;
+		}
+		
 		if(hitRecord != null)
 		{
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
@@ -56,18 +71,18 @@ public class PointLightIntegrator implements Integrator {
 				float d = lightDir.lengthSquared();
 				lightDir.normalize();
 				
-				Ray shadowRay = new Ray(hitRecord.position,lightDir);
-				Vector3f scaledLightDir = new Vector3f(lightDir);
-				scaledLightDir.scale(1e-3f);
-				shadowRay.origin.add(scaledLightDir);
-				HitRecord shadowHit = root.intersect(shadowRay);
-
-				if(shadowHit != null){
-					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord){
-						continue;
-					}
-				}
+//				Ray shadowRay = new Ray(hitRecord.position,lightDir);
+//				Vector3f scaledLightDir = new Vector3f(lightDir);
+//				scaledLightDir.scale(1e-3f);
+//				shadowRay.origin.add(scaledLightDir);
+//				HitRecord shadowHit = root.intersect(shadowRay);
+//
+//				if(shadowHit != null){
+//					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
+//					if (d > lengthShadowHitToHitRecord){
+//						continue;
+//					}
+//				}
 				
 				// Evaluate the BRDF
 				brdfValue = hitRecord.material.evaluateBRDF(hitRecord, hitRecord.w, lightDir);

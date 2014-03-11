@@ -1,21 +1,19 @@
 package rt.testscenes;
 
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
 import rt.LightGeometry;
 import rt.LightList;
+import rt.Material;
 import rt.Scene;
 import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
-import rt.integrators.DebugIntegratorFactory;
-import rt.integrators.PointLightIntegratorFactory;
-import rt.intersectables.CSGCylinder;
-import rt.intersectables.CSGPlane;
-import rt.intersectables.CSGTwoSidedInfiniteCone;
-import rt.intersectables.CSGUnitCylinder;
-import rt.intersectables.IntersectableList;
+import rt.integrators.*;
+import rt.intersectables.*;
 import rt.lightsources.PointLight;
+import rt.materials.*;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
 
@@ -37,8 +35,8 @@ public class CSGPrimitives extends Scene {
 		SPP = 1;
 		
 		// Specify which camera, film, and tonemapper to use
-		Vector3f eye = new Vector3f(0.f, 3.f, 3.5f);
-		Vector3f lookAt = new Vector3f(0.f, 0.f, 0.5f);
+		Vector3f eye = new Vector3f(0.f, 3.f, 0.f);
+		Vector3f lookAt = new Vector3f(0.f, 0.f, 0.f);
 		Vector3f up = new Vector3f(0.f, 0.f, 1.f);
 		float fov = 60.f;
 		float aspect = 1.f;
@@ -48,7 +46,7 @@ public class CSGPrimitives extends Scene {
 		
 		// Specify which integrator and sampler to use
 		integratorFactory = new PointLightIntegratorFactory();
-//		integratorFactory = new DebugIntegratorFactory();
+		integratorFactory = new DebugIntegratorFactory();
 		samplerFactory = new OneSamplerFactory();
 
 		// Ground plane
@@ -61,7 +59,8 @@ public class CSGPrimitives extends Scene {
 		
 		IntersectableList intersectableList = new IntersectableList();
 //		intersectableList.add(groundPlane);
-		intersectableList.add(unitCylinder);
+		intersectableList.add(cone);
+	
 		
 		root = intersectableList;
 		

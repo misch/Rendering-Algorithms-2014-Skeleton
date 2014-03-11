@@ -10,17 +10,19 @@ import rt.Scene;
 import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
-import rt.integrators.PointLightIntegratorFactory;
+import rt.integrators.WhittedIntegratorFactory;
 import rt.intersectables.CSGInstance;
 import rt.intersectables.CSGNode;
 import rt.intersectables.CSGPlane;
 import rt.intersectables.CSGSolid;
+import rt.intersectables.CSGSphere;
 import rt.intersectables.CSGTwoSidedInfiniteCone;
 import rt.intersectables.CSGUnitCylinder;
 import rt.intersectables.IntersectableList;
 import rt.intersectables.Plane;
 import rt.lightsources.PointLight;
 import rt.materials.Diffuse;
+import rt.materials.Reflective;
 import rt.materials.XYZGrid;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
@@ -50,13 +52,20 @@ public class CSGScene extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify which integrator and sampler to use
-//		integratorFactory = new WhittedIntegratorFactory();
-		integratorFactory = new PointLightIntegratorFactory();
+		integratorFactory = new WhittedIntegratorFactory();
+//		integratorFactory = new PointLightIntegratorFactory();
+//		integratorFactory = new DebugIntegratorFactory();
+		
+		// TODO
 //		samplerFactory = new UniformSamplerFactory();
 		samplerFactory = new OneSamplerFactory();
 		
+		// TODO
 //		Material refractive = new Refractive(1.3f);
-		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+//		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+//		Material refractive = new rt.materials.Blinn(new Spectrum(1f, 1f, 1f), new Spectrum(.4f, .4f, .4f), 50.f);
+		Material refractive = new Reflective(new Spectrum(1,1,1));
+		
 		// Make a conical "bowl" by subtracting cross-sections of two cones
 		CSGSolid outerCone = coneCrossSection(60.f, refractive);
 		// Make an inner cone and subtract it
@@ -72,7 +81,7 @@ public class CSGScene extends Scene {
 		rot.rotX(-(float)Math.PI/2.f);
 		Matrix4f trans = new Matrix4f();
 		trans.setIdentity();
-		trans.setTranslation(new Vector3f(-1.5f, -1.5f, 0.f));
+		trans.setTranslation(new Vector3f(-1.5f,-1.5f, 0f));
 		trans.mul(rot);		
 		doubleCone = new CSGInstance(doubleCone, trans);
 		
@@ -103,6 +112,7 @@ public class CSGScene extends Scene {
 		rot.setIdentity();
 		rot.rotX(-(float)Math.PI/2.f);		
 		rot.mul(trafo);
+		
 		// Place in scene by translating
 		trans = new Matrix4f();
 		trans.setIdentity();
@@ -119,7 +129,7 @@ public class CSGScene extends Scene {
 		
 		// Collect objects in intersectable list
 		IntersectableList intersectableList = new IntersectableList();
-		intersectableList.add(doubleCone);	
+		intersectableList.add(doubleCone);
 		intersectableList.add(soap);
 		intersectableList.add(groundPlane);
 		intersectableList.add(backPlane);

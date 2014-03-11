@@ -38,7 +38,8 @@ public class DebugIntegrator implements Integrator {
 //				return new Spectrum(1.f,0.f,0.f);
 //		else 
 //			return new Spectrum(0.f,0.f,0.f);
-			return new Spectrum(Math.abs(hitRecord.normal.x),Math.abs(hitRecord.normal.y),Math.abs(hitRecord.normal.z));
+			float blueComponent = (hitRecord.normal.z > 0) ? 1 : 0;
+			return new Spectrum(Math.abs(hitRecord.normal.x),Math.abs(hitRecord.normal.y),blueComponent);
 		}
 		return new Spectrum(0.f,0.f,0.f);
 		
