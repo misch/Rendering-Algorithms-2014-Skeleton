@@ -27,7 +27,6 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 	public CSGTwoSidedInfiniteCone(Vector3f center, Material material) {
 		this.center = center;
-
 		this.material = material;
 	}
 
@@ -72,12 +71,18 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 		b1.hitRecord = intersectCone(r, t_near);
 		b1.t = t_near;
-		b1.type = BoundaryType.START;
-
+		
 		b2.hitRecord = intersectCone(r, t_far);
 		b2.t = t_far;
-		b2.type = BoundaryType.END;
-
+		
+		if(r.direction.dot(b1.hitRecord.normal) < 0){
+			b1.type = BoundaryType.START;
+			b2.type = BoundaryType.END;
+		}else{
+			b1.type = BoundaryType.END;
+			b2.type = BoundaryType.START;
+		}
+		
 		boundaries.add(b1);
 		boundaries.add(b2);
 
@@ -86,20 +91,10 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 	private HitRecord intersectCone(Ray r, float t) {
 		Vector3f position = new Vector3f(r.direction);
-		position.scaleAdd(t, r.origin);
+		position.scaleAdd(t, r.origin); // position is the hit point on the surface
 
-		Vector3f normalCyl = new Vector3f(position); // b!
-		normalCyl.sub(center);
-		normalCyl.z = 0;
-
-		Vector3f a = new Vector3f(0, 0, 1);
-
-		Vector3f tangent = new Vector3f();
-		tangent.cross(a, normalCyl);
-
-		Vector3f normal = new Vector3f();
-		normal.cross(position, tangent);
-		normal.normalize();
+		Vector3f normal = new Vector3f(position);
+		normal.z *= -1;
 
 		// wIn is incident direction; convention is that it points away from
 		// surface
@@ -107,7 +102,7 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 		wIn.negate();
 		wIn.normalize();
 
-		return new HitRecord(t, position, normalCyl, wIn, this, material, 0.f,
+		return new HitRecord(t, position, normal, wIn, this, material, 0.f,
 				0.f);
 	}
 }
