@@ -26,11 +26,15 @@ public class CSGSphere extends CSGSolid {
 	 * @param radius
 	 *            radius of the sphere
 	 */
-	public CSGSphere(Vector3f center, float radius) {
+	public CSGSphere(Vector3f center, float radius, Material material) {
 		this.center = center;
 		this.radius = radius;
-
-		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+		
+		this.material = material;
+	}
+	
+	public CSGSphere(Vector3f center, float radius) {
+		this(center,radius,new Diffuse(new Spectrum(1,1,1)));
 	}
 
 	@Override

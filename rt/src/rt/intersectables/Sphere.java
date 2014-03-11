@@ -26,10 +26,14 @@ public class Sphere implements Intersectable {
 	 *            radius of the sphere
 	 */
 	public Sphere(Vector3f center, float radius) {
+		this(center, radius, new Diffuse(new Spectrum(1,1,1)));
+	}
+	
+	public Sphere(Vector3f center, float radius, Material material) {
 		this.center = center;
 		this.radius = radius;
 
-		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+		this.material = material;
 	}
 
 	public Sphere() {

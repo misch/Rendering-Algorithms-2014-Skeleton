@@ -64,7 +64,10 @@ public class CSGInstance extends CSGSolid {
 		ArrayList<IntervalBoundary> boundary = object.getIntervalBoundaries(rayObjCoords);
 
 		for(IntervalBoundary bound : boundary){
-			bound.hitRecord = transformBack(bound.hitRecord);				
+			if (bound.hitRecord != null){
+				bound.hitRecord = transformBack(bound.hitRecord);
+			}
+							
 		}
 	
 		return boundary;

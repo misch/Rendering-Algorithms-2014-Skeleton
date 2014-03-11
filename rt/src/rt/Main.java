@@ -93,12 +93,16 @@ public class Main {
 						{	
 							// Make ray
 							Ray r = task.scene.getCamera().makeWorldSpaceRay(i, j, samples[k]);
-
-//							if(j == 122 && i == 215){
-//								System.out.println("Yoo...");
-//							}
+							
+							Spectrum s;
+							if(j == 130 && i == 215){
+								System.out.println("Yoo...");
+//								s = new Spectrum(1,1,0);
+								s = task.integrator.integrate(r);
+							}else{
 							// Evaluate ray
-							Spectrum s = task.integrator.integrate(r);							
+							s = task.integrator.integrate(r);
+							}
 							
 							// Write to film
 							task.scene.getFilm().addSample((double)i+(double)samples[k][0], (double)j+(double)samples[k][1], s);

@@ -11,6 +11,7 @@ import rt.Material;
 import rt.MathUtil;
 import rt.Ray;
 import rt.Spectrum;
+import rt.intersectables.CSGSolid.BoundaryType;
 import rt.materials.Diffuse;
 
 public class CSGCylinder extends CSGSolid {
@@ -69,11 +70,23 @@ public class CSGCylinder extends CSGSolid {
 
 		b1.hitRecord = intersectCylinder(r, t_near);
 		b1.t = t_near;
-		b1.type = BoundaryType.START;
+//		b1.type = BoundaryType.START;
+		
+		if(r.direction.dot(b1.hitRecord.normal) < 0){
+			b1.type = BoundaryType.START;
+		}else{
+			b1.type = BoundaryType.END;
+		}
 
 		b2.hitRecord = intersectCylinder(r, t_far);
 		b2.t = t_far;
-		b2.type = BoundaryType.END;
+//		b2.type = BoundaryType.END;
+		
+		if(r.direction.dot(b2.hitRecord.normal) < 0){
+			b2.type = BoundaryType.START;
+		}else{
+			b2.type = BoundaryType.END;
+		}
 
 		boundaries.add(b1);
 		boundaries.add(b2);
