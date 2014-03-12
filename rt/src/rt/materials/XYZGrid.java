@@ -23,6 +23,15 @@ public class XYZGrid implements Material {
 		this.shift = shift;
 		this.scale = 1.0f;
 	}
+	
+	public XYZGrid(Spectrum lineColor, Spectrum tileColor, float thickness,
+			Vector3f shift, float scale) {
+		this.lineColor = lineColor;
+		this.tileColor = tileColor;
+		this.thickness = thickness;
+		this.shift = shift;
+		this.scale = scale;
+	}
 
 	@Override
 	public Spectrum evaluateBRDF(HitRecord hitRecord, Vector3f wOut,
