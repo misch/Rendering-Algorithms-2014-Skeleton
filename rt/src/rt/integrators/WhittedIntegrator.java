@@ -56,6 +56,10 @@ public class WhittedIntegrator implements Integrator {
 		while(hitRecord != null && hitRecord.material.hasSpecularRefraction() && refractDepth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
+			if (sample == null){
+				refractDepth++;
+				continue;
+			}
 			Vector3f posPlusEps = new Vector3f();
 			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
 			Ray refractedRay = new Ray(posPlusEps, sample.w);

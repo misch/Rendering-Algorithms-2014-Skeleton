@@ -66,6 +66,11 @@ public class Refractive implements Material {
 		float cosThetaI = -i.dot(hitRecord.normal);
 		float sinSqrThetaT = ((n1*n1)/(n2*n2)) * (1-cosThetaI*cosThetaI);
 		
+		if (sinSqrThetaT > 1){
+//			return new ShadingSample(new Spectrum(1,1,1), new Spectrum(0,0,0),new Vector3f(0,0,0),true,1);
+			return null;
+		}
+		
 		Vector3f t = new Vector3f();
 		t.scaleAdd((n1/n2)*cosThetaI - (float)Math.sqrt(1-sinSqrThetaT), hitRecord.normal, i);
 		
