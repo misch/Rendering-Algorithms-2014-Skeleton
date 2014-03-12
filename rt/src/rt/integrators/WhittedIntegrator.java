@@ -40,8 +40,8 @@ public class WhittedIntegrator implements Integrator {
 
 		HitRecord hitRecord = root.intersect(r);
 		
-		int depth = 0;
-		while(hitRecord != null && hitRecord.material.hasSpecularReflection() && depth < MAX_DEPTH){
+		int reflectDepth = 0;
+		while(hitRecord != null && hitRecord.material.hasSpecularReflection() && reflectDepth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
 			
 			Vector3f posPlusEps = new Vector3f();
@@ -49,7 +49,18 @@ public class WhittedIntegrator implements Integrator {
 //			Ray reflectedRay = new Ray(hitRecord.position, sample.w);
 			Ray reflectedRay = new Ray(posPlusEps, sample.w);
 			hitRecord = root.intersect(reflectedRay);
-			depth++;
+			reflectDepth++;
+		}
+		
+		int refractDepth = 0;
+		while(hitRecord != null && hitRecord.material.hasSpecularRefraction() && refractDepth < MAX_DEPTH){
+			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
+			
+			Vector3f posPlusEps = new Vector3f();
+			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
+			Ray refractedRay = new Ray(posPlusEps, sample.w);
+			hitRecord = root.intersect(refractedRay);
+			refractDepth++;
 		}
 		
 		if(hitRecord != null)

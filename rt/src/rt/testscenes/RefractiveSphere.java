@@ -1,16 +1,22 @@
 package rt.testscenes;
 
-import rt.*;
-import rt.cameras.*;
-import rt.films.BoxFilterFilm;
-import rt.integrators.*;
-import rt.intersectables.*;
-import rt.lightsources.*;
-import rt.samplers.*;
-import rt.materials.*;
-import rt.tonemappers.ClampTonemapper;
+import javax.vecmath.Vector3f;
 
-import javax.vecmath.*;
+import rt.LightGeometry;
+import rt.LightList;
+import rt.Material;
+import rt.Scene;
+import rt.Spectrum;
+import rt.cameras.PinholeCamera;
+import rt.films.BoxFilterFilm;
+import rt.integrators.WhittedIntegratorFactory;
+import rt.intersectables.IntersectableList;
+import rt.intersectables.Plane;
+import rt.intersectables.Sphere;
+import rt.lightsources.PointLight;
+import rt.materials.*;
+import rt.samplers.RandomSamplerFactory;
+import rt.tonemappers.ClampTonemapper;
 
 /**
  * Test scene for refractive objects, renders a sphere in front of a planar background.
@@ -43,7 +49,7 @@ public class RefractiveSphere extends Scene {
 		integratorFactory = new WhittedIntegratorFactory();
 		samplerFactory = new RandomSamplerFactory();		
 		
-		Material refractive = new Refractive(1.3f);
+		Material refractive = new Refractive(1.1f);
 
 		
 		// Ground and back plane
