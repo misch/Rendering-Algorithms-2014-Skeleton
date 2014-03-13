@@ -10,6 +10,7 @@ import rt.Material;
 import rt.MathUtil;
 import rt.Ray;
 import rt.Spectrum;
+import rt.intersectables.CSGSolid.BoundaryType;
 import rt.materials.Diffuse;
 
 public class CSGSphere extends CSGSolid {
@@ -65,12 +66,18 @@ public class CSGSphere extends CSGSolid {
 
 		b1.hitRecord = intersectSphere(r, t_near);
 		b1.t = t_near;
-		b1.type = BoundaryType.START;
 
 		b2.hitRecord = intersectSphere(r, t_far);
 		b2.t = t_near;
-		b2.type = BoundaryType.END;
 
+		if(r.direction.dot(b1.hitRecord.normal) < 0){
+			b1.type = BoundaryType.START;
+			b2.type = BoundaryType.END;
+		}else{
+			b1.type = BoundaryType.END;
+			b2.type = BoundaryType.START;
+		}
+		
 		boundaries.add(b1);
 		boundaries.add(b2);
 		return boundaries;
