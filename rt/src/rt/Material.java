@@ -44,7 +44,12 @@ public interface Material {
 		{
 			this.brdf = new Spectrum(brdf);
 			this.emission = new Spectrum(emission);
-			this.w = new Vector3f(w);
+			if (w != null){
+				this.w = new Vector3f(w);
+			}else{
+				this.w = null;
+			}
+			
 			this.isSpecular = isSpecular;
 			this.p = p;
 		}

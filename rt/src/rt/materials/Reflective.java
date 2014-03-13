@@ -40,7 +40,7 @@ public class Reflective implements Material {
 	 *  @param hitRecord hit record to be used
 	 */
 	public Spectrum evaluateBRDF(HitRecord hitRecord, Vector3f wOut, Vector3f wIn) {
-		return new Spectrum(0,0,1);
+		return new Spectrum(1,1,1);
 	}
 
 	public boolean hasSpecularReflection()
@@ -52,13 +52,14 @@ public class Reflective implements Material {
 	{	
 		Vector3f i = new Vector3f(hitRecord.w);
 		i.negate();
+		i.normalize();
 		
 		float cosThetaI = -i.dot(hitRecord.normal); 
 				
 		Vector3f r = new Vector3f();
 		r.scaleAdd(2*cosThetaI,hitRecord.normal,i);
 		
-		ShadingSample sample = new ShadingSample(new Spectrum(0,0,1), new Spectrum(0,0,0),r,true,1);
+		ShadingSample sample = new ShadingSample(new Spectrum(1,1,1), new Spectrum(0,0,0),r,true,1);
 		return sample;
 	}
 	public boolean hasSpecularRefraction()
