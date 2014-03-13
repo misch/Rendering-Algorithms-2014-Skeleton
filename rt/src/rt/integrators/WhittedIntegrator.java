@@ -41,31 +41,49 @@ public class WhittedIntegrator implements Integrator {
 		HitRecord hitRecord = root.intersect(r);
 		
 		int reflectDepth = 0;
+		Spectrum reflection = new Spectrum(0,0,0);
+		Spectrum refraction = new Spectrum(0,0,0);
 		while(hitRecord != null && hitRecord.material.hasSpecularReflection() && reflectDepth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
 			
+			if(sample == null){
+				return new Spectrum(0,0,0);
+			}
+			reflection = new Spectrum(sample.brdf);
+			
 			Vector3f posPlusEps = new Vector3f();
 			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
-//			Ray reflectedRay = new Ray(hitRecord.position, sample.w);
 			Ray reflectedRay = new Ray(posPlusEps, sample.w);
-			hitRecord = root.intersect(reflectedRay);
+			
+			reflection.mult(integrate(reflectedRay));
 			reflectDepth++;
 		}
 		
 		int refractDepth = 0;
-		while(hitRecord != null && hitRecord.material.hasSpecularRefraction() && refractDepth < MAX_DEPTH){
+		if(hitRecord != null && hitRecord.material.hasSpecularRefraction() && refractDepth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
 			if (sample == null){
-				refractDepth++;
-				continue;
+				return new Spectrum(0,0,0);
 			}
+			
+			refraction = new Spectrum(sample.brdf);
+			
 			Vector3f posPlusEps = new Vector3f();
 			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
 			Ray refractedRay = new Ray(posPlusEps, sample.w);
-			hitRecord = root.intersect(refractedRay);
+			
+			refraction.mult(integrate(refractedRay));
 			refractDepth++;
 		}
+		
+		if (hitRecord.material.hasSpecularReflection() || hitRecord.material.hasSpecularRefraction()){
+			Spectrum tmp = new Spectrum();
+			tmp.add(reflection);
+			tmp.add(refraction);
+			return refraction;
+		}
+		
 		
 		if(hitRecord != null)
 		{
