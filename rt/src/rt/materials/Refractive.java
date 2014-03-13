@@ -50,10 +50,8 @@ public class Refractive implements Material {
 		r.scaleAdd(2*cosThetaI,hitRecord.normal,i);
 		
 		// air --> material OR material --> air
-		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex
-				: 1;
-		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1
-				: refractionIndex;
+		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex : 1;
+		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1 : refractionIndex;
 		
 		float rSchlick = rSchlick(hitRecord,n1,n2);
 		
@@ -82,15 +80,14 @@ public class Refractive implements Material {
 		i.negate();
 		i.normalize();
 
+		float cosThetaI = -i.dot(hitRecord.normal);
+		
 		// air --> material OR material --> air
-		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex
-				: 1;
-		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1
-				: refractionIndex;
+		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex : 1;
+		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1 : refractionIndex;
 
 		i.scale(n1 / n2);
 
-		float cosThetaI = -i.dot(hitRecord.normal);
 		float sinSqrThetaT = ((n1 * n1) / (n2 * n2))
 				* (1 - cosThetaI * cosThetaI);
 

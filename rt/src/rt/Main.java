@@ -24,7 +24,8 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.InstancingTest();
 //	public static Scene scene = new rt.testscenes.InstancingTeapots();
 //	public static Scene scene = new rt.testscenes.Blinn();
-	public static Scene scene = new rt.testscenes.CSGScene();
+//	public static Scene scene = new rt.testscenes.CSGScene();
+	public static Scene scene = new rt.testscenes.RefractiveSphere();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
@@ -95,14 +96,14 @@ public class Main {
 							Ray r = task.scene.getCamera().makeWorldSpaceRay(i, j, samples[k]);
 							
 							Spectrum s;
-							if(j == 130 && i == 215){
-								System.out.println("Yoo...");
+//							if(j == 130 && i == 215){
+//								System.out.println("Yoo...");
 //								s = new Spectrum(1,1,0);
 								s = task.integrator.integrate(r);
-							}else{
+//							}else{
 							// Evaluate ray
-							s = task.integrator.integrate(r);
-							}
+//							s = task.integrator.integrate(r);
+//							}
 							
 							// Write to film
 							task.scene.getFilm().addSample((double)i+(double)samples[k][0], (double)j+(double)samples[k][1], s);

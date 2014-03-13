@@ -49,7 +49,7 @@ public class RefractiveSphere extends Scene {
 		integratorFactory = new WhittedIntegratorFactory();
 		samplerFactory = new RandomSamplerFactory();		
 		
-		Material refractive = new Refractive(1.1f);
+		Material refractive = new Refractive(1.01f);
 
 		
 		// Ground and back plane

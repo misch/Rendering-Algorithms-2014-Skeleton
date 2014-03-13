@@ -12,18 +12,9 @@ import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
 import rt.integrators.WhittedIntegratorFactory;
 import rt.intersectables.CSGInstance;
-import rt.intersectables.CSGNode;
-import rt.intersectables.CSGPlane;
-import rt.intersectables.CSGSolid;
-import rt.intersectables.CSGSphere;
-import rt.intersectables.CSGTwoSidedInfiniteCone;
-import rt.intersectables.CSGUnitCylinder;
-import rt.intersectables.IntersectableList;
-import rt.intersectables.Plane;
+import rt.intersectables.*;
 import rt.lightsources.PointLight;
-import rt.materials.Diffuse;
-import rt.materials.Reflective;
-import rt.materials.XYZGrid;
+import rt.materials.*;
 import rt.samplers.OneSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
 
@@ -64,7 +55,8 @@ public class CSGScene extends Scene {
 //		Material refractive = new Refractive(1.3f);
 //		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 //		Material refractive = new rt.materials.Blinn(new Spectrum(1f, 1f, 1f), new Spectrum(.4f, .4f, .4f), 50.f);
-		Material refractive = new Reflective(new Spectrum(1,1,1));
+//		Material refractive = new Reflective(new Spectrum(1,1,1));
+		Material refractive = new Refractive(1.3f);
 		
 		// Make a conical "bowl" by subtracting cross-sections of two cones
 		CSGSolid outerCone = coneCrossSection(60.f, refractive);
