@@ -23,7 +23,7 @@ public class WhittedIntegrator implements Integrator {
 
 	LightList lightList;
 	Intersectable root;
-	static final int MAX_DEPTH = 10;
+	static final int MAX_DEPTH = 5;
 	
 	public WhittedIntegrator(Scene scene)
 	{
@@ -40,30 +40,30 @@ public class WhittedIntegrator implements Integrator {
 
 		HitRecord hitRecord = root.intersect(r);
 		
-		int reflectDepth = 0;
+		if (hitRecord == null){
+			return new Spectrum(0,0,0);
+		}
+		
 		Spectrum reflection = new Spectrum(0,0,0);
 		Spectrum refraction = new Spectrum(0,0,0);
-		while(hitRecord != null && hitRecord.material.hasSpecularReflection() && reflectDepth < MAX_DEPTH){
+		if(hitRecord != null && hitRecord.material.hasSpecularReflection() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
 			
-			if(sample == null){
+			if(sample.w == null){
 				return new Spectrum(0,0,0);
 			}
 			reflection = new Spectrum(sample.brdf);
 			
 			Vector3f posPlusEps = new Vector3f();
 			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
-			Ray reflectedRay = new Ray(posPlusEps, sample.w);
-			
+			Ray reflectedRay = new Ray(posPlusEps, sample.w, r.depth+1);
 			reflection.mult(integrate(reflectedRay));
-			reflectDepth++;
 		}
 		
-		int refractDepth = 0;
-		if(hitRecord != null && hitRecord.material.hasSpecularRefraction() && refractDepth < MAX_DEPTH){
+		if(hitRecord != null && hitRecord.material.hasSpecularRefraction() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
-			if (sample == null){
+			if (sample.w == null){
 				return new Spectrum(0,0,0);
 			}
 			
@@ -71,10 +71,8 @@ public class WhittedIntegrator implements Integrator {
 			
 			Vector3f posPlusEps = new Vector3f();
 			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
-			Ray refractedRay = new Ray(posPlusEps, sample.w);
-			
+			Ray refractedRay = new Ray(posPlusEps, sample.w, r.depth+1);
 			refraction.mult(integrate(refractedRay));
-			refractDepth++;
 		}
 		
 		if (hitRecord.material.hasSpecularReflection() || hitRecord.material.hasSpecularRefraction()){
@@ -85,8 +83,6 @@ public class WhittedIntegrator implements Integrator {
 		}
 		
 		
-		if(hitRecord != null)
-		{
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
 			Spectrum brdfValue;
 			
@@ -140,9 +136,6 @@ public class WhittedIntegrator implements Integrator {
 			}
 			
 			return outgoing;
-		} else 
-			return new Spectrum(0.f,0.f,0.f);
-		
 	}
 
 	public float[][] makePixelSamples(Sampler sampler, int n) {
