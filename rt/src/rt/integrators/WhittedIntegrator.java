@@ -23,7 +23,7 @@ public class WhittedIntegrator implements Integrator {
 
 	LightList lightList;
 	Intersectable root;
-	static final int MAX_DEPTH = 5;
+	static final int MAX_DEPTH = 10;
 	
 	public WhittedIntegrator(Scene scene)
 	{
@@ -46,12 +46,9 @@ public class WhittedIntegrator implements Integrator {
 		
 		Spectrum reflection = new Spectrum(0,0,0);
 		Spectrum refraction = new Spectrum(0,0,0);
-		if(hitRecord != null && hitRecord.material.hasSpecularReflection() && r.depth < MAX_DEPTH){
+		if(hitRecord.material.hasSpecularReflection() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
-			
-			if(sample.w == null){
-				return new Spectrum(0,0,0);
-			}
+
 			reflection = new Spectrum(sample.brdf);
 			
 			Vector3f posPlusEps = new Vector3f();
@@ -60,7 +57,7 @@ public class WhittedIntegrator implements Integrator {
 			reflection.mult(integrate(reflectedRay));
 		}
 		
-		if(hitRecord != null && hitRecord.material.hasSpecularRefraction() && r.depth < MAX_DEPTH){
+		if(hitRecord.material.hasSpecularRefraction() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
 			if (sample.w == null){

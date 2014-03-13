@@ -95,6 +95,7 @@ public class CSGTwoSidedInfiniteCone extends CSGSolid {
 
 		Vector3f normal = new Vector3f(position);
 		normal.z *= -1;
+		normal.normalize();
 
 		// wIn is incident direction; convention is that it points away from
 		// surface

@@ -44,21 +44,19 @@ public class Refractive implements Material {
 		i.negate();
 		i.normalize();
 		
-		float cosThetaI = -i.dot(hitRecord.normal); 
+		Vector3f normal = new Vector3f(hitRecord.normal);
+		
+		float n1,n2;
+		if (hitRecord.normal.dot(hitRecord.w) < 0)
+			normal.negate();
+		
+		float cosThetaI = -i.dot(normal); 
 				
 		Vector3f r = new Vector3f();
-		r.scaleAdd(2*cosThetaI,hitRecord.normal,i);
+		r.scaleAdd(2*cosThetaI,normal,i);
 		
-		// air --> material OR material --> air
-		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex : 1;
-		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1 : refractionIndex;
-		
-		float rSchlick = rSchlick(hitRecord,n1,n2);
-		
-		if (Float.isNaN(rSchlick)){
-			new ShadingSample(new Spectrum(1, 1, 1),new Spectrum(0, 0, 0), null, true, 1);
-		}
-		
+		float rSchlick = rSchlick(hitRecord);
+				
 		Spectrum brdf = new Spectrum(1,1,1);
 		brdf.mult(rSchlick);
 		ShadingSample sample = new ShadingSample(brdf, new Spectrum(0,0,0),r,true,1);
@@ -79,28 +77,32 @@ public class Refractive implements Material {
 		Vector3f i = new Vector3f(hitRecord.w);
 		i.negate();
 		i.normalize();
-
-		float cosThetaI = -i.dot(hitRecord.normal);
 		
-		// air --> material OR material --> air
-		float n1 = (hitRecord.normal.dot(hitRecord.w) < 0) ? refractionIndex : 1;
-		float n2 = (hitRecord.normal.dot(hitRecord.w) < 0) ? 1 : refractionIndex;
+		Vector3f normal = new Vector3f(hitRecord.normal);
 
+		float n1,n2;
+		if (hitRecord.normal.dot(hitRecord.w) > 0){ // air --> material
+			n1 = 1;
+			n2 = refractionIndex;
+		}else{ // material --> air
+			n1 = refractionIndex;
+			n2 = 1;
+			normal.negate();
+		}
+		
+		float cosThetaI = -i.dot(normal);
 		i.scale(n1 / n2);
 
-		float sinSqrThetaT = ((n1 * n1) / (n2 * n2))
-				* (1 - cosThetaI * cosThetaI);
-
-		if (sinSqrThetaT > 1) {
-			new ShadingSample(new Spectrum(1, 1, 1),new Spectrum(0, 0, 0), null, true, 1);
-		}
+		float sinSqrThetaT = ((n1 * n1) / (n2 * n2)) * (1 - cosThetaI * cosThetaI);
 
 		Vector3f t = new Vector3f();
-		t.scaleAdd((n1 / n2) * cosThetaI - (float) Math.sqrt(1 - sinSqrThetaT),
-				hitRecord.normal, i);
+		Vector3f nScaled = new Vector3f(normal);
+		nScaled.scale((n1 / n2) * cosThetaI - (float) Math.sqrt(1 - sinSqrThetaT));
+		t.add(nScaled);
+		t.add(i);
 
 		Spectrum brdf = new Spectrum(1,1,1);
-		brdf.mult(1-rSchlick(hitRecord,n1,n2));
+		brdf.mult(1-rSchlick(hitRecord));
 		ShadingSample sample = new ShadingSample(new Spectrum(1, 1, 1),new Spectrum(0, 0, 0), t, true, 1);
 		return sample;
 	}
@@ -122,29 +124,44 @@ public class Refractive implements Material {
 		return new ShadingSample();
 	}
 
-	private float rSchlick(HitRecord hitRecord, float n1, float n2) {
+	private float rSchlick(HitRecord hitRecord) {
 		Vector3f i = new Vector3f(hitRecord.w);
 		i.negate();
 		i.normalize();
-		float cosThetaI = -i.dot(hitRecord.normal);
+		Vector3f normal = new Vector3f(hitRecord.normal);
+		
+		float n1,n2;
+		if (hitRecord.normal.dot(hitRecord.w) > 0){ // air --> material
+			n1 = 1;
+			n2 = refractionIndex;
+		}else{ // material --> air
+			n1 = refractionIndex;
+			n2 = 1;
+			normal.negate();
+		}
+		
+		float cosThetaI = -i.dot(normal);
 
 		float sinSqrThetaT = ((n1 * n1) / (n2 * n2))
 				* (1 - cosThetaI * cosThetaI);
 		
-		if (sinSqrThetaT > 1){ // In case of reflection, this is not yet captured in evaluateSpecularReflection()
-			return Float.NaN;
+		if (sinSqrThetaT > 1){ // TIR
+			return 1;
 		}
 		
-		float r0 = (n1 - n1) / (n1 + n2);
+		float r0 = (n1 - n2) / (n1 + n2);
 		r0 *= r0;
 
 		float rSchlick;
 		
-		float x = 1 - cosThetaI;
-		if (n1 <= n2)
+		float x;
+		if (n1 <= n2){
+			x = 1 - cosThetaI;
 			rSchlick = r0 + (1 - r0) * x * x * x * x * x;
+		}
 		else {
-			float cosTheta_t = (float) Math.sqrt(1 - sinSqrThetaT);
+			float cosThetaT = (float) Math.sqrt(1 - sinSqrThetaT);
+			x = 1 - cosThetaT;
 			rSchlick = r0 + (1 - r0) * x * x * x * x * x;
 		}
 		return rSchlick;
