@@ -10,11 +10,12 @@ import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
 import rt.integrators.WhittedIntegratorFactory;
+import rt.intersectables.CSGSphere;
 import rt.intersectables.IntersectableList;
 import rt.intersectables.Plane;
-import rt.intersectables.Sphere;
 import rt.lightsources.PointLight;
-import rt.materials.*;
+import rt.materials.Refractive;
+import rt.materials.XYZGrid;
 import rt.samplers.RandomSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
 
@@ -59,7 +60,7 @@ public class RefractiveSphere extends Scene {
 		backPlane.material = grid;
 		
 		// A sphere for testing
-		Sphere sphere = new Sphere();
+		CSGSphere sphere = new CSGSphere(new Vector3f(0,0,0),1);
 		sphere.material = refractive;
 		
 		// Collect objects in intersectable list

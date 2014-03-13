@@ -68,7 +68,7 @@ public class CSGSphere extends CSGSolid {
 		b1.t = t_near;
 
 		b2.hitRecord = intersectSphere(r, t_far);
-		b2.t = t_near;
+		b2.t = t_far;
 
 		if(r.direction.dot(b1.hitRecord.normal) < 0){
 			b1.type = BoundaryType.START;

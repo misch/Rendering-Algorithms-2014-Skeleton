@@ -91,20 +91,19 @@ public class Refractive implements Material {
 		}
 		
 		float cosThetaI = -i.dot(normal);
-		i.scale(n1 / n2);
 
 		float sinSqrThetaT = ((n1 * n1) / (n2 * n2)) * (1 - cosThetaI * cosThetaI);
 
-		Vector3f t = new Vector3f();
+		Vector3f t = new Vector3f(i);
+		t.scale(n1 / n2);
+		
 		Vector3f nScaled = new Vector3f(normal);
 		nScaled.scale((n1 / n2) * cosThetaI - (float) Math.sqrt(1 - sinSqrThetaT));
 		t.add(nScaled);
-		t.add(i);
 
 		Spectrum brdf = new Spectrum(1,1,1);
 		brdf.mult(1-rSchlick(hitRecord));
-		ShadingSample sample = new ShadingSample(new Spectrum(1, 1, 1),new Spectrum(0, 0, 0), t, true, 1);
-		return sample;
+		return new ShadingSample(brdf,new Spectrum(0, 0, 0), t, true, 1);
 	}
 
 	// To be implemented for path tracer!
