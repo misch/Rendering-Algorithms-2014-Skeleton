@@ -79,7 +79,6 @@ public class WhittedIntegrator implements Integrator {
 			return refraction;
 		}
 		
-		
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
 			Spectrum brdfValue;
 			
@@ -97,18 +96,18 @@ public class WhittedIntegrator implements Integrator {
 				float d = lightDir.lengthSquared();
 				lightDir.normalize();
 				
-//				Ray shadowRay = new Ray(hitRecord.position,lightDir);
-//				Vector3f scaledLightDir = new Vector3f(lightDir);
-//				scaledLightDir.scale(1e-3f);
-//				shadowRay.origin.add(scaledLightDir);
-//				HitRecord shadowHit = root.intersect(shadowRay);
-//
-//				if(shadowHit != null){
-//					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-//					if (d > lengthShadowHitToHitRecord){
-//						continue;
-//					}
-//				}
+				Ray shadowRay = new Ray(hitRecord.position,lightDir);
+				Vector3f scaledLightDir = new Vector3f(lightDir);
+				scaledLightDir.scale(1e-3f);
+				shadowRay.origin.add(scaledLightDir);
+				HitRecord shadowHit = root.intersect(shadowRay);
+
+				if(shadowHit != null){
+					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
+					if (d > lengthShadowHitToHitRecord){
+						continue;
+					}
+				}
 				
 				// Evaluate the BRDF
 				brdfValue = hitRecord.material.evaluateBRDF(hitRecord, hitRecord.w, lightDir);

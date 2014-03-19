@@ -46,9 +46,8 @@ public class Refractive implements Material {
 		
 		Vector3f normal = new Vector3f(hitRecord.normal);
 		
-		float n1,n2;
-		if (hitRecord.normal.dot(hitRecord.w) < 0)
-			normal.negate();
+//		if (hitRecord.normal.dot(hitRecord.w) < 0)
+//			normal.negate();
 		
 		float cosThetaI = -i.dot(normal); 
 				
@@ -89,16 +88,17 @@ public class Refractive implements Material {
 			n2 = 1;
 			normal.negate();
 		}
+		normal.normalize();
 		
 		float cosThetaI = -i.dot(normal);
 
-		float sinSqrThetaT = ((n1 * n1) / (n2 * n2)) * (1 - cosThetaI * cosThetaI);
+		float sinSqrThetaT = ((n1/n2)*(n1/n2)) * (1 - cosThetaI * cosThetaI);
 
 		Vector3f t = new Vector3f(i);
-		t.scale(n1 / n2);
+		t.scale(n1/n2);
 		
 		Vector3f nScaled = new Vector3f(normal);
-		nScaled.scale((n1 / n2) * cosThetaI - (float) Math.sqrt(1 - sinSqrThetaT));
+		nScaled.scale((n1/n2)*cosThetaI - (float)Math.sqrt(1 - sinSqrThetaT));
 		t.add(nScaled);
 
 		Spectrum brdf = new Spectrum(1,1,1);

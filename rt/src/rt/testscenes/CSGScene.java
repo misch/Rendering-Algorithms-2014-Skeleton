@@ -152,6 +152,7 @@ public class CSGScene extends Scene {
 	{
 		// Makes a two-sided infinite cone with apex angle 90 degrees
 		CSGTwoSidedInfiniteCone doubleCone = new CSGTwoSidedInfiniteCone(material);
+//		CSGSolid doubleCone = new CSGCylinder(material);
 		// Scaling factor along the cone axis corresponding to apex angle
 		float s = (float)Math.tan((90-a/2)/180.f*(float)Math.PI);
 		

@@ -28,15 +28,22 @@ public class CSGCylinder extends CSGSolid {
 	 * @param radius
 	 *            radius of the sphere
 	 */
-	public CSGCylinder(Vector3f center, float radius) {
+	public CSGCylinder(Vector3f center, float radius, Material material) {
 		this.center = center;
 		this.radius = radius;
-
-		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
+		this.material = material;
 	}
 	
 	public CSGCylinder(){
-		this(new Vector3f(0,0,0), 1);
+		this(new Vector3f(0,0,0), 1, new Diffuse(new Spectrum(1,1,1)));
+	}
+	
+	public CSGCylinder(Vector3f center, float radius){
+		this(center, radius, new Diffuse(new Spectrum(1,1,1)));
+	}
+	
+	public CSGCylinder(Material material){
+		this(new Vector3f(0,0,0),1,material);
 	}
 
 	@Override
@@ -70,7 +77,6 @@ public class CSGCylinder extends CSGSolid {
 
 		b1.hitRecord = intersectCylinder(r, t_near);
 		b1.t = t_near;
-//		b1.type = BoundaryType.START;
 		
 		if(r.direction.dot(b1.hitRecord.normal) < 0){
 			b1.type = BoundaryType.START;
@@ -80,7 +86,6 @@ public class CSGCylinder extends CSGSolid {
 
 		b2.hitRecord = intersectCylinder(r, t_far);
 		b2.t = t_far;
-//		b2.type = BoundaryType.END;
 		
 		if(r.direction.dot(b2.hitRecord.normal) < 0){
 			b2.type = BoundaryType.START;
