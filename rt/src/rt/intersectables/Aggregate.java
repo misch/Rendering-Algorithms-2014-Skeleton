@@ -11,6 +11,8 @@ import rt.Ray;
  */
 public abstract class Aggregate implements Intersectable {
 
+	protected AxisAlignedBoundingBox boundingBox;
+	
 	public HitRecord intersect(Ray r) {
 
 		HitRecord hitRecord = null;
@@ -32,5 +34,8 @@ public abstract class Aggregate implements Intersectable {
 	}
 	
 	public abstract Iterator<Intersectable> iterator();
-
+	
+	public AxisAlignedBoundingBox getBoundingBox(){
+		return this.boundingBox;
+	}
 }

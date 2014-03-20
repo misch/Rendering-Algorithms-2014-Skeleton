@@ -11,6 +11,7 @@ public class IntersectableList extends Aggregate {
 	public IntersectableList()
 	{
 		list = new LinkedList<Intersectable>();
+		// TODO: fill this.boundingBox
 	}
 	
 	public void add(Intersectable i)
@@ -21,5 +22,4 @@ public class IntersectableList extends Aggregate {
 	public Iterator<Intersectable> iterator() {
 		return list.iterator();
 	}
-
 }

@@ -41,6 +41,7 @@ public class Mesh extends Aggregate {
 	 */
 	public Material material;
 	
+	
 	/**
 	 * Make a mesh from arrays with vertices, normals, and indices.
 	 */
@@ -51,7 +52,9 @@ public class Mesh extends Aggregate {
 		this.vertices = vertices;
 		this.normals = normals;
 		this.indices = indices;
-		triangles = new MeshTriangle[indices.length/3];		
+		triangles = new MeshTriangle[indices.length/3];	
+		
+		// TODO: fill this.boundingBox
 		
 		// A triangle simply stores a triangle index and refers back to the mesh 
 		// to look up the vertex data
@@ -89,6 +92,5 @@ public class Mesh extends Aggregate {
 		public void remove()
 		{
 		}
-	}
-		
+	}	
 }
