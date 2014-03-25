@@ -1,5 +1,7 @@
 package rt;
 
+import rt.intersectables.AxisAlignedBoundingBox;
+
 /**
  * An intersectable supports ray-surface intersection.
  */
@@ -14,4 +16,6 @@ public interface Intersectable {
 	 * @return a hit record, should return null if there is no intersection
 	 */
 	public HitRecord intersect(Ray r);
+	
+	public AxisAlignedBoundingBox getBoundingBox();
 }

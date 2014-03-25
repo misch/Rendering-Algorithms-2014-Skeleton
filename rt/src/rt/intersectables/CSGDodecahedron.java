@@ -94,4 +94,10 @@ public class CSGDodecahedron extends CSGSolid {
 	{
 		return root.getIntervalBoundaries(r);
 	}
+
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

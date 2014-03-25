@@ -77,4 +77,10 @@ public class Sphere implements Intersectable {
 
 		return new HitRecord(t, position, normal, wIn, this, material, 0.f, 0.f);
 	}
+
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

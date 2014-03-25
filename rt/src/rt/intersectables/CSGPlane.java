@@ -124,4 +124,10 @@ public class CSGPlane extends CSGSolid {
 			return null;
 		}
 	}
+
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -57,4 +57,10 @@ public class Plane implements Intersectable {
 		}
 	}
 
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

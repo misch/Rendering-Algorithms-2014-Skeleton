@@ -41,7 +41,6 @@ public class Mesh extends Aggregate {
 	 */
 	public Material material;
 	
-	
 	/**
 	 * Make a mesh from arrays with vertices, normals, and indices.
 	 */
@@ -54,12 +53,28 @@ public class Mesh extends Aggregate {
 		this.indices = indices;
 		triangles = new MeshTriangle[indices.length/3];	
 		
-		// TODO: fill this.boundingBox
+		float 	xMin = Float.POSITIVE_INFINITY, 
+				xMax = Float.NEGATIVE_INFINITY, 
+				yMin = Float.POSITIVE_INFINITY, 
+				yMax = Float.NEGATIVE_INFINITY, 
+				zMin = Float.POSITIVE_INFINITY, 
+				zMax = Float.NEGATIVE_INFINITY;
 		
 		// A triangle simply stores a triangle index and refers back to the mesh 
 		// to look up the vertex data
-		for(int i=0; i<indices.length/3; i++)
+		for(int i=0; i<indices.length/3; i++){
 			triangles[i] = new MeshTriangle(this, i);
+			AxisAlignedBoundingBox bb = triangles[i].getBoundingBox();
+			xMin = bb.getXMin() < xMin ? bb.getXMin() : xMin;
+			yMin = bb.getYMin() < yMin ? bb.getYMin() : yMin;
+			zMin = bb.getZMin() < zMin ? bb.getZMin() : zMin;
+			
+			xMax = bb.getXMax() > xMax ? bb.getXMax() : xMax;
+			yMax = bb.getYMax() > yMax ? bb.getYMax() : yMax;
+			zMax = bb.getZMax() > zMax ? bb.getZMax() : zMax;
+		}
+		
+		this.boundingBox = new AxisAlignedBoundingBox(xMin, xMax, yMin, yMax, zMin, zMax);
 	}
 	
 	public Iterator<Intersectable> iterator() {

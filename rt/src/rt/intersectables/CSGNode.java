@@ -134,4 +134,10 @@ public class CSGNode extends CSGSolid {
 		return combined;
 	}
 
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

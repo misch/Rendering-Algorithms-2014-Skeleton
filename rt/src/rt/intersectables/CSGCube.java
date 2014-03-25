@@ -42,4 +42,9 @@ public class CSGCube implements Intersectable {
 		return root.intersect(r);
 	}
 
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		return null;
+	}
+
 }

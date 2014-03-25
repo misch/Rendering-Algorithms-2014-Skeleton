@@ -24,8 +24,9 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.InstancingTest();
 //	public static Scene scene = new rt.testscenes.InstancingTeapots();
 //	public static Scene scene = new rt.testscenes.Blinn();
-	public static Scene scene = new rt.testscenes.CSGScene();
+//	public static Scene scene = new rt.testscenes.CSGScene();
 //	public static Scene scene = new rt.testscenes.RefractiveSphere();
+	public static Scene scene = new rt.testscenes.AccelerationTest();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;

@@ -72,5 +72,11 @@ public class CSGInstance extends CSGSolid {
 	
 		return boundary;
 	}
+
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
 

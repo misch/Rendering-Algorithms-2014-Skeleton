@@ -132,6 +132,38 @@ public class MeshTriangle implements Intersectable {
 		}
 		
 	}
+
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		float vertices[] = mesh.vertices;
+		
+		// Access the triangle vertices as follows (same for the normals):		
+		// 1. Get three vertex indices for triangle
+		int v0 = mesh.indices[index*3];
+		int v1 = mesh.indices[index*3+1];
+		int v2 = mesh.indices[index*3+2];
+		
+		// 2. Access x,y,z coordinates for each vertex
+		float x0 = vertices[v0*3];
+		float x1 = vertices[v1*3];
+		float x2 = vertices[v2*3];
+		float y0 = vertices[v0*3+1];
+		float y1 = vertices[v1*3+1];
+		float y2 = vertices[v2*3+1];
+		float z0 = vertices[v0*3+2];
+		float z1 = vertices[v1*3+2];
+		float z2 = vertices[v2*3+2];
+		
+		float xMin = (float)Math.min(Math.min(x0, x1),x2);
+		float yMin = (float)Math.min(Math.min(y0, y1),y2);
+		float zMin = (float)Math.min(Math.min(z0, z1),z2);
+		float xMax = (float)Math.max(Math.max(x0, x1),x2);
+		float yMax = (float)Math.max(Math.max(y0, y1),y2);
+		float zMax = (float)Math.max(Math.max(z0, z1),z2);
+		
+		return new AxisAlignedBoundingBox(xMin,xMax,yMin,yMax,zMin,zMax);
+		
+	}
 	
 	
 	

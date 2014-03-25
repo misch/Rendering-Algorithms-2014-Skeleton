@@ -69,4 +69,10 @@ public class Instance implements Intersectable {
 		return new Ray(new Vector3f(originObjCoords),directionObjCoords);
 	}
 
+	@Override
+	public AxisAlignedBoundingBox getBoundingBox() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
