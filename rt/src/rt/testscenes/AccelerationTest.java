@@ -68,8 +68,8 @@ public class AccelerationTest extends Scene {
 		root = intersectableList;
 		
 		// Light sources
-		LightGeometry pl1 = new PointLight(new Vector3f(.5f, .5f, 2.f), new Spectrum(1.f, 1.f, 1.f));
-		LightGeometry pl2 = new PointLight(new Vector3f(-.75f, .75f, 2.f), new Spectrum(1.f, 1.f, 1.f));
+		LightGeometry pl1 = new PointLight(new Vector3f(.5f, .5f, 2.f), new Spectrum(5.f, 5.f, 5.f));
+		LightGeometry pl2 = new PointLight(new Vector3f(-.75f, .75f, 2.f), new Spectrum(5.f, 5.f, 5.f));
 		lightList = new LightList();
 		lightList.add(pl1);
 		lightList.add(pl2);

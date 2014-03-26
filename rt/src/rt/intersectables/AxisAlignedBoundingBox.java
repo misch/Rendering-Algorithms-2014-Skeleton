@@ -82,6 +82,10 @@ public class AxisAlignedBoundingBox{
 		return false;
 	}
 	
+	/*
+	 * Returns tMin and tMax
+	 * @return float[2] [tMin, tMax]
+	 */
 	public float[] intersect(Ray r){
 		float t_xMin, t_xMax, t_yMin, t_yMax ,t_zMin, t_zMax;
 		if(r.direction.x >= 0){
