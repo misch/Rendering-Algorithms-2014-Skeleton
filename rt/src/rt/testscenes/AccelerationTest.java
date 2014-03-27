@@ -2,16 +2,24 @@ package rt.testscenes;
 
 import java.io.IOException;
 
+import javax.vecmath.Matrix4f;
 import javax.vecmath.Vector3f;
 
-import rt.*;
-import rt.cameras.*;
-import rt.films.*;
-import rt.integrators.*;
-import rt.intersectables.*;
-import rt.lightsources.*;
-import rt.samplers.*;
-import rt.tonemappers.*;
+import rt.LightGeometry;
+import rt.LightList;
+import rt.ObjReader;
+import rt.Scene;
+import rt.Spectrum;
+import rt.cameras.PinholeCamera;
+import rt.films.BoxFilterFilm;
+import rt.integrators.PointLightIntegratorFactory;
+import rt.intersectables.BSPAccelerator;
+import rt.intersectables.Instance;
+import rt.intersectables.IntersectableList;
+import rt.intersectables.Mesh;
+import rt.lightsources.PointLight;
+import rt.samplers.OneSamplerFactory;
+import rt.tonemappers.ClampTonemapper;
 
 /**
  * Simple scene using a Blinn material.
@@ -31,7 +39,7 @@ public class AccelerationTest extends Scene {
 		SPP = 1;
 		
 		// Specify which camera, film, and tonemapper to use
-		Vector3f eye = new Vector3f(0.f, 0.f, 5.f);
+		Vector3f eye = new Vector3f(0.f, -2f, 1.f);
 		Vector3f lookAt = new Vector3f(0.f, 0.f, 0.f);
 		Vector3f up = new Vector3f(0.f, 1.f, 0.f);
 		float fov = 60.f;
@@ -47,7 +55,7 @@ public class AccelerationTest extends Scene {
 
 		Mesh mesh;
 		try {
-			mesh = ObjReader.read("..\\obj\\teapot.obj", 1.f);
+			mesh = ObjReader.read("..\\obj\\dragon.obj", 1.f);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -62,13 +70,14 @@ public class AccelerationTest extends Scene {
 		// mesh = new Mesh(vertices, normals, indices);
 		BSPAccelerator acc = new BSPAccelerator(mesh);
 		
+		// Instance
 		IntersectableList intersectableList = new rt.intersectables.IntersectableList();
 		intersectableList.add(acc);	
 		
 		root = intersectableList;
 		
 		// Light sources
-		LightGeometry pl1 = new PointLight(new Vector3f(.5f, .5f, 2.f), new Spectrum(5.f, 5.f, 5.f));
+		LightGeometry pl1 = new PointLight(new Vector3f(.5f, -1.5f, 1.5f), new Spectrum(5.f, 5.f, 5.f));
 		LightGeometry pl2 = new PointLight(new Vector3f(-.75f, .75f, 2.f), new Spectrum(5.f, 5.f, 5.f));
 		lightList = new LightList();
 		lightList.add(pl1);
