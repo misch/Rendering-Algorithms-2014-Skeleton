@@ -47,7 +47,7 @@ public class MeshTest extends Scene {
 
 		Mesh mesh;
 		try {
-			mesh = ObjReader.read("..\\obj\\teapot.obj", 1.f);
+			mesh = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;

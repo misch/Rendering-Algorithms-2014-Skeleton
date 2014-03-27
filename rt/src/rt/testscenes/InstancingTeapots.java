@@ -79,7 +79,7 @@ public class InstancingTeapots extends Scene {
 		try
 		{
 			
-			mesh = ObjReader.read("..\\obj\\teapot.obj", 1.f);
+			mesh = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch(IOException e) 
 		{
 			System.out.printf("Could not read .obj file\n");

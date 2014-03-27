@@ -30,13 +30,12 @@ public class BSPAccelerator implements Intersectable {
 		this.numberOfObjects = objects.size();
 		System.out.println("Number of objects: " + numberOfObjects);
 		this.MAX_DEPTH = (int) (8 + 1.3 * Math.log(numberOfObjects));
-//		this.MAX_DEPTH = 7;
 		
 		Vector3f splitNormal = new Vector3f(1, 0, 0);
 		rootNode = new BSPNode(aggregate.getBoundingBox(), splitNormal, 0);
 		System.out.println("Constructing BSP-tree...");
 		construct(rootNode, objects);
-		System.out.println("Tree constructed.");
+		System.out.println("Tree constructed. Maximal depth = " + MAX_DEPTH);
 	}
 
 	BSPNode construct(BSPNode node, ArrayList<Intersectable> objects) {

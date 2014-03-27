@@ -55,7 +55,7 @@ public class AccelerationTest extends Scene {
 
 		Mesh mesh;
 		try {
-			mesh = ObjReader.read("..\\obj\\dragon.obj", 1.f);
+			mesh = ObjReader.read("../obj/dragon.obj", 1.f);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
