@@ -57,29 +57,26 @@ public class AxisAlignedBoundingBox{
 	}
 
 	public boolean intersect(AxisAlignedBoundingBox otherBoundingBox){
-		boolean potentialIntersectionX = false, 
-				potentialIntersectionY = false, 
-				potentialIntersectionZ = false;
+		Point3f centerDistance = this.getMiddle();
+		centerDistance.sub(otherBoundingBox.getMiddle());
+		centerDistance.absolute();
 		
-		if (xMax > otherBoundingBox.xMin || xMin < otherBoundingBox.xMax)
-			potentialIntersectionX = true;
-		else
+		Point3f size1 = new Point3f(xMax,yMax,zMax);
+		size1.sub(new Point3f(xMin,yMin,zMin));
+		size1.scale(0.5f);
+		size1.absolute();
+		
+		Point3f size2 = new Point3f(otherBoundingBox.xMax,otherBoundingBox.yMax,otherBoundingBox.zMax);
+		size2.sub(new Point3f(otherBoundingBox.xMin,otherBoundingBox.yMin,otherBoundingBox.zMin));
+		size2.scale(0.5f);
+		size2.absolute();
+		
+		Point3f sizeBetween = new Point3f();
+		sizeBetween.add(size1, size2);
+		
+		if (sizeBetween.x < centerDistance.x || sizeBetween.y < centerDistance.y || sizeBetween.z < centerDistance.z)
 			return false;
-		
-		if (yMax > otherBoundingBox.yMin || yMin < otherBoundingBox.yMax)
-			potentialIntersectionY = true;
-		else
-			return false;
-		
-		if (zMax > otherBoundingBox.zMin || zMin < otherBoundingBox.zMax)
-			potentialIntersectionZ = true;
-		else
-			return false;
-		
-		if(potentialIntersectionX && potentialIntersectionY && potentialIntersectionZ)
-			return true;
-		
-		return false;
+		return true;
 	}
 	
 	/*

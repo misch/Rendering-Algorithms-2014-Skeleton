@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 import javax.vecmath.Point3f;
+import javax.vecmath.Tuple3f;
 import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
@@ -15,6 +16,7 @@ public class BSPAccelerator implements Intersectable {
 
 	private int numberOfObjects = 0;
 	private final int MAX_DEPTH;
+	private final int MIN_OBJECTS = 5;
 	private BSPNode rootNode;
 
 	public BSPAccelerator(Aggregate aggregate) {
@@ -26,9 +28,10 @@ public class BSPAccelerator implements Intersectable {
 			objects.add(it.next());
 		}
 		this.numberOfObjects = objects.size();
-//		 this.MAX_DEPTH = (int) (8 + 1.3 * Math.log(numberOfObjects));
-		this.MAX_DEPTH = 2;
-
+		System.out.println("Number of objects: " + numberOfObjects);
+		this.MAX_DEPTH = (int) (8 + 1.3 * Math.log(numberOfObjects));
+//		this.MAX_DEPTH = 7;
+		
 		Vector3f splitNormal = new Vector3f(1, 0, 0);
 		rootNode = new BSPNode(aggregate.getBoundingBox(), splitNormal, 0);
 		System.out.println("Constructing BSP-tree...");
@@ -38,23 +41,19 @@ public class BSPAccelerator implements Intersectable {
 
 	BSPNode construct(BSPNode node, ArrayList<Intersectable> objects) {
 		
-		if (node.depth > MAX_DEPTH || objects.size() < 3) {
+		if (node.depth > MAX_DEPTH || objects.size() < MIN_OBJECTS) {
 			node.objects = objects;
 			return node;
 		}
 
-		AxisAlignedBoundingBox bb = node.getBoundingBox();
-		AxisAlignedBoundingBox above, below;
-
-		above = new AxisAlignedBoundingBox(node.getSplitPosition().x,
-				bb.getXMax(), bb.getYMin(), bb.getYMax(), bb.getZMin(),
-				bb.getZMax());
-		below = new AxisAlignedBoundingBox(bb.getXMin(),
-				node.getSplitPosition().x, bb.getYMin(), bb.getYMax(),
-				bb.getZMin(), bb.getZMax());
-
-		ArrayList<Intersectable> objsAbove = new ArrayList<Intersectable>();
-		ArrayList<Intersectable> objsBelow = new ArrayList<Intersectable>();
+		Vector3f nextNormal = getNextSplitNormal(node.getSplitNormal());
+		
+		AxisAlignedBoundingBox[] boxes = node.splitNode();
+		AxisAlignedBoundingBox above = boxes[0];
+		AxisAlignedBoundingBox below = boxes[1];
+		
+		ArrayList<Intersectable> objsAbove = new ArrayList<>();
+		ArrayList<Intersectable> objsBelow = new ArrayList<>();
 
 		for (Intersectable obj : objects) {
 			if (obj.getBoundingBox().intersect(above))
@@ -62,14 +61,9 @@ public class BSPAccelerator implements Intersectable {
 			if (obj.getBoundingBox().intersect(below))
 				objsBelow.add(obj);
 		}
-
-		node.above = construct(new BSPNode(above, new Vector3f(1, 0, 0),
-				node.depth + 1), objsAbove);
-		node.below = construct(new BSPNode(below, new Vector3f(1, 0, 0),
-				node.depth + 1), objsBelow);
-
+		node.above = construct(new BSPNode(above, nextNormal, node.depth + 1), objsAbove);
+		node.below = construct(new BSPNode(below, nextNormal,node.depth + 1), objsBelow);
 		return node;
-
 	}
 
 	@Override
@@ -85,23 +79,25 @@ public class BSPAccelerator implements Intersectable {
 								// then there will be no intersections at all.
 			return null;
 		}
-		// System.out.println(tValues[0] + "," + tValues[1]);
 		float tMin = tValues[0], tMax = tValues[1];
-//		int iteration = 0;
+
 		while (node != null) {
-//			iteration++;
-			// System.out.println(iteration);
 			if (isect < tMin)
 				break;
 
 			if (!node.isLeaf()) {
 				// intersection ray and split-plane
-				float tSplit = (node.getSplitPosition().x - r.origin.x)
-						/ r.direction.x;
+				Vector3f splitNormal = node.getSplitNormal();
+				Point3f splitPosition = node.getSplitPosition();
+				
+				Vector3f aSubE = new Vector3f();
+				aSubE.sub(node.getSplitPosition(), r.origin);
+				
+				float tSplit = getCoord(aSubE,splitNormal)/getCoord(r.direction,splitNormal);
 
 				// order children
 				BSPNode first, second;
-				if (r.origin.x < node.getSplitPosition().x) {
+				if (getCoord(r.origin,splitNormal) < getCoord(splitPosition, splitNormal)) {
 					first = node.below;
 					second = node.above;
 				} else {
@@ -114,12 +110,10 @@ public class BSPAccelerator implements Intersectable {
 				// -- case 1: only 1st child is hit
 				if (tSplit > tMax
 						|| tSplit < 0
-						|| (Math.abs(tSplit) < 1e-3f && first.getBoundingBox()
-								.intersect(r) != null)) {
+						|| (Math.abs(tSplit) < 1e-3f && first.getBoundingBox().intersect(r) != null)) {
 					node = first;
 				} else if (tSplit < tMin // -- case 2: only second child is hit
-						|| (Math.abs(tSplit) < 1e-3f && second.getBoundingBox()
-								.intersect(r) != null)) {
+						|| (Math.abs(tSplit) < 1e-3f && second.getBoundingBox().intersect(r) != null)) {
 					node = second;
 				} else { // -- case 3: both children are hit
 					node = first;
@@ -141,8 +135,8 @@ public class BSPAccelerator implements Intersectable {
 				if (!stack.isEmpty()) {
 					StackItem newItem = stack.pop();
 					node = newItem.node;
-					tValues[0] = newItem.tMin;
-					tValues[1] = newItem.tMax;
+					tMin = newItem.tMin;
+					tMax = newItem.tMax;
 				} else
 					// No intersection at all
 					break;
@@ -154,6 +148,24 @@ public class BSPAccelerator implements Intersectable {
 	@Override
 	public AxisAlignedBoundingBox getBoundingBox() {
 		return this.rootNode.getBoundingBox();
+	}
+	
+	private float getCoord(Tuple3f tuple, Vector3f splitNormal){
+		return (new Vector3f(tuple).dot(splitNormal));
+	}
+	
+	private Vector3f getNextSplitNormal(Vector3f currentNormal){
+		Vector3f nextNormal = new Vector3f();
+		if(currentNormal.x == 1f){
+			nextNormal = new Vector3f(0,1,0);
+		}
+		if(currentNormal.y == 1f){
+			nextNormal = new Vector3f(0,0,1);
+		}
+		if(currentNormal.z == 1f){
+			nextNormal = new Vector3f(1,0,0);
+		}
+		return nextNormal;
 	}
 
 	class StackItem {

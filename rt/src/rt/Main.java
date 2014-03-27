@@ -97,14 +97,14 @@ public class Main {
 							Ray r = task.scene.getCamera().makeWorldSpaceRay(i, j, samples[k]);
 							
 							Spectrum s;
-							if(j == 120 && i == 180){
- 								System.out.println("Yoo...");
+//							if(j == 120 && i == 180){
+// 								System.out.println("Yoo...");
 //								s = new Spectrum(1,0,0);
 								s = task.integrator.integrate(r);
-							}else{
+//							}else{
 //							 Evaluate ray
 							s = task.integrator.integrate(r);
-							}
+//							}
 							
 							// Write to film
 							task.scene.getFilm().addSample((double)i+(double)samples[k][0], (double)j+(double)samples[k][1], s);
@@ -123,8 +123,8 @@ public class Main {
 	
 	public static void main(String[] args)
 	{			
-		int taskSize = 4;	// Each task renders a square image block of this size
-		int nThreads = 8;	// Number of threads to be used for rendering
+		int taskSize = 32;	// Each task renders a square image block of this size
+		int nThreads = 4;	// Number of threads to be used for rendering
 		int width = scene.getFilm().getWidth();
 		int height = scene.getFilm().getHeight();
 

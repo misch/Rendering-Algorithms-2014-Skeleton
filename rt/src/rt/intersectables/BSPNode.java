@@ -37,4 +37,46 @@ public class BSPNode{
 	public boolean isLeaf(){
 		return this.objects != null;
 	}
+
+	public Vector3f getSplitNormal() {
+		return this.splitNormal;
+	}
+	
+	public AxisAlignedBoundingBox[] splitNode(){
+		AxisAlignedBoundingBox above, below;
+		
+		float 	xBelowMin = boundingBox.getXMin(), 
+				xBelowMax = boundingBox.getXMax(), 
+				yBelowMin = boundingBox.getYMin(), 
+				yBelowMax = boundingBox.getYMax(),
+				zBelowMin = boundingBox.getZMin(), 
+				zBelowMax = boundingBox.getZMax(),
+				
+				xAboveMin = boundingBox.getXMin(), 
+				xAboveMax = boundingBox.getXMax(), 
+				yAboveMin = boundingBox.getYMin(), 
+				yAboveMax = boundingBox.getYMax(), 
+				zAboveMin = boundingBox.getZMin(), 
+				zAboveMax = boundingBox.getZMax();
+		
+		if (splitNormal.x == 1){
+			xBelowMax = splitPosition.x;
+			xAboveMin = splitPosition.x;
+		}
+		
+		if(splitNormal.y == 1){
+			yBelowMax = splitPosition.y;
+			yAboveMin = splitPosition.y;
+		}
+		
+		if(splitNormal.z == 1){
+			zBelowMax = splitPosition.z;
+			zAboveMin = splitPosition.z;
+		}
+		
+		above = new AxisAlignedBoundingBox(xAboveMin, xAboveMax, yAboveMin, yAboveMax, zAboveMin, zAboveMax);
+		below = new AxisAlignedBoundingBox(xBelowMin, xBelowMax, yBelowMin, yBelowMax, zBelowMin, zBelowMax);
+		AxisAlignedBoundingBox[] boxes = {above,below};
+		return boxes;
+	}
 }
