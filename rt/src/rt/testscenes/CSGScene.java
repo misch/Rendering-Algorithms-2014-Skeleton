@@ -55,8 +55,8 @@ public class CSGScene extends Scene {
 //		Material refractive = new Refractive(1.3f);
 //		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 //		Material refractive = new rt.materials.Blinn(new Spectrum(1f, 1f, 1f), new Spectrum(.4f, .4f, .4f), 50.f);
-//		Material refractive = new Reflective(new Spectrum(1,1,1));
-		Material refractive = new Refractive(1.3f);
+		Material refractive = new Reflective(new Spectrum(1,1,1));
+//		Material refractive = new Refractive(1.3f);
 		
 		// Make a conical "bowl" by subtracting cross-sections of two cones
 		CSGSolid outerCone = coneCrossSection(60.f, refractive);

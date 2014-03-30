@@ -10,6 +10,7 @@ import rt.Intersectable;
 import rt.LightGeometry;
 import rt.LightList;
 import rt.Material.ShadingSample;
+import rt.samplers.RandomSampler;
 import rt.Ray;
 import rt.Sampler;
 import rt.Scene;
@@ -24,6 +25,7 @@ public class WhittedIntegrator implements Integrator {
 	LightList lightList;
 	Intersectable root;
 	static final int MAX_DEPTH = 10;
+	Sampler sampler = new RandomSampler();
 	
 	public WhittedIntegrator(Scene scene)
 	{
@@ -42,6 +44,11 @@ public class WhittedIntegrator implements Integrator {
 		
 		if (hitRecord == null){
 			return new Spectrum(0,0,0);
+		}
+		
+		Spectrum emission = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
+		if (emission != null){
+			return new Spectrum(emission);
 		}
 		
 		Spectrum reflection = new Spectrum(0,0,0);
@@ -90,8 +97,8 @@ public class WhittedIntegrator implements Integrator {
 			
 				
 				// Make direction from hit point to light source position; this is only supposed to work with point lights
-				float dummySample[] = new float[2];
-				HitRecord lightHit = lightSource.sample(dummySample);
+				float[][] sample = sampler.makeSamples(1, 2);
+				HitRecord lightHit = lightSource.sample(sample[0]);
 				Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
 				float d = lightDir.lengthSquared();
 				lightDir.normalize();
@@ -125,7 +132,7 @@ public class WhittedIntegrator implements Integrator {
 				
 				// Geometry term: multiply with 1/(squared distance), only correct like this 
 				// for point lights (not area lights)!
-				s.mult(1.f/(d));
+				s.mult(1.f/(d*lightHit.p));
 				
 				// Accumulate
 				outgoing.add(s);
