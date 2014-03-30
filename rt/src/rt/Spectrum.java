@@ -58,4 +58,8 @@ public class Spectrum {
 		b = Math.min(max,  b);
 		b = Math.max(min, b);
 	}
+	
+	public String toString(){
+		return "(" + this.r + ", " + this.g + ", " + this.b + ")";
+	}
 }

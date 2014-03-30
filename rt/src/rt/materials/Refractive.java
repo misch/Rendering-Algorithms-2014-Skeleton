@@ -116,7 +116,7 @@ public class Refractive implements Material {
 	}
 
 	public Spectrum evaluateEmission(HitRecord hitRecord, Vector3f wOut) {
-		return new Spectrum(0.f, 0.f, 0.f);
+		return null;
 	}
 
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {

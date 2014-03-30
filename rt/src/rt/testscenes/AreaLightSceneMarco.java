@@ -11,17 +11,17 @@ import rt.samplers.*;
 import rt.cameras.*;
 import rt.films.*;
 
-public class AreaLight extends Scene {
+public class AreaLightSceneMarco extends Scene {
 	
-	public AreaLight()
+	public AreaLightSceneMarco()
 	{	
-		outputFilename = new String("../output/testscenes/AreaLight");
+		outputFilename = new String("../output/testscenes/AreaLightMarco");
 				
 		// Specify pixel sampler to be used
 		samplerFactory = new RandomSamplerFactory();
 		
 		// Samples per pixel
-		SPP = 16;
+		SPP = 4;
 		outputFilename = outputFilename + " " + String.format("%d", SPP) + "SPP";
 		
 		// Make camera and film
@@ -46,72 +46,72 @@ public class AreaLight extends Scene {
 		sphere.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(sphere);
 				
-		Rectangle rectangle = new Rectangle(new Vector3f(2.f, -.75f, 2.f), new Vector3f(0.f, 4.f, 0.f), new Vector3f(0.f, 0.f, -4.f));
+		Rectangle rectangle = new Rectangle(new Point3f(2.f, -.75f, 2.f), new Vector3f(0.f, 4.f, 0.f), new Vector3f(0.f, 0.f, -4.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.2f, 0.2f));
 		objects.add(rectangle);
 	
 		// Bottom
-		rectangle = new Rectangle(new Vector3f(-2.f, -.75f, 2.f), new Vector3f(4.f, 0.f, 0.f), new Vector3f(0.f, 0.f, -4.f));
+		rectangle = new Rectangle(new Point3f(-2.f, -.75f, 2.f), new Vector3f(4.f, 0.f, 0.f), new Vector3f(0.f, 0.f, -4.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);
 
 		// Top
-		rectangle = new Rectangle(new Vector3f(-2.f, 3.25f, 2.f), new Vector3f(0.f, 0.f, -4.f), new Vector3f(4.f, 0.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-2.f, 3.25f, 2.f), new Vector3f(0.f, 0.f, -4.f), new Vector3f(4.f, 0.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);
 		
-		rectangle = new Rectangle(new Vector3f(-2.f, -.75f, -2f), new Vector3f(4.f, 0.f, 0.f), new Vector3f(0.f, 4.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-2.f, -.75f, -2f), new Vector3f(4.f, 0.f, 0.f), new Vector3f(0.f, 4.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.2f, 0.8f, 0.2f));
 		objects.add(rectangle);
 		
 		//BOX BACK
-		rectangle = new Rectangle(new Vector3f(0.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(0.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(0.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(0.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(1.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(1.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(1.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(1.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(0.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
+		rectangle = new Rectangle(new Point3f(0.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);
 		
 		//BOX CENTER
-		rectangle = new Rectangle(new Vector3f(-0.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-0.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-0.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-0.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(0.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(0.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(0.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(0.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-0.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
+		rectangle = new Rectangle(new Point3f(-0.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);
 		
 		//BOX FRONT
-		rectangle = new Rectangle(new Vector3f(-1.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-1.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-1.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-1.5f, -.75f, -0.25f), new Vector3f(0.f, 0.f, 0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-1.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-1.0f, -.75f, -0.25f), new Vector3f(-0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-1.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
+		rectangle = new Rectangle(new Point3f(-1.0f, -.75f, 0.25f), new Vector3f(0.f, 0.f, -0.5f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);		
-		rectangle = new Rectangle(new Vector3f(-1.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
+		rectangle = new Rectangle(new Point3f(-1.5f, 1.25f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 0.f, -0.5f));
 		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		objects.add(rectangle);
 		
@@ -119,13 +119,13 @@ public class AreaLight extends Scene {
 		Vector3f bottomLeft = new Vector3f(1f, 3.f, 1.5f);
 		Vector3f right = new Vector3f(0.f, 0.f, 0.25f);
 		Vector3f top = new Vector3f(-0.25f, 0.f, 0.f);
-		RectangleLight rectangleLight = new RectangleLight(bottomLeft, right, top, new Spectrum(40.f, 40.f, 40.f));
+		AreaLight rectangleLight = new AreaLight(bottomLeft, right, top, new Spectrum(40.f, 40.f, 40.f));
 		objects.add(rectangleLight);
 		
 		bottomLeft = new Vector3f(-0.5f, 3.f, -1f);
 		right = new Vector3f(0.f, 0.f, 0.25f);
 		top = new Vector3f(-0.25f, 0.f, 0.f);
-		RectangleLight rectangleLight2 = new RectangleLight(bottomLeft, right, top, new Spectrum(40.f, 40.f, 40.f));
+		AreaLight rectangleLight2 = new AreaLight(bottomLeft, right, top, new Spectrum(40.f, 40.f, 40.f));
 		objects.add(rectangleLight2);
 		
 		// Connect objects to root
@@ -139,12 +139,12 @@ public class AreaLight extends Scene {
 		lightList.add(rectangleLight2);
 	}
 	
-	public void finish()
-	{
-		if(integratorFactory instanceof BDPathTracingIntegratorFactory)
-		{
-			((BDPathTracingIntegratorFactory)integratorFactory).writeLightImage("../output/testscenes/lightimage");
-			((BDPathTracingIntegratorFactory)integratorFactory).addLightImage(film);
-		}
-	}
+//	public void finish()
+//	{
+//		if(integratorFactory instanceof BDPathTracingIntegratorFactory)
+//		{
+//			((BDPathTracingIntegratorFactory)integratorFactory).writeLightImage("../output/testscenes/lightimage");
+//			((BDPathTracingIntegratorFactory)integratorFactory).addLightImage(film);
+//		}
+//	}
 }

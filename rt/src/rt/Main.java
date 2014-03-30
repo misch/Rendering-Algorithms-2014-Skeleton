@@ -26,7 +26,9 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.Blinn();
 //	public static Scene scene = new rt.testscenes.CSGScene();
 //	public static Scene scene = new rt.testscenes.RefractiveSphere();
-	public static Scene scene = new rt.testscenes.AccelerationTest();
+//	public static Scene scene = new rt.testscenes.AccelerationTest();
+//	public static Scene scene = new rt.testscenes.AreaLightTest();
+	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
