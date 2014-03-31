@@ -14,6 +14,8 @@ import java.io.*;
  */
 public class Main {
 
+	public static int[] debugPixel; // if defined, then only a certain number of pixels will be rendered
+	public static int debugWindowSize = 0; // size 0 will render only one pixel
 	/** 
 	 * The scene to be rendered.
 	 */
@@ -100,14 +102,8 @@ public class Main {
 							Ray r = task.scene.getCamera().makeWorldSpaceRay(i, j, samples[k]);
 							
 							Spectrum s;
-//							if(j == 256 && i == 220){
-// 								System.out.println("Yoo...");
-//								s = new Spectrum(1,0,0);
-//								s = task.integrator.integrate(r);
-//							}else{
-//							 Evaluate ray
+
 							s = task.integrator.integrate(r);
-//							}
 							
 							// Write to film
 							task.scene.getFilm().addSample((double)i+(double)samples[k][0], (double)j+(double)samples[k][1], s);
@@ -127,24 +123,41 @@ public class Main {
 	public static void main(String[] args)
 	{			
 		int taskSize = 32;	// Each task renders a square image block of this size
-		int nThreads = 4;	// Number of threads to be used for rendering
+		int nThreads;
+		if (debugPixel == null){
+			nThreads = 4;	// Number of threads to be used for rendering
+		}else{
+			nThreads = 1;
+		}
 		int width = scene.getFilm().getWidth();
 		int height = scene.getFilm().getHeight();
 
 		scene.prepare();
 		
 		// Make render tasks, split image into blocks to be rendered by the tasks
-		int nTasks = (int)Math.ceil((double)width/(double)taskSize) * (int)Math.ceil((double)height/(double)taskSize);
-		tasksLeft = new Counter(nTasks);
 		queue = new LinkedList<RenderTask>();
-		for(int j=0; j<(int)Math.ceil((double)height/(double)taskSize); j++)
-		{
-			for(int i=0; i<(int)Math.ceil((double)width/(double)taskSize); i++)
+		int nTasks;
+		if (debugPixel == null){
+			nTasks = (int)Math.ceil((double)width/(double)taskSize) * (int)Math.ceil((double)height/(double)taskSize);
+			for(int j=0; j<(int)Math.ceil((double)height/(double)taskSize); j++)
 			{
-				RenderTask task = new RenderTask(scene, i*taskSize, Math.min((i+1)*taskSize,width), j*taskSize, Math.min((j+1)*taskSize,height));
-				queue.add(task);
+				for(int i=0; i<(int)Math.ceil((double)width/(double)taskSize); i++)
+				{
+					RenderTask task = new RenderTask(scene, i*taskSize, Math.min((i+1)*taskSize,width), j*taskSize, Math.min((j+1)*taskSize,height));
+					queue.add(task);
+				}
 			}
 		}
+		else{
+			nTasks = 1;
+			int i = debugPixel[0]; int j = debugPixel[1];
+			RenderTask debugTask = new RenderTask(scene, Math.max(0,i-debugWindowSize), Math.min(i+1+debugWindowSize,width), Math.max(0,j-debugWindowSize), Math.min(j+1+debugWindowSize,height));
+			queue.add(debugTask);
+		}
+		
+		tasksLeft = new Counter(nTasks);
+		
+		
 		
 		Timer timer = new Timer();
 		timer.reset();
