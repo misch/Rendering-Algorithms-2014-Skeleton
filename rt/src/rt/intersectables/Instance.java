@@ -55,8 +55,8 @@ public class Instance implements Intersectable {
 		
 		Vector3f direction = new Vector3f(hitRecord.w);
 		M.transform(direction);
-			
-		return new HitRecord(hitRecord.t,new Vector3f(position),normal,hitRecord.w,hitRecord.intersectable,hitRecord.material,0.f,0.f);
+		direction.normalize();	
+		return new HitRecord(hitRecord.t,new Vector3f(position),normal,direction,hitRecord.intersectable,hitRecord.material,0.f,0.f);
 	}
 	
 	private Ray transformRay(Ray r){
