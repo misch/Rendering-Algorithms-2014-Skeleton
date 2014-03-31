@@ -69,13 +69,13 @@ public class AreaLightIntegrator implements Integrator {
 				
 				Ray shadowRay = new Ray(hitRecord.position,lightDir);
 				Vector3f scaledLightDir = new Vector3f(lightDir);
-				scaledLightDir.scale(1e-9f);
+				scaledLightDir.scale(1e-3f);
 				shadowRay.origin.add(scaledLightDir);
 				HitRecord shadowHit = root.intersect(shadowRay);
 				
 				if(shadowHit != null){
 					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord){
+					if (d > lengthShadowHitToHitRecord + 1e-3f){
 						continue;
 					}
 				}

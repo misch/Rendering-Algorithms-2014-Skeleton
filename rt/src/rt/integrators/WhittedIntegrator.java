@@ -111,7 +111,7 @@ public class WhittedIntegrator implements Integrator {
 
 				if(shadowHit != null){
 					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord){
+					if (d > lengthShadowHitToHitRecord + 1e-3f){
 						continue;
 					}
 				}
