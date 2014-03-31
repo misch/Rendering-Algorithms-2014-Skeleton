@@ -11,11 +11,9 @@ import rt.LightGeometry;
 import rt.LightList;
 import rt.Ray;
 import rt.Sampler;
-import rt.SamplerFactory;
 import rt.Scene;
 import rt.Spectrum;
 import rt.StaticVecmath;
-import rt.samplers.OneSampler;
 import rt.samplers.RandomSampler;
 
 /**
@@ -31,7 +29,6 @@ public class AreaLightIntegrator implements Integrator {
 	{
 		this.lightList = scene.getLightList();
 		this.root = scene.getIntersectable();
-//		this.samplerFactory = scene.getSamplerFactory();
 	}
 
 	/**

@@ -1,8 +1,12 @@
 package rt.materials;
 
+import java.util.Random;
+
 import javax.vecmath.Vector3f;
 
-import rt.*;
+import rt.HitRecord;
+import rt.Material;
+import rt.Spectrum;
 
 /**
  * A basic diffuse material.
@@ -67,7 +71,17 @@ public class Diffuse implements Material {
 	// To be implemented for path tracer!
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample)
 	{
-		return null;	
+		float psi1 = sample[0], psi2 = sample[1];
+		
+		Vector3f direction = new Vector3f();
+		direction.x = (float)(Math.cos(2*Math.PI*psi2) * Math.sqrt(psi1));
+		direction.y = (float)(Math.sin(2*Math.PI*psi2) * Math.sqrt(psi1));
+		direction.z = (float)Math.sqrt(1-psi1);
+		
+		float probability = (float) (Math.cos(direction.dot(hitRecord.normal))/Math.PI);
+		
+		ShadingSample shadingSample = new ShadingSample(new Spectrum(kd), new Spectrum(0,0,0),direction,false,probability);
+		return shadingSample;
 	}
 		
 	public boolean castsShadows()

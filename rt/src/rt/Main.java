@@ -31,7 +31,8 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.AccelerationTest();
 //	public static Scene scene = new rt.testscenes.AreaLightTest();
 //	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
-	public static Scene scene = new rt.testscenes.GlossyScene();
+//	public static Scene scene = new rt.testscenes.GlossyScene();
+	public static Scene scene = new rt.testscenes.ImportanceSampling();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;

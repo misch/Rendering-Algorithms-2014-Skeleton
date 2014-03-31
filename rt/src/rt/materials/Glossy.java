@@ -1,10 +1,14 @@
 package rt.materials;
 
+import java.util.Random;
+
+import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
 import rt.Material;
 import rt.Spectrum;
+import rt.Material.ShadingSample;
 
 public class Glossy implements Material {
 
@@ -111,49 +115,76 @@ public class Glossy implements Material {
 	}
 	@Override
 	public Spectrum evaluateEmission(HitRecord hitRecord, Vector3f wOut) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean hasSpecularReflection() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public ShadingSample evaluateSpecularReflection(HitRecord hitRecord) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean hasSpecularRefraction() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public ShadingSample evaluateSpecularRefraction(HitRecord hitRecord) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample) {
-		// TODO Auto-generated method stub
-		return null;
+		float psi1 = sample[0], psi2 = sample[1];
+
+		// sample half-vector w_h
+		float cosTheta = (float) Math.pow(psi1, 1f/(shininess+1));
+		float sinTheta = (float) Math.sqrt(1-cosTheta*cosTheta);
+		float phi = (float) (2 * Math.PI * psi2);
+
+		Vector3f w_h = new Vector3f();
+		w_h.x = (float) (sinTheta * Math.cos(phi));
+		w_h.y = (float) (sinTheta * Math.sin(phi));
+		w_h.z = cosTheta;
+		w_h.normalize();
+		
+		// transform sampled direction to local coordinate system
+		Matrix3f canonicToLocalFrame = hitRecord.getLocalFrameTransformation();
+		canonicToLocalFrame.transform(w_h);
+		assert(Math.abs(w_h.length())-1 < 1e-5f);
+		assert(Math.abs(hitRecord.normal.length() - 1) < 1e-5f);
+		assert(Math.abs(w_h.dot(hitRecord.normal) - cosTheta) < 1e-5f);
+		
+		// get w_i by reflecting w_o around w_h
+		Vector3f w_o = new Vector3f(hitRecord.w);
+		w_o.negate();
+		w_o.normalize();
+		
+		float cosThetaI = -w_o.dot(hitRecord.normal); 
+				
+		Vector3f w_i = new Vector3f();
+		w_i.scaleAdd(2*cosThetaI,hitRecord.normal,w_o);
+		
+		// compute probability
+		float probability = (float) ((shininess+1)/(8*w_o.dot(w_h)*Math.PI) * Math.pow(cosTheta, shininess));
+		
+		ShadingSample shadingSample = new ShadingSample(evaluateBRDF(hitRecord,w_o,w_i), new Spectrum(0,0,0),w_i,false,probability);
+		// TODO: Check if directions w_o and w_i are the right way around.
+		return shadingSample;
 	}
 
 	@Override
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public boolean castsShadows() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -72,6 +72,10 @@ public class HitRecord  {
 		this.u = u;
 		this.v = v;
 		
+
+	}
+	
+	public Matrix3f getLocalFrameTransformation(){
 		// Make tangent frame: t1, t2, normal is a right handed frame
 		t1 = new Vector3f(1,0,0);
 		t1.cross(t1, normal);
@@ -83,6 +87,13 @@ public class HitRecord  {
 		t1.normalize();
 		t2 = new Vector3f();
 		t2.cross(normal, t1);
+		
+		Matrix3f localFrameTransformation = new Matrix3f();
+		localFrameTransformation.setColumn(0, t1);
+		localFrameTransformation.setColumn(1, t2);
+		localFrameTransformation.setColumn(2, normal);
+		
+		return localFrameTransformation;
 	}
 	
 }
