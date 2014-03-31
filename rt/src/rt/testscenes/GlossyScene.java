@@ -52,7 +52,7 @@ public class GlossyScene extends Scene {
 		Mesh mesh;
 		try
 		{		
-			mesh = ObjReader.read("..\\obj\\teapot.obj", 1.f);
+			mesh = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch(IOException e) 
 		{
 			System.out.printf("Could not read .obj file\n");
@@ -71,18 +71,18 @@ public class GlossyScene extends Scene {
 		
 		//gold
 		Spectrum ext = new Spectrum(3.f, 2.88f, 1.846f);
-	//	mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.25f, 0.306f, 1.426f), ext);
+		mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.25f, 0.306f, 1.426f), ext);
 		//copper
-		ext = new Spectrum(3.23f, 2.6f, 2.5f);
-		mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.27f, 0.82f, 1.16f), ext);
+//		ext = new Spectrum(3.23f, 2.6f, 2.5f);
+		
 		//aluminium
-		ext = new Spectrum(7.48f, 6.55f, 5.28f);
+//		ext = new Spectrum(7.48f, 6.55f, 5.28f);
 	//	mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(1.3f, 1.02f, 0.64f), ext);
 		//silver
-		ext = new Spectrum(3.88f, 3.45f, 2.56f);
+//		ext = new Spectrum(3.88f, 3.45f, 2.56f);
 	//	mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.131f, 0.12f, 0.144f), ext);
 		
-		Instance instance = new Instance(mesh, t);
+		Instance instance = new Instance(new BSPAccelerator(mesh), t);
 		
 		IntersectableList intersectableList = new IntersectableList();
 		intersectableList.add(groundPlane);

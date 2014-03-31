@@ -31,33 +31,21 @@ public class MeshTriangle implements Intersectable {
 	{
 		float vertices[] = mesh.vertices;
 		
-		// Access the triangle vertices as follows (same for the normals):		
-		// 1. Get three vertex indices for triangle
+		// Get three vertex indices for triangle
 		int v0 = mesh.indices[index*3];
 		int v1 = mesh.indices[index*3+1];
 		int v2 = mesh.indices[index*3+2];
 		
-		// 2. Access x,y,z coordinates for each vertex
-		float x0 = vertices[v0*3];
-		float x1 = vertices[v1*3];
-		float x2 = vertices[v2*3];
-		float y0 = vertices[v0*3+1];
-		float y1 = vertices[v1*3+1];
-		float y2 = vertices[v2*3+1];
-		float z0 = vertices[v0*3+2];
-		float z1 = vertices[v1*3+2];
-		float z2 = vertices[v2*3+2];
+		// Access x,y,z coordinates for each vertex
+		Vector3f a = new Vector3f(vertices[v0*3], vertices[v0*3+1], vertices[v0*3+2]);
+		Vector3f b = new Vector3f(vertices[v1*3],vertices[v1*3+1],vertices[v1*3+2]);
+		Vector3f c = new Vector3f(vertices[v2*3], vertices[v2*3+1], vertices[v2*3+2]);
 		
+		// Acces normals
 		float normals[] = mesh.normals;
 		Vector3f n0 = new Vector3f(normals[v0*3], normals[v0*3+1], normals[v0*3+2]);
 		Vector3f n1 = new Vector3f(normals[v1*3], normals[v1*3+1], normals[v1*3+2]);
 		Vector3f n2 = new Vector3f(normals[v2*3], normals[v2*3+1], normals[v2*3+2]);
-		
-		Vector3f a = new Vector3f(x0,y0,z0);
-		Vector3f b = new Vector3f(x1,y1,z1);
-		Vector3f c = new Vector3f(x2,y2,z2);
-		
-		float beta, gamma, t;
 		
 		Vector3f bToa = new Vector3f(a);
 		bToa.sub(b);
@@ -65,45 +53,22 @@ public class MeshTriangle implements Intersectable {
 		Vector3f cToa = new Vector3f(a);
 		cToa.sub(c);
 		
-		Vector3f rightHand = new Vector3f(a);
-		rightHand.sub(r.origin);
-		
 		Matrix3f matrix = new Matrix3f();
 		matrix.setColumn(0, bToa);
 		matrix.setColumn(1, cToa);
 		matrix.setColumn(2, r.direction);
 		
-		// Apply Cramer's rule
-		float detA = matrix.determinant();
-		
-		Matrix3f matrix0 = new Matrix3f(matrix);
-		matrix0.setColumn(0, rightHand);
-		float detA0 = matrix0.determinant();
-		
-		Matrix3f matrix1 = new Matrix3f(matrix);
-		matrix1.setColumn(1, rightHand);
-		float detA1 = matrix1.determinant();
-		
-		Matrix3f matrix2 = new Matrix3f(matrix);
-		matrix2.setColumn(2, rightHand);
-		float detA2 = matrix2.determinant();
-		
-		beta = detA0/detA;
-		gamma = detA1/detA;
-		t = detA2/detA;
+		Vector3f rightHand = new Vector3f(a);
+		rightHand.sub(r.origin);
+
+		float[] cramer = applyCramersRule(matrix, rightHand);
+		float beta = cramer[0];
+		float gamma = cramer[1];
+		float t = cramer[2];
 		
 		if (beta+gamma > 0 && beta+gamma < 1  && beta > 0 && gamma > 0 && t > 0){
 			Vector3f position = new Vector3f(r.direction);
 			position.scaleAdd(t, r.origin);
-			
-			Vector3f normal = new Vector3f();
-			Vector3f aTob = new Vector3f(b);
-			aTob.sub(a);
-			Vector3f aToc = new Vector3f(c);
-			aToc.sub(a);
-			
-			normal.cross(aTob, aToc);
-			normal.normalize();
 			
 			Vector3f interpolatedNormal = new Vector3f();
 			Vector3f weighted_n0 = new Vector3f(n0);
@@ -121,9 +86,11 @@ public class MeshTriangle implements Intersectable {
 			interpolatedNormal.add(weighted_n0, weighted_n1);
 			interpolatedNormal.add(weighted_n2);
 			interpolatedNormal.normalize();
+			
 			// wIn is incident direction; convention is that it points away from surface
 			Vector3f wIn = new Vector3f(r.direction);
 			wIn.negate();
+			wIn.normalize();
 			
 			return new HitRecord(t,position,interpolatedNormal,wIn,this,mesh.material,0.f,0.f);
 		}
@@ -131,6 +98,32 @@ public class MeshTriangle implements Intersectable {
 			return null;
 		}
 		
+	}
+
+	/*
+	 * Apply Cramer's rule
+	 */
+	private float[] applyCramersRule(Matrix3f matrix, Vector3f rightHand) {
+		float detA = matrix.determinant();
+		
+		Matrix3f matrix0 = new Matrix3f(matrix);
+		matrix0.setColumn(0, rightHand);
+		float detA0 = matrix0.determinant();
+		
+		Matrix3f matrix1 = new Matrix3f(matrix);
+		matrix1.setColumn(1, rightHand);
+		float detA1 = matrix1.determinant();
+		
+		Matrix3f matrix2 = new Matrix3f(matrix);
+		matrix2.setColumn(2, rightHand);
+		float detA2 = matrix2.determinant();
+		
+		float beta = detA0/detA;
+		float gamma = detA1/detA;
+		float t = detA2/detA;
+		
+		float[] cramer = {beta,gamma,t};
+		return cramer;
 	}
 
 	@Override

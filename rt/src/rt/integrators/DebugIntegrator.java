@@ -38,13 +38,14 @@ public class DebugIntegrator implements Integrator {
 //				return new Spectrum(1.f,0.f,0.f);
 //		else 
 //			return new Spectrum(0.f,0.f,0.f);
-			float blueComponent = (hitRecord.normal.z > 0) ? 1 : 0;
-			return new Spectrum(Math.abs(hitRecord.normal.x),Math.abs(hitRecord.normal.y),blueComponent);
+			
+			// absolute value
+			// return new Spectrum(Math.abs(hitRecord.normal.x),Math.abs(hitRecord.normal.y),Math.abs(hitRecord.normal.z);
+			
+			// pastell
+			return new Spectrum((hitRecord.normal.x+1)/2, (hitRecord.normal.y+1)/2, (hitRecord.normal.z+1)/2);
 		}
 		return new Spectrum(0.f,0.f,0.f);
-		
-		// Other potential debugging visualizations
-		// return new Spectrum(r.direction.x/2.f+0.5f, r.direction.y/2.f+0.5f, 0.f);
 	}
 
 	/**

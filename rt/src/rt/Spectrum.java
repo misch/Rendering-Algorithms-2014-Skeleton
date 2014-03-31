@@ -21,11 +21,13 @@ public class Spectrum {
 		this.b = b;
 	}
 	
+	public Spectrum(float gray){
+		this(gray,gray,gray);
+	}
+	
 	public Spectrum(Spectrum s)
 	{
-		this.r = s.r;
-		this.g = s.g;
-		this.b = s.b;
+		this(s.r,s.g,s.b);
 	}
 	
 	public void mult(float t)
@@ -49,6 +51,31 @@ public class Spectrum {
 		b = b+s.b;
 	}
 	
+	public void add(float gray){
+		this.add(new Spectrum(gray,gray,gray));
+	}
+	
+	public void sub(Spectrum s){
+		r = r-s.r;
+		g = g-s.g;
+		b = b-s.b;
+	}
+	
+	public void sub(float gray){
+		this.sub(new Spectrum(gray,gray,gray));
+	}
+	
+	public void divide(Spectrum s){
+		r = r/s.r;
+		g = g/s.g;
+		b = b/s.b;
+	}
+	
+	public void divide(float gray){
+		this.divide(new Spectrum(gray,gray,gray));
+	}
+	
+	
 	public void clamp(float min, float max)
 	{
 		r = Math.min(max,  r);
@@ -61,5 +88,11 @@ public class Spectrum {
 	
 	public String toString(){
 		return "(" + this.r + ", " + this.g + ", " + this.b + ")";
+	}
+	
+	public void sqr(){
+		this.r = 	r*r;
+		this.g=		g*g;
+		this.b =	b*b;
 	}
 }
