@@ -78,7 +78,7 @@ public class Diffuse implements Material {
 		direction.y = (float)(Math.sin(2*Math.PI*psi2) * Math.sqrt(psi1));
 		direction.z = (float)Math.sqrt(1-psi1);
 		
-		float probability = (float) (Math.cos(direction.dot(hitRecord.normal))/Math.PI);
+		float probability = (float) (direction.dot(hitRecord.normal)/Math.PI);
 		
 		ShadingSample shadingSample = new ShadingSample(new Spectrum(kd), new Spectrum(0,0,0),direction,false,probability);
 		return shadingSample;
