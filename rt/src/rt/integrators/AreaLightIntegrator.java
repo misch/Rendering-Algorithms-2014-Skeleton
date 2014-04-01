@@ -49,18 +49,32 @@ public class AreaLightIntegrator implements Integrator {
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
 			
 			
-			// Iterate over all light sources
+			// Get a random light source
 			LightGeometry lightSource = lightList.getRandomLightSource();
 			
 			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
-			Spectrum lightSpectrum = new Spectrum(lightSample.s);
 			
 			lightSample.p *= 1f/lightList.size();
-			lightSpectrum.mult(lightList.size());
+			lightSample.s.mult(lightList.size());
 			
-			outgoing.add(lightSpectrum);
-//			Spectrum b = sampleBRDF(hitRecord);
-//			outgoing.add(b);
+			SpectrumWrapper brdfSample = sampleBRDF(hitRecord);
+
+			SpectrumWrapper[] samples = {lightSample, brdfSample};
+			
+			float sumP = 0;
+			for (SpectrumWrapper wrapper : samples){
+				sumP += wrapper.p;
+			}
+
+			for (SpectrumWrapper wrapper : samples){
+				float weight = wrapper.p/sumP;
+				
+				weight = Float.isNaN(weight) ? 0 : weight;
+				
+				wrapper.s.mult(weight);
+				outgoing.add(new Spectrum(wrapper.s));
+			}
+			
 			return outgoing;
 		} else 
 			return new Spectrum(0,0,0);
@@ -77,13 +91,16 @@ public class AreaLightIntegrator implements Integrator {
 		
 		if(newHit != null)
 		{
+			
 			Spectrum emission = newHit.material.evaluateEmission(hitRecord, hitRecord.w);
 			if (emission != null){
 				emission.mult(shadingSample.brdf);
 				float cosTerm = hitRecord.normal.dot(shadingSample.w);
-				cosTerm = Math.max(cosTerm, 0.f); // if below the horizon, set cosTerm to 0
-				emission.mult(cosTerm/shadingSample.p);
-				return new SpectrumWrapper(new Spectrum(emission), shadingSample.p);
+				emission.mult(Math.max(cosTerm, 0.f)/shadingSample.p);
+				
+				float r2 = StaticVecmath.dist2(hitRecord.position, newHit.position);
+				float probabilityArea = (shadingSample.p * Math.abs(cosTerm))/r2;
+				return new SpectrumWrapper(new Spectrum(emission), probabilityArea);
 			}
 		}
 		return new SpectrumWrapper(new Spectrum(0),0);
@@ -105,7 +122,7 @@ public class AreaLightIntegrator implements Integrator {
 		if(shadowHit != null){
 			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
-				return new SpectrumWrapper(new Spectrum(0), 0);
+				return new SpectrumWrapper(new Spectrum(0), lightHit.p);
 			}
 		}
 		
