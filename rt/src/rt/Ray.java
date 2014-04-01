@@ -13,8 +13,8 @@ public class Ray {
 	public final float EPSILON = 1e-3f;
 	
 	public Ray(Vector3f origin, Vector3f direction, int depth, boolean epsilonRay){
-		this.origin = origin;
-		this.direction = direction;
+		this.origin = new Vector3f(origin);
+		this.direction = new Vector3f(direction);
 		this.depth = depth;
 		
 		if (epsilonRay){
