@@ -38,7 +38,7 @@ public class AreaLightSceneMarco extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify integrator to be used
-		integratorFactory = new WhittedIntegratorFactory();
+		integratorFactory = new AreaLightIntegratorFactory();
 		
 		// List of objects
 		IntersectableList objects = new IntersectableList();
@@ -53,8 +53,8 @@ public class AreaLightSceneMarco extends Scene {
 	
 		// Bottom
 		rectangle = new Rectangle(new Point3f(-2.f, -.75f, 2.f), new Vector3f(4.f, 0.f, 0.f), new Vector3f(0.f, 0.f, -4.f));
-//		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
-		rectangle.material = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));;
+		rectangle.material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
+//		rectangle.material = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));;
 		objects.add(rectangle);
 
 		// Top
@@ -84,8 +84,8 @@ public class AreaLightSceneMarco extends Scene {
 		objects.add(rectangle);
 		
 		//BOX CENTER
-		Material material = new Refractive(1.1f);
-//		Material material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f))
+//		Material material = new Refractive(1.1f);
+		Material material = new Diffuse(new Spectrum(0.8f, 0.8f, 0.8f));
 		rectangle = new Rectangle(new Point3f(-0.5f, -.75f, 0.25f), new Vector3f(0.5f, 0.f, 0.f), new Vector3f(0.f, 2.f, 0.f));
 		rectangle.material = material;
 		objects.add(rectangle);		

@@ -9,6 +9,7 @@ import rt.Integrator;
 import rt.Intersectable;
 import rt.LightGeometry;
 import rt.LightList;
+import rt.Material.ShadingSample;
 import rt.Ray;
 import rt.Sampler;
 import rt.Scene;
@@ -43,65 +44,90 @@ public class AreaLightIntegrator implements Integrator {
 		{
 			Spectrum emission = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
 			if (emission != null){
-//				System.out.println(emission.toString());
 				return new Spectrum(emission);
 			}
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
-			Spectrum brdfValue;
+			
 			
 			// Iterate over all light sources
 			Iterator<LightGeometry> it = lightList.iterator();
+			
 			while(it.hasNext())
 			{
 				LightGeometry lightSource = it.next();
 			
-				
-				// Make direction from hit point to light source position; this is only supposed to work with point lights
-//				Sampler sampler = samplerFactory.make();
-				float[][] sample = sampler.makeSamples(1, 2);
-				HitRecord lightHit = lightSource.sample(sample[0]);
-				Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
-				float d = lightDir.lengthSquared();
-				lightDir.normalize();
-				
-				Ray shadowRay = new Ray(hitRecord.position,lightDir);
-				Vector3f scaledLightDir = new Vector3f(lightDir);
-				scaledLightDir.scale(1e-3f);
-				shadowRay.origin.add(scaledLightDir);
-				HitRecord shadowHit = root.intersect(shadowRay);
-				
-				if(shadowHit != null){
-					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord + 1e-3f){
-						continue;
-					}
-				}
-				
-				// Evaluate the BRDF
-				brdfValue = hitRecord.material.evaluateBRDF(hitRecord, hitRecord.w, lightDir);
-				
-				// Multiply together factors relevant for shading, that is, brdf * emission * ndotl * geometry term
-				Spectrum s = new Spectrum(brdfValue);
-				
-				// Multiply with emission
-				s.mult(lightHit.material.evaluateEmission(lightHit, StaticVecmath.negate(lightDir)));
-				
-				// Multiply with cosine of surface normal and incident direction
-				float ndotl = hitRecord.normal.dot(lightDir);
-				ndotl = Math.max(ndotl, 0.f);
-				s.mult(ndotl);
-				
-				// Geometry term
-				s.mult(1.f/(d*lightHit.p));
-				
-				// Accumulate
+				Spectrum s = sampleLight(lightSource, hitRecord);
 				outgoing.add(s);
 			}
 			
+//			Spectrum b = sampleBRDF(hitRecord);
+//			outgoing.add(b);
 			return outgoing;
 		} else 
-			return new Spectrum(0.f,0.f,0.f);
+			return new Spectrum(0,0,0);
 		
+	}
+
+	private Spectrum sampleBRDF(HitRecord hitRecord) {
+		float[] sample = sampler.makeSamples(1, 2)[0];
+		ShadingSample shadingSample = hitRecord.material.getShadingSample(hitRecord, sample);
+		
+		Ray r = new Ray(hitRecord.position, shadingSample.w, 0, true);
+		
+		HitRecord newHit = root.intersect(r);
+		
+		if(newHit != null)
+		{
+			Spectrum emission = newHit.material.evaluateEmission(hitRecord, hitRecord.w);
+			if (emission != null){
+				emission.mult(shadingSample.brdf);
+				float cosTerm = hitRecord.normal.dot(shadingSample.w);
+				cosTerm = Math.max(cosTerm, 0.f); // if below the horizon, set cosTerm to 0
+				emission.mult(cosTerm/shadingSample.p);
+				return new Spectrum(emission);
+			}
+		}
+		return new Spectrum(0);
+	}
+	
+	private Spectrum sampleLight(LightGeometry lightSource, HitRecord hitRecord){
+		float[][] sample = sampler.makeSamples(1, 2);
+		HitRecord lightHit = lightSource.sample(sample[0]);
+		Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
+		float d = lightDir.lengthSquared();
+		lightDir.normalize();
+		
+		Ray shadowRay = new Ray(hitRecord.position,lightDir);
+		Vector3f scaledLightDir = new Vector3f(lightDir);
+		scaledLightDir.scale(1e-3f);
+		shadowRay.origin.add(scaledLightDir);
+		HitRecord shadowHit = root.intersect(shadowRay);
+		
+		if(shadowHit != null){
+			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
+			if (d > lengthShadowHitToHitRecord + 1e-3f){
+				return new Spectrum(0);
+			}
+		}
+		
+		// Evaluate the BRDF
+		Spectrum brdfValue = hitRecord.material.evaluateBRDF(hitRecord, hitRecord.w, lightDir);
+		
+		// Multiply together factors relevant for shading, that is, brdf * emission * ndotl * geometry term
+		Spectrum s = new Spectrum(brdfValue);
+		
+		// Multiply with emission
+		s.mult(lightHit.material.evaluateEmission(lightHit, StaticVecmath.negate(lightDir)));
+		
+		// Multiply with cosine of surface normal and incident direction
+		float ndotl = hitRecord.normal.dot(lightDir);
+		ndotl = Math.max(ndotl, 0.f);
+		s.mult(ndotl);
+		
+		// Geometry term
+		s.mult(1.f/(d*lightHit.p));
+		
+		return s;
 	}
 
 	public float[][] makePixelSamples(Sampler sampler, int n) {

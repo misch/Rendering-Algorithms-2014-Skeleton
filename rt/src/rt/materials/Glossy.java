@@ -170,11 +170,13 @@ public class Glossy implements Material {
 		Vector3f w_i = new Vector3f();
 		w_i.scaleAdd(2*cosThetaI,hitRecord.normal,w_o);
 		
+		
 		// compute probability
 		float probability = (float) ((shininess+1)/(8*w_o.dot(w_h)*Math.PI) * Math.pow(cosTheta, shininess));
 		
 		ShadingSample shadingSample = new ShadingSample(evaluateBRDF(hitRecord,w_o,w_i), new Spectrum(0,0,0),w_i,false,probability);
 		// TODO: Check if directions w_o and w_i are the right way around.
+		// TODO: If w_i is below horizon, then return brdf = 0 (see slides 05, p.77)
 		return shadingSample;
 	}
 
