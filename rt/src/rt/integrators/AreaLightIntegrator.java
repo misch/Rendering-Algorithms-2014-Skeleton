@@ -50,16 +50,15 @@ public class AreaLightIntegrator implements Integrator {
 			
 			
 			// Iterate over all light sources
-			Iterator<LightGeometry> it = lightList.iterator();
+			LightGeometry lightSource = lightList.getRandomLightSource();
 			
-			while(it.hasNext())
-			{
-				LightGeometry lightSource = it.next();
+			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
+			Spectrum lightSpectrum = new Spectrum(lightSample.s);
 			
-				Spectrum s = sampleLight(lightSource, hitRecord);
-				outgoing.add(s);
-			}
+			lightSample.p *= 1f/lightList.size();
+			lightSpectrum.mult(lightList.size());
 			
+			outgoing.add(lightSpectrum);
 //			Spectrum b = sampleBRDF(hitRecord);
 //			outgoing.add(b);
 			return outgoing;
@@ -68,7 +67,7 @@ public class AreaLightIntegrator implements Integrator {
 		
 	}
 
-	private Spectrum sampleBRDF(HitRecord hitRecord) {
+	private SpectrumWrapper sampleBRDF(HitRecord hitRecord) {
 		float[] sample = sampler.makeSamples(1, 2)[0];
 		ShadingSample shadingSample = hitRecord.material.getShadingSample(hitRecord, sample);
 		
@@ -84,13 +83,13 @@ public class AreaLightIntegrator implements Integrator {
 				float cosTerm = hitRecord.normal.dot(shadingSample.w);
 				cosTerm = Math.max(cosTerm, 0.f); // if below the horizon, set cosTerm to 0
 				emission.mult(cosTerm/shadingSample.p);
-				return new Spectrum(emission);
+				return new SpectrumWrapper(new Spectrum(emission), shadingSample.p);
 			}
 		}
-		return new Spectrum(0);
+		return new SpectrumWrapper(new Spectrum(0),0);
 	}
 	
-	private Spectrum sampleLight(LightGeometry lightSource, HitRecord hitRecord){
+	private SpectrumWrapper sampleLight(LightGeometry lightSource, HitRecord hitRecord){
 		float[][] sample = sampler.makeSamples(1, 2);
 		HitRecord lightHit = lightSource.sample(sample[0]);
 		Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
@@ -106,7 +105,7 @@ public class AreaLightIntegrator implements Integrator {
 		if(shadowHit != null){
 			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
-				return new Spectrum(0);
+				return new SpectrumWrapper(new Spectrum(0), 0);
 			}
 		}
 		
@@ -127,11 +126,21 @@ public class AreaLightIntegrator implements Integrator {
 		// Geometry term
 		s.mult(1.f/(d*lightHit.p));
 		
-		return s;
+		return new SpectrumWrapper(s, lightHit.p);
 	}
 
 	public float[][] makePixelSamples(Sampler sampler, int n) {
 		return sampler.makeSamples(n, 2);
+	}
+	
+	private class SpectrumWrapper{
+		Spectrum s;
+		float p;
+		
+		public SpectrumWrapper(Spectrum s, float p){
+			this.s = s;
+			this.p = p;
+		}
 	}
 
 }
