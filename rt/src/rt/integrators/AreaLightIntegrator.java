@@ -52,14 +52,14 @@ public class AreaLightIntegrator implements Integrator {
 			// Get a random light source
 			LightGeometry lightSource = lightList.getRandomLightSource();
 			
-			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
-			
-			lightSample.p *= 1f/lightList.size();
-			lightSample.s.mult(lightList.size());
+//			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
+//			
+//			lightSample.p *= 1f/lightList.size();
+//			lightSample.s.mult(lightList.size());
 			
 			SpectrumWrapper brdfSample = sampleBRDF(hitRecord);
 
-			SpectrumWrapper[] samples = {lightSample, brdfSample};
+			SpectrumWrapper[] samples = {brdfSample};
 			
 			float sumP = 0;
 			for (SpectrumWrapper wrapper : samples){
@@ -72,7 +72,7 @@ public class AreaLightIntegrator implements Integrator {
 				weight = Float.isNaN(weight) ? 0 : weight;
 				
 				wrapper.s.mult(weight);
-				outgoing.add(new Spectrum(wrapper.s));
+				outgoing.add(wrapper.s);
 			}
 			
 			return outgoing;
@@ -91,15 +91,14 @@ public class AreaLightIntegrator implements Integrator {
 		
 		if(newHit != null)
 		{
-			
-			Spectrum emission = newHit.material.evaluateEmission(hitRecord, hitRecord.w);
+			Spectrum emission = newHit.material.evaluateEmission(newHit, newHit.w);
 			if (emission != null){
 				emission.mult(shadingSample.brdf);
 				float cosTerm = hitRecord.normal.dot(shadingSample.w);
 				emission.mult(Math.max(cosTerm, 0.f)/shadingSample.p);
 				
 				float r2 = StaticVecmath.dist2(hitRecord.position, newHit.position);
-				float probabilityArea = (shadingSample.p * Math.abs(cosTerm))/r2;
+				float probabilityArea = (shadingSample.p * Math.max(cosTerm,0))/r2;
 				return new SpectrumWrapper(new Spectrum(emission), probabilityArea);
 			}
 		}

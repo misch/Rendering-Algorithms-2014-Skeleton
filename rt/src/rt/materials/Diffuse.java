@@ -2,6 +2,7 @@ package rt.materials;
 
 import java.util.Random;
 
+import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
@@ -77,6 +78,12 @@ public class Diffuse implements Material {
 		direction.x = (float)(Math.cos(2*Math.PI*psi2) * Math.sqrt(psi1));
 		direction.y = (float)(Math.sin(2*Math.PI*psi2) * Math.sqrt(psi1));
 		direction.z = (float)Math.sqrt(1-psi1);
+		assert(Math.abs(direction.length()) -1 < 1e-6f);
+		// transform sampled direction to local coordinate system
+		Matrix3f canonicToLocalFrame = hitRecord.getLocalFrameTransformation();
+		canonicToLocalFrame.transform(direction);
+		assert(Math.abs(direction.length()) -1 < 1e-6f);
+		direction.normalize();
 		
 		float probability = (float) (direction.dot(hitRecord.normal)/Math.PI);
 		

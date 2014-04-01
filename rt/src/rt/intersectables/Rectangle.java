@@ -14,7 +14,7 @@ public class Rectangle extends Plane implements Intersectable {
 
 	public Rectangle(Point3f position, Vector3f vec1, Vector3f vec2) {
 		super(getNormal(vec1, vec2), getPlaneDistance(position, vec1, vec2));
-		this.position = position;
+		this.position = new Point3f(position);
 		this.vec1 = new Vector3f(vec1);
 		this.vec2 = new Vector3f(vec2);
 	}
