@@ -1,7 +1,5 @@
 package rt.materials;
 
-import java.util.Random;
-
 import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
@@ -14,19 +12,20 @@ import rt.Spectrum;
 public class AreaLightMaterial implements Material {
 
 	private Spectrum emission;
-	private Random rand;
 	private float area;
 	
 	public AreaLightMaterial(Spectrum emission, float area)
 	{
 		this.emission = new Spectrum(emission);
 		this.area = area;
-		this.rand = new Random();
 	}
 	
 	public Spectrum evaluateEmission(HitRecord hitRecord, Vector3f wOut) {
 		Spectrum spec = new Spectrum(emission);
-		spec.mult(Math.max(hitRecord.normal.dot(wOut),0));
+		float cosTerm = Math.max(hitRecord.normal.dot(wOut),0);
+//		if (cosTerm > 0)
+//			cosTerm = 1;
+		spec.mult(cosTerm);
 		spec.mult(1f/((float)Math.PI*area));
 		return spec;
 	}

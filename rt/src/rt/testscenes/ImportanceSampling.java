@@ -22,7 +22,7 @@ public class ImportanceSampling extends Scene {
 		samplerFactory = new RandomSamplerFactory();
 		
 		// Samples per pixel
-		SPP = 2;
+		SPP = 8;
 		outputFilename = outputFilename + " " + String.format("%d", SPP) + "SPP";
 		
 		// Make camera and film

@@ -14,7 +14,7 @@ import java.io.*;
  */
 public class Main {
 
-	public static int[] debugPixel; // if defined, then only a certain number of pixels will be rendered
+	public static int[] debugPixel;// = {135,260}; // if defined, then only a certain number of pixels will be rendered
 	public static int debugWindowSize = 0; // size 0 will render only one pixel
 	/** 
 	 * The scene to be rendered.
@@ -30,9 +30,9 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.RefractiveSphere();
 //	public static Scene scene = new rt.testscenes.AccelerationTest();
 //	public static Scene scene = new rt.testscenes.AreaLightTest();
-	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
+//	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
 //	public static Scene scene = new rt.testscenes.GlossyScene();
-//	public static Scene scene = new rt.testscenes.ImportanceSampling();
+	public static Scene scene = new rt.testscenes.ImportanceSampling();
 
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;

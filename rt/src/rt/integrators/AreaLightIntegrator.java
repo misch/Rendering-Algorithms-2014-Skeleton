@@ -1,9 +1,6 @@
 package rt.integrators;
 
-import java.util.Iterator;
-
 import javax.vecmath.Vector3f;
-
 import rt.HitRecord;
 import rt.Integrator;
 import rt.Intersectable;
@@ -52,14 +49,14 @@ public class AreaLightIntegrator implements Integrator {
 			// Get a random light source
 			LightGeometry lightSource = lightList.getRandomLightSource();
 			
-//			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
-//			
-//			lightSample.p *= 1f/lightList.size();
-//			lightSample.s.mult(lightList.size());
+			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
+			
+			lightSample.p *= 1f/lightList.size();
+			lightSample.s.mult(lightList.size());
 			
 			SpectrumWrapper brdfSample = sampleBRDF(hitRecord);
 
-			SpectrumWrapper[] samples = {brdfSample};
+			SpectrumWrapper[] samples = {brdfSample,lightSample};
 			
 			float sumP = 0;
 			for (SpectrumWrapper wrapper : samples){
@@ -94,6 +91,7 @@ public class AreaLightIntegrator implements Integrator {
 			Spectrum emission = newHit.material.evaluateEmission(newHit, newHit.w);
 			if (emission != null){
 				emission.mult(shadingSample.brdf);
+				
 				float cosTerm = hitRecord.normal.dot(shadingSample.w);
 				emission.mult(Math.max(cosTerm, 0.f)/shadingSample.p);
 				
