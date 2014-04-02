@@ -31,4 +31,14 @@ public class StaticVecmath {
 		r.invert();
 		return r;
 	}
+	
+	public static Vector3f reflect(Vector3f normal, Vector3f wIn){
+		assert(Math.abs(normal.length()-1) < 1e-5f);
+		
+		float cosThetaI = wIn.dot(normal); 
+		
+		Vector3f reflected = new Vector3f();
+		reflected.scaleAdd(2*cosThetaI,normal,negate(wIn));
+		return reflected;
+	}
 }

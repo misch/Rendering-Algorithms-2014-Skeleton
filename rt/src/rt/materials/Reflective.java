@@ -50,16 +50,9 @@ public class Reflective implements Material {
 	
 	public ShadingSample evaluateSpecularReflection(HitRecord hitRecord)
 	{	
-		Vector3f i = new Vector3f(hitRecord.w);
-		i.negate();
-		i.normalize();
-		
-		float cosThetaI = -i.dot(hitRecord.normal); 
-				
-		Vector3f r = new Vector3f();
-		r.scaleAdd(2*cosThetaI,hitRecord.normal,i);
-		
-		ShadingSample sample = new ShadingSample(new Spectrum(1,1,1), new Spectrum(0,0,0),r,true,1);
+		Vector3f r = StaticVecmath.reflect(hitRecord.normal, hitRecord.w);
+
+		ShadingSample sample = new ShadingSample(new Spectrum(ks), new Spectrum(0,0,0),r,true,1);
 		return sample;
 	}
 	public boolean hasSpecularRefraction()

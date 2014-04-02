@@ -40,19 +40,7 @@ public class Refractive implements Material {
 	}
 
 	public ShadingSample evaluateSpecularReflection(HitRecord hitRecord) {
-		Vector3f i = new Vector3f(hitRecord.w);
-		i.negate();
-		i.normalize();
-		
-		Vector3f normal = new Vector3f(hitRecord.normal);
-		
-//		if (hitRecord.normal.dot(hitRecord.w) < 0)
-//			normal.negate();
-		
-		float cosThetaI = -i.dot(normal); 
-				
-		Vector3f r = new Vector3f();
-		r.scaleAdd(2*cosThetaI,normal,i);
+		Vector3f r = StaticVecmath.reflect(hitRecord.normal,hitRecord.w);
 		
 		float rSchlick = rSchlick(hitRecord);
 				

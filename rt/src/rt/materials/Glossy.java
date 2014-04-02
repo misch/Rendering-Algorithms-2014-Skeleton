@@ -8,6 +8,7 @@ import javax.vecmath.Vector3f;
 import rt.HitRecord;
 import rt.Material;
 import rt.Spectrum;
+import rt.StaticVecmath;
 import rt.Material.ShadingSample;
 
 public class Glossy implements Material {
@@ -151,7 +152,7 @@ public class Glossy implements Material {
 		w_h.x = (float) (sinTheta * Math.cos(phi));
 		w_h.y = (float) (sinTheta * Math.sin(phi));
 		w_h.z = cosTheta;
-		w_h.normalize();
+		assert(Math.abs(w_h.length())-1 < 1e-5f);
 		
 		// transform sampled direction to local coordinate system
 		Matrix3f canonicToLocalFrame = hitRecord.getLocalFrameTransformation();
@@ -162,21 +163,15 @@ public class Glossy implements Material {
 		
 		// get w_i by reflecting w_o around w_h
 		Vector3f w_o = new Vector3f(hitRecord.w);
-		w_o.negate();
 		w_o.normalize();
 		
-		float cosThetaI = -w_o.dot(hitRecord.normal); 
-				
-		Vector3f w_i = new Vector3f();
-		w_i.scaleAdd(2*cosThetaI,hitRecord.normal,w_o);
-		
+		Vector3f w_i = StaticVecmath.reflect(w_h, w_o);
+		assert(Math.abs(w_i.length() - 1) < 1e-5f);
 		
 		// compute probability
-		float probability = (float) ((shininess+1)/(8*w_o.dot(w_h)*Math.PI) * Math.pow(cosTheta, shininess));
+		float probability = (float) (((shininess+1)/(8*w_o.dot(w_h)*Math.PI)) * Math.pow(cosTheta, shininess));
 		
 		ShadingSample shadingSample = new ShadingSample(evaluateBRDF(hitRecord,w_o,w_i), new Spectrum(0,0,0),w_i,false,probability);
-		// TODO: Check if directions w_o and w_i are the right way around.
-		// TODO: If w_i is below horizon, then return brdf = 0 (see slides 05, p.77)
 		return shadingSample;
 	}
 
