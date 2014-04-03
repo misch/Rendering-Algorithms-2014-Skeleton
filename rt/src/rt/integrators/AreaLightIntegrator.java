@@ -41,6 +41,7 @@ public class AreaLightIntegrator implements Integrator {
 		{
 			Spectrum emission = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
 			if (emission != null){
+//				return new Spectrum(hitRecord.material.evaluateBRDF(hitRecord, null, null));
 				return new Spectrum(emission);
 			}
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
@@ -90,15 +91,15 @@ public class AreaLightIntegrator implements Integrator {
 		if(newHit != null)
 		{
 			Spectrum emission = newHit.material.evaluateEmission(newHit, newHit.w);
-			if (emission != null){
+			float cosTerm = hitRecord.normal.dot(shadingSample.w);
+			float r2 = StaticVecmath.dist2(hitRecord.position, newHit.position);
+			float probabilityArea = (shadingSample.p * Math.max(cosTerm,0))/r2;
+			if (emission != null && newHit.normal.dot(newHit.w) > 0){
 				emission.mult(shadingSample.brdf);
-				
-				float cosTerm = hitRecord.normal.dot(shadingSample.w);
 				emission.mult(Math.max(cosTerm, 0.f)/shadingSample.p);
-				
-				float r2 = StaticVecmath.dist2(hitRecord.position, newHit.position);
-				float probabilityArea = (shadingSample.p * Math.max(cosTerm,0))/r2;
 				return new SpectrumWrapper(new Spectrum(emission), probabilityArea);
+			}else{
+				return new SpectrumWrapper(new Spectrum(0), probabilityArea);
 			}
 		}
 		return new SpectrumWrapper(new Spectrum(0),0);
