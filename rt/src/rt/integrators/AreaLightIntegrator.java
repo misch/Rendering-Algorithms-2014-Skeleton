@@ -61,11 +61,11 @@ public class AreaLightIntegrator implements Integrator {
 			
 			float sumP = 0;
 			for (SpectrumWrapper wrapper : samples){
-				sumP += wrapper.p;
+				sumP += wrapper.p*wrapper.p;
 			}
 			float totalWeight = 0;
 			for (SpectrumWrapper wrapper : samples){
-				float weight = wrapper.p/sumP;
+				float weight = (wrapper.p*wrapper.p)/sumP;
 				
 				weight = Float.isNaN(weight) ? 0 : weight;
 				totalWeight += weight;
