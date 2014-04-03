@@ -133,6 +133,9 @@ public class AreaLightIntegrator implements Integrator {
 		// Multiply with emission
 		s.mult(lightHit.material.evaluateEmission(lightHit, StaticVecmath.negate(lightDir)));
 		
+		float cosTerm = Math.max(lightHit.normal.dot(StaticVecmath.negate(lightDir)),0);
+		s.mult(cosTerm);
+		
 		// Multiply with cosine of surface normal and incident direction
 		float ndotl = hitRecord.normal.dot(lightDir);
 		ndotl = Math.max(ndotl, 0.f);
