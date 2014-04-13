@@ -90,7 +90,7 @@ public class PathtracingBoxCar extends Scene {
 		Vector3f bottomLeft = new Vector3f(-0.75f, 3.f, 1.5f);
 		Vector3f right = new Vector3f(0.f, 0.f, -0.5f);
 		Vector3f top = new Vector3f(0.5f, 0.f, 0.f);
-		RectangleLight rectangleLight = new RectangleLight(bottomLeft, right, top, new Spectrum(100.f, 100.f, 100.f));
+		AreaLight rectangleLight = new AreaLight(bottomLeft, right, top, new Spectrum(100.f, 100.f, 100.f));
 		objects.add(rectangleLight);
 		
 		// Connect objects to root

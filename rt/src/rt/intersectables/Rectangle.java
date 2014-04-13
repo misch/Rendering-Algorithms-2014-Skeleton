@@ -19,6 +19,10 @@ public class Rectangle extends Plane implements Intersectable {
 		this.vec2 = new Vector3f(vec2);
 	}
 
+	public Rectangle(Vector3f position, Vector3f vec1, Vector3f vec2) {
+		this(new Point3f(position), vec1, vec2);
+	}
+
 	private static Vector3f getNormal(Vector3f vec1, Vector3f vec2) {
 		Vector3f normal = new Vector3f();
 		normal.cross(vec1, vec2);
