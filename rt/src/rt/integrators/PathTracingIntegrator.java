@@ -53,7 +53,10 @@ public class PathTracingIntegrator implements Integrator {
 		Spectrum color = new Spectrum();
 		while (true){
 			
-			if (russianRoulette(bounce)){
+			Random rand = new Random();
+			
+			float pRussianRoulette = russianRouletteProbability(bounce);
+			if (rand.nextFloat() < pRussianRoulette){
 				break;
 			}
 			
@@ -90,22 +93,17 @@ public class PathTracingIntegrator implements Integrator {
 			alpha.mult(brdf);
 			
 			float cosTerm = shadingSample.w.dot(normal);
-			alpha.mult(cosTerm/shadingSample.p);
+			alpha.mult(cosTerm/(shadingSample.p*(1-pRussianRoulette)));
 			bounce++;
 		}
 		return color;
 	}
 	
-	private boolean russianRoulette(int bounce) {
+	private float russianRouletteProbability(int bounce) {
 		if (bounce < 3){
-			return false;
+			return 0;
 		}
-		
-		Random rand = new Random();
-		if (rand.nextFloat() > 0.5){
-			return true;
-		}
-		return false;
+		return 0.5f;
 	}
 
 	private SpectrumWrapper sampleLight(LightGeometry lightSource, HitRecord hitRecord){
