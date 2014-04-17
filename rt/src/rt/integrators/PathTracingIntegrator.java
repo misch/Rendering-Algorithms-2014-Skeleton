@@ -136,32 +136,25 @@ public class PathTracingIntegrator implements Integrator {
 		// Multiply with emission
 		s.mult(lightHit.material.evaluateEmission(lightHit, StaticVecmath.negate(lightDir)));
 		
-		float cosTerm = Math.max(lightHit.normal.dot(StaticVecmath.negate(lightDir)),0);
-		s.mult(cosTerm);
-		
 		// Multiply with cosine of surface normal and incident direction
 		float ndotl = hitRecord.normal.dot(lightDir);
 		ndotl = Math.max(ndotl, 0.f);
 		s.mult(ndotl);
 		
-		// Geometry term
-		s.mult(1.f/(d*lightHit.p));
+		// probability to hit the light:
+		// 	- p = 1/lightArea --> aready done in lightSource.sample
+		//	- p = p/(number of light sources) --> lightList.size()
+		// 	- convert to solid angle probability instead of area probability
+		float p = lightHit.p/lightList.size();
+		p *= d/cosTerm;
 		
-		return new SpectrumWrapper(s, lightHit.p);
+		// Geometry term
+		s.mult(1/p);
+		
+		return s;
 	}
 
 	public float[][] makePixelSamples(Sampler sampler, int n) {
 		return sampler.makeSamples(n, 2);
 	}
-	
-	private class SpectrumWrapper{
-		Spectrum s;
-		float p;
-		
-		public SpectrumWrapper(Spectrum s, float p){
-			this.s = s;
-			this.p = p;
-		}
-	}
-
 }
