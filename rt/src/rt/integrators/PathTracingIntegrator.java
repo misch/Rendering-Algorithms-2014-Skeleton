@@ -50,15 +50,9 @@ public class PathTracingIntegrator implements Integrator {
 			return new Spectrum(emission);
 		}
 		int bounce = 0;
-		Spectrum color = new Spectrum();
+		Spectrum outgoing = new Spectrum();
+		Random rand = new Random();
 		while (true){
-			
-			Random rand = new Random();
-			
-			float pRussianRoulette = russianRouletteProbability(bounce);
-			if (rand.nextFloat() < pRussianRoulette){
-				break;
-			}
 			
 			// If a light is directly hit, terminate ray
 			emission  = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
@@ -67,62 +61,69 @@ public class PathTracingIntegrator implements Integrator {
 			}
 			
 			// Add light sample to color
-			LightGeometry lightSource = lightList.getRandomLightSource();
-
-			SpectrumWrapper lightSample = sampleLight(lightSource, hitRecord);
+			Spectrum lightSample = sampleLight(hitRecord);
+		
 			
-			lightSample.p *= 1f/lightList.size();
-			lightSample.s.mult(lightList.size());
+			lightSample.mult(alpha);
+			outgoing.add(lightSample);
 			
-			lightSample.s.mult(alpha);
-			color.add(lightSample.s);
-
+			float pRussianRoulette = russianRouletteProbability(bounce);
+			if (rand.nextFloat() < pRussianRoulette){
+				break;
+			}
 			// Get new ray
 			float[] sample = sampler.makeSamples(1, 2)[0];
 			ShadingSample shadingSample = hitRecord.material.getShadingSample(hitRecord, sample);
 			
-			Ray newRay = new Ray(hitRecord.position, shadingSample.w, 0, true);
-			Vector3f normal = new Vector3f(hitRecord.normal);
+			float cosTerm = shadingSample.w.dot(hitRecord.normal);
+
+			Ray newRay = new Ray(hitRecord.position, shadingSample.w, bounce+1, true);
 			hitRecord = root.intersect(newRay);
-			
 			if (hitRecord == null){
 				break;
 			}
 			
-			Spectrum brdf = shadingSample.brdf;
-			alpha.mult(brdf);
+			alpha.mult(shadingSample.brdf);
 			
-			float cosTerm = shadingSample.w.dot(normal);
+//			System.out.println(pRussianRoulette);
 			alpha.mult(cosTerm/(shadingSample.p*(1-pRussianRoulette)));
+//			alpha.mult(cosTerm/(shadingSample.p));
 			bounce++;
 		}
-		return color;
+		return outgoing;
 	}
 	
 	private float russianRouletteProbability(int bounce) {
-		if (bounce < 3){
+		if (bounce <= 3){
 			return 0;
 		}
 		return 0.5f;
 	}
 
-	private SpectrumWrapper sampleLight(LightGeometry lightSource, HitRecord hitRecord){
+	private Spectrum sampleLight(HitRecord hitRecord){
+		
+		// Get a random light source
+		LightGeometry lightSource = lightList.getRandomLightSource();
+		
 		float[][] sample = sampler.makeSamples(1, 2);
 		HitRecord lightHit = lightSource.sample(sample[0]);
+		
+		// lightDir: surface hit point --> light source
 		Vector3f lightDir = StaticVecmath.sub(lightHit.position, hitRecord.position);
 		float d = lightDir.lengthSquared();
 		lightDir.normalize();
 		
-		Ray shadowRay = new Ray(hitRecord.position,lightDir);
-		Vector3f scaledLightDir = new Vector3f(lightDir);
-		scaledLightDir.scale(1e-3f);
-		shadowRay.origin.add(scaledLightDir);
+		// cosTerm: account for angle from which we see the light
+		float cosTerm = Math.max(lightHit.normal.dot(StaticVecmath.negate(lightDir)),0);
+		
+		// Create a shadow ray
+		Ray shadowRay = new Ray(hitRecord.position,lightDir,0,true);
 		HitRecord shadowHit = root.intersect(shadowRay);
 		
 		if(shadowHit != null){
 			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
-				return new SpectrumWrapper(new Spectrum(0), lightHit.p);
+				return new Spectrum(0);
 			}
 		}
 		
