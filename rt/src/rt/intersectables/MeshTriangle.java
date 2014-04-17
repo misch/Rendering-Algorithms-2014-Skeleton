@@ -73,16 +73,13 @@ public class MeshTriangle implements Intersectable {
 			Vector3f interpolatedNormal = new Vector3f();
 			Vector3f weighted_n0 = new Vector3f(n0);
 
-			weighted_n0.normalize();
 			weighted_n0.scale(1-beta-gamma);
 			
 			Vector3f weighted_n1 = new Vector3f(n1);
 
-			weighted_n1.normalize();
 			weighted_n1.scale(beta);
 
 			Vector3f weighted_n2 = new Vector3f(n2);
-			weighted_n2.normalize();
 			weighted_n2.scale(gamma);
 			
 
@@ -91,10 +88,6 @@ public class MeshTriangle implements Intersectable {
 
 			interpolatedNormal.normalize();
 			
-			// Handle degenerated triangles
-			if (Float.isNaN(interpolatedNormal.x)){
-				return null;
-			}
 			// wIn is incident direction; convention is that it points away from surface
 			Vector3f wIn = new Vector3f(r.direction);
 			wIn.negate();
