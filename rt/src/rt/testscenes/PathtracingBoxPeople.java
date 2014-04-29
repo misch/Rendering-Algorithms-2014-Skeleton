@@ -73,6 +73,7 @@ public class PathtracingBoxPeople extends Scene {
 		{
 			
 			mesh = ObjReader.read("../obj/fireman.obj", 1.f);
+			mesh.material = new TwoSidedDiffuse();
 			timer.reset();
 			accelerator = new BSPAccelerator(mesh);
 			System.out.printf("Accelerator computed in %d ms.\n", timer.timeElapsed());
@@ -92,6 +93,7 @@ public class PathtracingBoxPeople extends Scene {
 		{
 			
 			mesh = ObjReader.read("../obj/male.obj", 1.f);
+			mesh.material = new TwoSidedDiffuse();
 			timer.reset();
 			accelerator = new BSPAccelerator(mesh);
 			System.out.printf("Accelerator computed in %d ms.\n", timer.timeElapsed());

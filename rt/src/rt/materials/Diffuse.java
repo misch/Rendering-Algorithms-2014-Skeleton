@@ -36,7 +36,7 @@ public class Diffuse implements Material {
 	 */
 	public Diffuse()
 	{
-		this(new Spectrum(1.f, 1.f, 1.f));
+		this(new Spectrum(1));
 	}
 
 	/**
