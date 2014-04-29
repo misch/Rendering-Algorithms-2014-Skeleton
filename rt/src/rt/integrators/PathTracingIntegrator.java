@@ -63,7 +63,9 @@ public class PathTracingIntegrator implements Integrator {
 			// Add light sample to color
 			Spectrum lightSample = sampleLight(hitRecord);
 		
-			
+			if (bounce > MAX_BOUNCES){
+				break;
+			}
 			lightSample.mult(alpha);
 			outgoing.add(lightSample);
 			
