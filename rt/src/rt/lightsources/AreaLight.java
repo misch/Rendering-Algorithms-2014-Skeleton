@@ -90,5 +90,9 @@ public class AreaLight implements LightGeometry {
 	public AxisAlignedBoundingBox getBoundingBox() {
 		return null;
 	}
+	
+	public Vector3f getNormal(){
+		return new Vector3f(this.normal);
+	}
 
 }

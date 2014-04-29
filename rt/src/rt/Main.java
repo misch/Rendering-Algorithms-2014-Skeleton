@@ -33,7 +33,7 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
 //	public static Scene scene = new rt.testscenes.GlossyScene();
 //	public static Scene scene = new rt.testscenes.ImportanceSampling();
-	public static Scene scene = new rt.testscenes.PathtracingBoxCar();
+	public static Scene scene = new rt.testscenes.PathtracingBoxSphere();
 	
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;

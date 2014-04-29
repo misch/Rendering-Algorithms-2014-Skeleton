@@ -37,7 +37,7 @@ public class PathtracingBoxSphere extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify integrator to be used
-		integratorFactory = new PathTracingIntegratorFactory();
+		integratorFactory = new BDPathTracingIntegratorFactory(this);
 		
 		// List of objects
 		IntersectableList objects = new IntersectableList();	
