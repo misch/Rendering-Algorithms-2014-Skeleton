@@ -140,8 +140,8 @@ public class BDPathTracingIntegrator implements Integrator {
 		connectionDir.normalize();
 		
 		// Geometry term (G in the green part on p.23)
-		float cosTheta1 = eyeHit.normal.dot(connectionDir);
-		float cosTheta2 = lightNode.hitRecord.normal.dot(StaticVecmath.negate(connectionDir));
+		float cosTheta1 = Math.max(0,eyeHit.normal.dot(connectionDir));
+		float cosTheta2 = Math.max(0,lightNode.hitRecord.normal.dot(StaticVecmath.negate(connectionDir)));
 		float geometryTerm = (cosTheta1 * cosTheta2)/d;
 		
 		// BRDF-terms (f in the green part on p.23)

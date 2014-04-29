@@ -50,4 +50,9 @@ public class PointLight implements LightGeometry {
 		return null;
 	}
 
+	@Override
+	public Vector3f getNormal() {
+		return null;
+	}
+
 }
