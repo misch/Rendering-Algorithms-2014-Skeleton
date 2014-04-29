@@ -25,6 +25,7 @@ public class PathTracingIntegrator implements Integrator {
 	LightList lightList;
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
+	private final int MAX_BOUNCES = 8;
 	
 	public PathTracingIntegrator(Scene scene)
 	{
