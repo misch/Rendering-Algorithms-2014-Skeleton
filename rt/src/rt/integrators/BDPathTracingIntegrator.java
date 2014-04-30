@@ -28,7 +28,6 @@ public class BDPathTracingIntegrator implements Integrator {
 	Sampler sampler = new RandomSampler();
 	private final int MAX_LIGHT_BOUNCES = 0;
 	private final int MAX_EYE_BOUNCES = 10;
-	private final int MAX_BOUNCES = 5;
 	
 	public BDPathTracingIntegrator(Scene scene)
 	{
@@ -60,27 +59,25 @@ public class BDPathTracingIntegrator implements Integrator {
 
 		// Trace light path
 		int lightBounce = 1;
-		boolean specular = false;
+		boolean specular = emissionSample.isSpecular;
 		while (true){
 			
 			if (lightHit == null){
 				break;
 			}
 			
-			if (lightBounce > 1){
+			if (lightBounce > MAX_LIGHT_BOUNCES){
 				break;
 			}
 			
 			// Compute alpha value based on previous lightHit
 			Spectrum alpha;			
 			alpha = new Spectrum(1);
-
-			if(emissionSample == null){
-				System.out.println(lightHit.material);
-			}
 			
 			float Gp = 1/emissionSample.p;
-			if(specular){
+			
+			// TODO No idea if this makes sense.
+			if (!specular){
 				Gp *= lightHit.normal.dot(emissionSample.w);
 			}
 			
@@ -99,7 +96,7 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			// Get new sample
 			emissionSample = lightHit.material.getShadingSample(lightHit, sampler.makeSamples(1, 2)[0]);
-			specular = !emissionSample.isSpecular;
+			specular = emissionSample.isSpecular;
 			
 			lightBounce++;
 		}
@@ -116,7 +113,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		Spectrum alpha = new Spectrum(1);
 		specular = false;
 		while (true){			
-			if (eyeBounce > 2){
+			if (eyeBounce > MAX_EYE_BOUNCES){
 				break;
 			}
 			for(LightNode lightNode : lightNodes){
@@ -131,12 +128,16 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			// Get new ray
 			ShadingSample shadingSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+			specular = shadingSample.isSpecular;
 			
-			specular = !shadingSample.isSpecular;
 			float Gp = 1/shadingSample.p;
-			if (specular){
+
+			// TODO No idea if this makes sense
+			if (!specular){
 				Gp *= hit.normal.dot(shadingSample.w);
 			}
+			
+			
 			
 			alpha.mult(shadingSample.brdf);
 			alpha.mult(Gp);
@@ -161,6 +162,8 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		// Geometry term (G in the green part on p.23)
 		float cosTheta1;
+		
+		// TODO No idea if this makes sense
 		if (specular){
 			cosTheta1 = 1;
 		}else{
