@@ -53,8 +53,9 @@ public class PathTracingIntegrator implements Integrator {
 		int bounce = 0;
 		Spectrum outgoing = new Spectrum();
 		Random rand = new Random();
+		boolean specular = false;
 		while (true){
-			
+					
 			// If a light is directly hit, terminate ray
 			emission  = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
 			if (emission != null){
@@ -87,9 +88,12 @@ public class PathTracingIntegrator implements Integrator {
 			}
 			
 			alpha.mult(shadingSample.brdf);
-			
+			specular = !shadingSample.isSpecular;
+			if (specular){
+				alpha.mult(cosTerm);
+			}
 //			System.out.println(pRussianRoulette);
-			alpha.mult(cosTerm/(shadingSample.p*(1-pRussianRoulette)));
+			alpha.mult(1/(shadingSample.p*(1-pRussianRoulette)));
 //			alpha.mult(cosTerm/(shadingSample.p));
 			bounce++;
 		}

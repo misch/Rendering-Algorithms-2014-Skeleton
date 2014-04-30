@@ -22,7 +22,7 @@ public class CSGScene extends Scene {
 	public CSGScene()
 	{
 		// Output file name
-		outputFilename = new String("..//output//testscenes//CSGScene Whitted");
+		outputFilename = new String("../output/testscenes/CSGScene_BD");
 
 		// Image width and height in pixels
 		width = 640;
@@ -50,7 +50,7 @@ public class CSGScene extends Scene {
 		
 		// Specify which integrator and sampler to use
 		integratorFactory = new WhittedIntegratorFactory();
-//		integratorFactory = new BDPathTracingIntegratorFactory(this);
+		integratorFactory = new BDPathTracingIntegratorFactory(this);
 //		integratorFactory = new PathTracingIntegratorFactory();
  
 		
