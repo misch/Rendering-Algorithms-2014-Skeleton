@@ -26,6 +26,8 @@ public class BDPathTracingIntegrator implements Integrator {
 	LightList lightList;
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
+	private final int MAX_LIGHT_BOUNCES = 0;
+	private final int MAX_EYE_BOUNCES = 10;
 	private final int MAX_BOUNCES = 5;
 	
 	public BDPathTracingIntegrator(Scene scene)
