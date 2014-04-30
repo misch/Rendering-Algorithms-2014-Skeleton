@@ -60,7 +60,10 @@ public class Sphere implements Intersectable {
 		t = Math.min(roots.x, roots.y);
 		
 		if (t<0){ // If the hit point is behind the ray
-			return null;
+			t = Math.max(roots.x, roots.y);
+			if (t<0){
+				return null;
+			}
 		}
 
 		Vector3f position = new Vector3f(r.direction);
