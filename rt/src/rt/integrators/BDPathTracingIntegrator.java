@@ -55,6 +55,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		lightNodes.add(new LightNode(lightHit,0,new Spectrum(lightList.size()/lightHit.p)));
 		
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
+
 		// Trace light path
 		int lightBounce = 1;
 		while (true){
@@ -63,13 +64,17 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 			
-			if (lightBounce > 3){
+			if (lightBounce > MAX_BOUNCES){
 				break;
 			}
 			
 			// Compute alpha value based on previous lightHit
 			Spectrum alpha;			
 			alpha = new Spectrum(1);
+
+			if(emissionSample == null){
+				System.out.println(lightHit.material);
+			}
 			float Gp = lightHit.normal.dot(emissionSample.w)/emissionSample.p;
 			alpha.mult(emissionSample.brdf);
 			alpha.mult(Gp);

@@ -1,5 +1,7 @@
 package rt.materials;
 
+import java.util.Random;
+
 import javax.vecmath.Vector3f;
 
 import rt.*;
@@ -32,7 +34,7 @@ public class Refractive implements Material {
 	 */
 	public Spectrum evaluateBRDF(HitRecord hitRecord, Vector3f wOut,
 			Vector3f wIn) {
-		return new Spectrum(1, 1, 1);
+		return new Spectrum();
 	}
 
 	public boolean hasSpecularReflection() {
@@ -44,9 +46,9 @@ public class Refractive implements Material {
 		
 		float rSchlick = rSchlick(hitRecord);
 				
-		Spectrum brdf = new Spectrum(1,1,1);
+		Spectrum brdf = new Spectrum(1);
 		brdf.mult(rSchlick);
-		ShadingSample sample = new ShadingSample(brdf, new Spectrum(0,0,0),r,true,1);
+		ShadingSample sample = new ShadingSample(brdf, new Spectrum(),r,true,rSchlick);
 		return sample;
 	}
 
@@ -91,12 +93,16 @@ public class Refractive implements Material {
 
 		Spectrum brdf = new Spectrum(1,1,1);
 		brdf.mult(1-rSchlick(hitRecord));
-		return new ShadingSample(brdf,new Spectrum(0, 0, 0), t, true, 1);
+		return new ShadingSample(brdf,new Spectrum(), t, true, 1-rSchlick(hitRecord));
 	}
 
 	// To be implemented for path tracer!
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample) {
-		return null;
+		Random rand = new Random();
+		if (rand.nextFloat() < 0.5){
+			return evaluateSpecularReflection(hitRecord);
+		}
+		return evaluateSpecularRefraction(hitRecord);
 	}
 
 	public boolean castsShadows() {
@@ -108,7 +114,8 @@ public class Refractive implements Material {
 	}
 
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
-		return new ShadingSample();
+//		return new ShadingSample();
+		return null;
 	}
 
 	private float rSchlick(HitRecord hitRecord) {

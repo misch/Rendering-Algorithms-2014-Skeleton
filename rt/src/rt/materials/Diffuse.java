@@ -87,7 +87,7 @@ public class Diffuse implements Material {
 		
 		float probability = (float) (direction.dot(hitRecord.normal)/Math.PI);
 		
-		ShadingSample shadingSample = new ShadingSample(new Spectrum(kd), new Spectrum(0,0,0),direction,false,probability);
+		ShadingSample shadingSample = new ShadingSample(evaluateBRDF(hitRecord,hitRecord.w,direction), new Spectrum(),direction,false,probability);
 		return shadingSample;
 	}
 		
