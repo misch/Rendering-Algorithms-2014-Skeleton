@@ -43,7 +43,7 @@ public class PathTracingIntegrator implements Integrator {
 		Spectrum alpha = new Spectrum(1);
 		HitRecord hitRecord = root.intersect(r);
 		if (hitRecord == null){
-			return new Spectrum(0);
+			return new Spectrum();
 		}
 		
 		Spectrum emission = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w); 
@@ -53,12 +53,14 @@ public class PathTracingIntegrator implements Integrator {
 		int bounce = 0;
 		Spectrum outgoing = new Spectrum();
 		Random rand = new Random();
-		boolean specular = false;
+		boolean isSpecular = false;
 		while (true){
 					
 			// If a light is directly hit, terminate ray
 			emission  = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
 			if (emission != null){
+				if (isSpecular)
+						outgoing.add(emission);
 				break;
 			}
 			
@@ -88,13 +90,11 @@ public class PathTracingIntegrator implements Integrator {
 			}
 			
 			alpha.mult(shadingSample.brdf);
-			specular = !shadingSample.isSpecular;
-			if (specular){
+			isSpecular = shadingSample.isSpecular;
+			if (!isSpecular){
 				alpha.mult(cosTerm);
 			}
-//			System.out.println(pRussianRoulette);
 			alpha.mult(1/(shadingSample.p*(1-pRussianRoulette)));
-//			alpha.mult(cosTerm/(shadingSample.p));
 			bounce++;
 		}
 		return outgoing;
@@ -121,7 +121,11 @@ public class PathTracingIntegrator implements Integrator {
 		lightDir.normalize();
 		
 		// cosTerm: account for angle from which we see the light
-		float cosTerm = Math.max(lightHit.normal.dot(StaticVecmath.negate(lightDir)),0);
+		float cosTerm;
+		if (lightHit.normal != null)
+			cosTerm = Math.max(lightHit.normal.dot(StaticVecmath.negate(lightDir)),0);
+		else
+			cosTerm = 1; // point light
 		
 		// Create a shadow ray
 		Ray shadowRay = new Ray(hitRecord.position,lightDir,0,true);

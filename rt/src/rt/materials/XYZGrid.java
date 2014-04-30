@@ -7,7 +7,7 @@ import rt.Material;
 import rt.Spectrum;
 import rt.StaticVecmath;
 
-public class XYZGrid implements Material {
+public class XYZGrid extends Diffuse implements Material {
 
 	float scale;
 	float thickness;
@@ -17,15 +17,12 @@ public class XYZGrid implements Material {
 
 	public XYZGrid(Spectrum lineColor, Spectrum tileColor, float thickness,
 			Vector3f shift) {
-		this.lineColor = lineColor;
-		this.tileColor = tileColor;
-		this.thickness = thickness;
-		this.shift = shift;
-		this.scale = 1.0f;
+		this(lineColor, tileColor, thickness, shift, 1);
 	}
 	
 	public XYZGrid(Spectrum lineColor, Spectrum tileColor, float thickness,
 			Vector3f shift, float scale) {
+		super(new Spectrum(1));
 		this.lineColor = lineColor;
 		this.tileColor = tileColor;
 		this.thickness = thickness;
@@ -36,7 +33,7 @@ public class XYZGrid implements Material {
 	@Override
 	public Spectrum evaluateBRDF(HitRecord hitRecord, Vector3f wOut,
 			Vector3f wIn) {
-		
+		Spectrum diffuseBRDF = super.evaluateBRDF(hitRecord, wOut, wIn);
 		Vector3f hitPoint = new Vector3f(hitRecord.position);
 		
 		// Shift
@@ -53,57 +50,11 @@ public class XYZGrid implements Material {
 		diff.absolute();
 		
 		if (diff.x < thickness || diff.y < thickness || diff.z < thickness)
-			return lineColor;
+			diffuseBRDF.mult(lineColor);
 		else
-			return tileColor;
-	}
-
-	@Override
-	public Spectrum evaluateEmission(HitRecord hitRecord, Vector3f wOut) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean hasSpecularReflection() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public ShadingSample evaluateSpecularReflection(HitRecord hitRecord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean hasSpecularRefraction() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public ShadingSample evaluateSpecularRefraction(HitRecord hitRecord) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean castsShadows() {
-		// TODO Auto-generated method stub
-		return false;
+			diffuseBRDF.mult(tileColor);
+		
+		return diffuseBRDF;
 	}
 
 }
