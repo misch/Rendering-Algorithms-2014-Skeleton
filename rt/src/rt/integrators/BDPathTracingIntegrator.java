@@ -27,7 +27,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
 	private final int MAX_LIGHT_BOUNCES = 0;
-	private final int MAX_EYE_BOUNCES = 1;
+	private final int MAX_EYE_BOUNCES = 5;
 	
 	public BDPathTracingIntegrator(Scene scene)
 	{
@@ -50,6 +50,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		for(PathNode light : lightSubPath){
 			for(PathNode eye : eyeSubPath){
 				Spectrum c = connect(eye, light);
+//				c.mult(1e-2f);
 				outgoing.add(c);
 			}
 		}
@@ -87,7 +88,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		float pE = 0;
 		
 		// Add node to path
-		lightNodes.add(new PathNode(lightHit,0,alpha,geometryTerm, pL, pE));
+		lightNodes.add(new PathNode(lightHit,0,alpha,geometryTerm, pL, pE,false));
 		
 		// Get new direction
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
@@ -131,11 +132,14 @@ public class BDPathTracingIntegrator implements Integrator {
 			pE = 0;		
 			
 			// add path node and update lightHit
-			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,pE));
+			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,pE,specular));
 			lightHit = newHit;
 			
 			// Get new sample
 			emissionSample = lightHit.material.getShadingSample(lightHit, sampler.makeSamples(1, 2)[0]);
+			if (emissionSample == null){
+				break;
+			}
 			specular = emissionSample.isSpecular;
 			
 			lightBounce++;
@@ -151,7 +155,7 @@ public class BDPathTracingIntegrator implements Integrator {
 
 		int eyeBounce = 1;
 		Spectrum alpha = new Spectrum(1);
-		
+		boolean isSpecular = false;
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
 				break;
@@ -166,9 +170,6 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
-//			if(newSample == null){
-//				System.out.println(hit.material);
-//			}
 			
 			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
 			HitRecord newHit = root.intersect(newRay);
@@ -177,51 +178,29 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 		
-			
-
-			
 			alpha.mult(newSample.brdf);
 			
 			float cosTerm = newSample.w.dot(hit.normal);
-			boolean isSpecular = newSample.isSpecular;
+			
 			if (!isSpecular){
 				alpha.mult(cosTerm);
 			}
 			alpha.mult(1/(newSample.p));;
 			
 			float cos1 = hit.normal.dot(newSample.w);
-			float geometryTerm = (cos1 * newHit.normal.dot(StaticVecmath.negate(newSample.w)))/StaticVecmath.dist2(newHit.position,hit.position);
-			
+
+			float geometryTerm = (newHit.normal.dot(StaticVecmath.negate(newSample.w)))/StaticVecmath.dist2(newHit.position,hit.position);
+			if (!isSpecular){
+				geometryTerm *= cos1;
+			}
 			// TODO pL
 			float pL = 0;
 			
 			// TODO pE
 			float pE = 0;
 			
-			eyeNodes.add(new PathNode(newHit,eyeBounce,alpha,geometryTerm,pL,pE));
-			
-			// Get new ray
-//			ShadingSample shadingSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
-//			specular = shadingSample.isSpecular;
-//			
-//			float Gp = 1/shadingSample.p;
-//
-//			// TODO No idea if this makes sense
-//			if (!specular){
-//				Gp *= hit.normal.dot(shadingSample.w);
-//			}
-//			
-//			
-//			
-//			alpha.mult(shadingSample.brdf);
-//			alpha.mult(Gp);
-//			
-//			Ray newRay = new Ray(hit.position, shadingSample.w, eyeBounce+1, true);
-//			hit = root.intersect(newRay);
-//			if (hit == null){
-//				break;
-//			}
-//			
+			eyeNodes.add(new PathNode(newHit,eyeBounce,alpha,geometryTerm,pL,pE, isSpecular));
+			isSpecular = newSample.isSpecular;
 			eyeBounce++;
 		}
 		
@@ -238,12 +217,12 @@ public class BDPathTracingIntegrator implements Integrator {
 		float cosTheta1;
 		
 		// TODO No idea if this makes sense
-//		if (specular){
-//			cosTheta1 = 1;
-//		}else{
+		if (eye.specular){
+			cosTheta1 = 1;
+		}else{
 			cosTheta1 = eye.hitRecord.normal.dot(connectionDir);
 			cosTheta1 = Math.max(0,cosTheta1);
-//		}
+		}
 		float cosTheta2 = light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir));
 		cosTheta2 = Math.max(0,cosTheta2);
 		
@@ -257,9 +236,9 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		if(light.bounce == 0){
 			brdfLight = light.hitRecord.material.evaluateEmission(light.hitRecord,connectionDir);
+//			brdfLight.mult(light.alpha);
+//			return brdfLight;
 			
-			return brdfLight;
-//			brdfLight.mult(lightNode.alpha);
 		}else{
 			brdfLight = light.hitRecord.material.evaluateBRDF(light.hitRecord, light.hitRecord.w, StaticVecmath.negate(connectionDir));
 		}
@@ -278,7 +257,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		if(shadowHit != null){
 			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, eye.hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
-				return new Spectrum();
+				return new Spectrum(1,1,0);
 			}
 		}
 		
@@ -298,18 +277,20 @@ public class BDPathTracingIntegrator implements Integrator {
 	
 	private class PathNode{
 		HitRecord hitRecord;
+		boolean specular;
 		int bounce;
 		Spectrum alpha;
 		float geometryTerm;
 		float probabilityLight, probabilityEye;
 		
-		public PathNode(HitRecord hitRecord, int bounce, Spectrum alpha, float G, float pL, float pE){
+		public PathNode(HitRecord hitRecord, int bounce, Spectrum alpha, float G, float pL, float pE, boolean specular){
 			this.hitRecord = hitRecord;
 			this.bounce = bounce;
 			this.alpha = alpha;
 			this.geometryTerm = G;
 			this.probabilityLight = pL;
 			this.probabilityEye = pE;
+			this.specular = specular;
 		}
 	}
 }

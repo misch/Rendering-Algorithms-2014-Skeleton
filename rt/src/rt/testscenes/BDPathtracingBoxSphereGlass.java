@@ -45,6 +45,7 @@ public class BDPathtracingBoxSphereGlass extends Scene {
 		
 		Sphere sphere = new Sphere(new Vector3f(-.5f,-0.2f,1.f), .5f);
 		sphere.material = new Refractive(1.3f);
+//		sphere.material = new Diffuse();
 		objects.add(sphere);
 
 		// Right, red wall
