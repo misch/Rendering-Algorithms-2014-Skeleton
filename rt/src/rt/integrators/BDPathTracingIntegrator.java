@@ -27,7 +27,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
 	private final int MAX_LIGHT_BOUNCES = 0;
-	private final int MAX_EYE_BOUNCES = 10;
+	private final int MAX_EYE_BOUNCES = 1;
 	
 	public BDPathTracingIntegrator(Scene scene)
 	{
@@ -44,9 +44,21 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		Spectrum outgoing = new Spectrum();
 		
-		// /////////////////////////////////////////////
-		// 1) make light subpath, store light vertices
-		// /////////////////////////////////////////////
+		ArrayList<PathNode> lightSubPath = createLightSubPath();
+		ArrayList<PathNode> eyeSubPath = createEyeSubPath(r);
+		
+		for(PathNode light : lightSubPath){
+			for(PathNode eye : eyeSubPath){
+				Spectrum c = connect(eye, light);
+				outgoing.add(c);
+			}
+		}
+		
+		return outgoing;
+		
+	}
+	
+	private ArrayList<PathNode> createLightSubPath() {
 		ArrayList<PathNode> lightNodes = new ArrayList<PathNode>();
 		// Sample a random light source
 		LightGeometry lightSource = lightList.getRandomLightSource();		
@@ -56,7 +68,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		HitRecord lightHit = lightSource.sample(sample[0]);
 		// Compute alphaL_1:
 		// alphaL_1 = 1/p(y0) = 1/(1/area * 1/#lightSources) = 1/(lightHit.p * 1/#lightSources) = #lightSources/lightHit.p
-		Spectrum alphaL_1 = new Spectrum(lightList.size()/lightHit.p);
+		Spectrum alpha = new Spectrum(lightList.size()/lightHit.p);
 		
 		// Geometry term
 		// TODO not sure...?
@@ -75,7 +87,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		float pE = 0;
 		
 		// Add node to path
-		lightNodes.add(new PathNode(lightHit,0,alphaL_1,geometryTerm, pL, pE));
+		lightNodes.add(new PathNode(lightHit,0,alpha,geometryTerm, pL, pE));
 		
 		// Get new direction
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
@@ -85,7 +97,10 @@ public class BDPathTracingIntegrator implements Integrator {
 		boolean specular = emissionSample.isSpecular;
 		while (true){
 			
-			if (lightHit == null){
+			Ray newRay = new Ray(lightHit.position, emissionSample.w, lightBounce+1, true);
+			HitRecord newHit = root.intersect(newRay);
+			
+			if (newHit == null){
 				break;
 			}
 			
@@ -93,29 +108,31 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 			
-			// Compute alpha value based on previous lightHit
-			Spectrum alpha;			
-			alpha = new Spectrum(1);
-			
+			// Compute alpha value
+			alpha = new Spectrum(alpha);			
+			alpha.mult(emissionSample.brdf);
+
 			float Gp = 1/emissionSample.p;
 			
 			// TODO No idea if this makes sense.
 			if (!specular){
 				Gp *= lightHit.normal.dot(emissionSample.w);
 			}
-			
-			alpha.mult(emissionSample.brdf);
 			alpha.mult(Gp);
 			
-			// Now, after alpha is computed, update lightHit
-			Ray newRay = new Ray(lightHit.position, emissionSample.w, lightBounce+1, true);
-			lightHit = root.intersect(newRay);
+			float d = StaticVecmath.dist2(lightHit.position, newHit.position);
+			geometryTerm = (lightHit.normal.dot(emissionSample.w) * newHit.normal.dot(newHit.w))/d;
 			
-			if (lightHit == null || lightHit.material.evaluateEmission(lightHit, lightHit.w) != null){
-				break;
-			}
+			// pL = geometryTerm * (emissionSample.p/newHit.normal.dot(newHit.w));
+			// the cosine-term cancels out; to avoid numerical blah, just write it out easier:
+			pL = (lightHit.normal.dot(emissionSample.w)/d) * (emissionSample.p);
 			
-			lightNodes.add(new LightNode(lightHit,lightBounce,alpha));
+			// pE seems to be complicated to calculate...
+			pE = 0;		
+			
+			// add path node and update lightHit
+			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,pE));
+			lightHit = newHit;
 			
 			// Get new sample
 			emissionSample = lightHit.material.getShadingSample(lightHit, sampler.makeSamples(1, 2)[0]);
@@ -123,63 +140,97 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			lightBounce++;
 		}
-
-		// //////////////////////////////////////////////////////////////
-		// 2) make eye path; for each hit, connect with each light node
-		// //////////////////////////////////////////////////////////////
-		int eyeBounce = 1;
-		HitRecord hit = root.intersect(r);
-		if(hit == null){
-			return new Spectrum();
-		}
 		
+		return lightNodes;
+	}
+
+	private ArrayList<PathNode> createEyeSubPath(Ray r){
+		ArrayList<PathNode> eyeNodes = new ArrayList<>();
+
+		HitRecord hit = root.intersect(r);
+
+		int eyeBounce = 1;
 		Spectrum alpha = new Spectrum(1);
-		specular = false;
+		
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
 				break;
 			}
-			for(LightNode lightNode : lightNodes){
-				Spectrum connectionContribution = connect(hit,lightNode,specular);
-				connectionContribution.mult(alpha);
-				outgoing.add(connectionContribution);
-			}
 			
-			if (hit.material.evaluateEmission(hit, hit.w) != null){
-				break;
-			}
-			
-			// Get new ray
-			ShadingSample shadingSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
-			specular = shadingSample.isSpecular;
-			
-			float Gp = 1/shadingSample.p;
-
-			// TODO No idea if this makes sense
-			if (!specular){
-				Gp *= hit.normal.dot(shadingSample.w);
-			}
-			
-			
-			
-			alpha.mult(shadingSample.brdf);
-			alpha.mult(Gp);
-			
-			Ray newRay = new Ray(hit.position, shadingSample.w, eyeBounce+1, true);
-			hit = root.intersect(newRay);
 			if (hit == null){
 				break;
 			}
 			
+			// TODO: maybe add emission, at least if eyeBounce big enough?
+			if (hit.material.evaluateEmission(hit, hit.w) != null){
+				break;
+			}
+			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+//			if(newSample == null){
+//				System.out.println(hit.material);
+//			}
+			
+			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
+			HitRecord newHit = root.intersect(newRay);
+			
+			if (newHit == null){
+				break;
+			}
+		
+			
+
+			
+			alpha.mult(newSample.brdf);
+			
+			float cosTerm = newSample.w.dot(hit.normal);
+			boolean isSpecular = newSample.isSpecular;
+			if (!isSpecular){
+				alpha.mult(cosTerm);
+			}
+			alpha.mult(1/(newSample.p));;
+			
+			float cos1 = hit.normal.dot(newSample.w);
+			float geometryTerm = (cos1 * newHit.normal.dot(StaticVecmath.negate(newSample.w)))/StaticVecmath.dist2(newHit.position,hit.position);
+			
+			// TODO pL
+			float pL = 0;
+			
+			// TODO pE
+			float pE = 0;
+			
+			eyeNodes.add(new PathNode(newHit,eyeBounce,alpha,geometryTerm,pL,pE));
+			
+			// Get new ray
+//			ShadingSample shadingSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+//			specular = shadingSample.isSpecular;
+//			
+//			float Gp = 1/shadingSample.p;
+//
+//			// TODO No idea if this makes sense
+//			if (!specular){
+//				Gp *= hit.normal.dot(shadingSample.w);
+//			}
+//			
+//			
+//			
+//			alpha.mult(shadingSample.brdf);
+//			alpha.mult(Gp);
+//			
+//			Ray newRay = new Ray(hit.position, shadingSample.w, eyeBounce+1, true);
+//			hit = root.intersect(newRay);
+//			if (hit == null){
+//				break;
+//			}
+//			
 			eyeBounce++;
 		}
 		
-		return outgoing;
+		return eyeNodes;
 	}
 	
-	private Spectrum connect(HitRecord eyeHit, LightNode lightNode, boolean specular) {
+	private Spectrum connect(PathNode eye, PathNode light) {
 		// Direction of the connecting ray
-		Vector3f connectionDir = StaticVecmath.sub(lightNode.hitRecord.position,eyeHit.position);
+		Vector3f connectionDir = StaticVecmath.sub(light.hitRecord.position,eye.hitRecord.position);
 		float d = connectionDir.lengthSquared();
 		connectionDir.normalize();
 		
@@ -187,13 +238,13 @@ public class BDPathTracingIntegrator implements Integrator {
 		float cosTheta1;
 		
 		// TODO No idea if this makes sense
-		if (specular){
-			cosTheta1 = 1;
-		}else{
-			cosTheta1 = eyeHit.normal.dot(connectionDir);
+//		if (specular){
+//			cosTheta1 = 1;
+//		}else{
+			cosTheta1 = eye.hitRecord.normal.dot(connectionDir);
 			cosTheta1 = Math.max(0,cosTheta1);
-		}
-		float cosTheta2 = lightNode.hitRecord.normal.dot(StaticVecmath.negate(connectionDir));
+//		}
+		float cosTheta2 = light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir));
 		cosTheta2 = Math.max(0,cosTheta2);
 		
 
@@ -201,18 +252,19 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		// BRDF-terms (f in the green part on p.23)
 		Spectrum brdfEye, brdfLight;
-		brdfEye = eyeHit.material.evaluateBRDF(eyeHit, eyeHit.w, connectionDir);
+		brdfEye = eye.hitRecord.material.evaluateBRDF(eye.hitRecord, eye.hitRecord.w, connectionDir);
+		brdfEye.mult(eye.alpha);
 		
-		if(lightNode.bounce == 0){
-			brdfLight = lightNode.hitRecord.material.evaluateEmission(lightNode.hitRecord,connectionDir);
+		if(light.bounce == 0){
+			brdfLight = light.hitRecord.material.evaluateEmission(light.hitRecord,connectionDir);
 			
 			return brdfLight;
 //			brdfLight.mult(lightNode.alpha);
 		}else{
-			brdfLight = lightNode.hitRecord.material.evaluateBRDF(lightNode.hitRecord, lightNode.hitRecord.w, StaticVecmath.negate(connectionDir));
+			brdfLight = light.hitRecord.material.evaluateBRDF(light.hitRecord, light.hitRecord.w, StaticVecmath.negate(connectionDir));
 		}
 		
-		brdfLight.mult(lightNode.alpha);
+		brdfLight.mult(light.alpha);
 		
 		// multiply stuff together
 		Spectrum connectionContribution = new Spectrum(brdfEye);
@@ -220,11 +272,11 @@ public class BDPathTracingIntegrator implements Integrator {
 		connectionContribution.mult(geometryTerm);
 
 		// shadow ray
-		Ray shadowRay = new Ray(eyeHit.position,connectionDir,0,true);
+		Ray shadowRay = new Ray(eye.hitRecord.position,connectionDir,0,true);
 		HitRecord shadowHit = root.intersect(shadowRay);
 		
 		if(shadowHit != null){
-			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, eyeHit.position);
+			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, eye.hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
 				return new Spectrum();
 			}
