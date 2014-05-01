@@ -44,17 +44,40 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		Spectrum outgoing = new Spectrum();
 		
-		// ///////////////////////////////////////////
-		// 1) make light path, store light vertices
-		// ///////////////////////////////////////////
-		ArrayList<LightNode> lightNodes = new ArrayList<LightNode>();
+		// /////////////////////////////////////////////
+		// 1) make light subpath, store light vertices
+		// /////////////////////////////////////////////
+		ArrayList<PathNode> lightNodes = new ArrayList<PathNode>();
 		// Sample a random light source
 		LightGeometry lightSource = lightList.getRandomLightSource();		
 		float[][] sample = sampler.makeSamples(1, 2);
+		
+		// First node (lies on the light source):
 		HitRecord lightHit = lightSource.sample(sample[0]);
+		// Compute alphaL_1:
+		// alphaL_1 = 1/p(y0) = 1/(1/area * 1/#lightSources) = 1/(lightHit.p * 1/#lightSources) = #lightSources/lightHit.p
+		Spectrum alphaL_1 = new Spectrum(lightList.size()/lightHit.p);
 		
-		lightNodes.add(new LightNode(lightHit,0,new Spectrum(lightList.size()/lightHit.p)));
+		// Geometry term
+		// TODO not sure...?
+		float geometryTerm = 1;
 		
+		// compute pL: probability for sampling the vertex from a light.
+		// We have a special case here, because we are directly on the light;
+		// therefore it's simply the probability according to our light sampling strategy, so
+		// p = 1/(area*#lightSources)
+		float pL = lightHit.p/lightList.size();
+		
+		// compute pE: probability for sampling the PREVIOUS vertex from the eye, via the now current vertex
+		// TODO: No idea what this should be...
+		// My guess is 0 because the probability that, starting from the current vertex on the light source, 
+		// the eye subpath would never continue, because simply the emitted light would somehow be added
+		float pE = 0;
+		
+		// Add node to path
+		lightNodes.add(new PathNode(lightHit,0,alphaL_1,geometryTerm, pL, pE));
+		
+		// Get new direction
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
 
 		// Trace light path
@@ -182,6 +205,9 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		if(lightNode.bounce == 0){
 			brdfLight = lightNode.hitRecord.material.evaluateEmission(lightNode.hitRecord,connectionDir);
+			
+			return brdfLight;
+//			brdfLight.mult(lightNode.alpha);
 		}else{
 			brdfLight = lightNode.hitRecord.material.evaluateBRDF(lightNode.hitRecord, lightNode.hitRecord.w, StaticVecmath.negate(connectionDir));
 		}
@@ -218,15 +244,20 @@ public class BDPathTracingIntegrator implements Integrator {
 		return sampler.makeSamples(n, 2);
 	}
 	
-	private class LightNode{
+	private class PathNode{
 		HitRecord hitRecord;
 		int bounce;
 		Spectrum alpha;
+		float geometryTerm;
+		float probabilityLight, probabilityEye;
 		
-		public LightNode(HitRecord hitRecord, int bounce, Spectrum alpha){
+		public PathNode(HitRecord hitRecord, int bounce, Spectrum alpha, float G, float pL, float pE){
 			this.hitRecord = hitRecord;
 			this.bounce = bounce;
 			this.alpha = alpha;
+			this.geometryTerm = G;
+			this.probabilityLight = pL;
+			this.probabilityEye = pE;
 		}
 	}
 }

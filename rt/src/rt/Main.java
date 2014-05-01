@@ -13,8 +13,8 @@ import java.io.*;
  * all configuration information for the renderer.
  */
 public class Main {
-
-	public static int[] debugPixel;// = {70,128-99}; // if defined, then only a certain number of pixels will be rendered
+	// Should not be black because it's the light source itself!
+	public static int[] debugPixel;// = {63,128-19}; // if defined, then only a certain number of pixels will be rendered
 	public static int debugWindowSize = 0; // size 0 will render only one pixel
 	/** 
 	 * The scene to be rendered.
