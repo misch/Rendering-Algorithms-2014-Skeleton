@@ -61,14 +61,17 @@ public class BDPathTracingIntegrator implements Integrator {
 	
 	private ArrayList<PathNode> createLightSubPath() {
 		ArrayList<PathNode> lightNodes = new ArrayList<PathNode>();
+		
+		// Add the "zero"-node: no hitRecord necessary because s = 0 means
+		// that the light source will not be sampled (whole subpath comes from the eye)
+		lightNodes.add(new PathNode(null,0,new Spectrum(1),1,0,0,false));
+		
 		// Sample a random light source
 		LightGeometry lightSource = lightList.getRandomLightSource();		
-		float[][] sample = sampler.makeSamples(1, 2);
+		HitRecord lightHit = lightSource.sample(sampler.makeSamples(1, 2)[0]);
 		
-		// First node (lies on the light source):
-		HitRecord lightHit = lightSource.sample(sample[0]);
-		// Compute alphaL_1:
-		// alphaL_1 = 1/p(y0) = 1/(1/area * 1/#lightSources) = 1/(lightHit.p * 1/#lightSources) = #lightSources/lightHit.p
+		// Compute alpha:
+		// alpha = 1/p(y0) = 1/(1/area * 1/#lightSources) = 1/(lightHit.p * 1/#lightSources) = #lightSources/lightHit.p
 		Spectrum alpha = new Spectrum(lightList.size()/lightHit.p);
 		
 		// Geometry term
@@ -88,14 +91,14 @@ public class BDPathTracingIntegrator implements Integrator {
 		float pE = 0;
 		
 		// Add node to path
-		lightNodes.add(new PathNode(lightHit,0,alpha,geometryTerm, pL, pE,false));
+		lightNodes.add(new PathNode(lightHit,1,alpha,geometryTerm, pL, pE,false));
 		
 		// Get new direction
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
 
 		// Trace light path
-		int lightBounce = 1;
-		boolean specular = emissionSample.isSpecular;
+		int lightBounce = 2;
+		boolean specular = false;
 		while (true){
 			
 			Ray newRay = new Ray(lightHit.position, emissionSample.w, lightBounce+1, true);
@@ -137,7 +140,7 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			// Get new sample
 			emissionSample = lightHit.material.getShadingSample(lightHit, sampler.makeSamples(1, 2)[0]);
-			if (emissionSample == null){
+			if (emissionSample == null){ // should not happen? Or maybe if a light source is hit?
 				break;
 			}
 			specular = emissionSample.isSpecular;
@@ -151,11 +154,16 @@ public class BDPathTracingIntegrator implements Integrator {
 	private ArrayList<PathNode> createEyeSubPath(Ray r){
 		ArrayList<PathNode> eyeNodes = new ArrayList<>();
 
+		// Add t=1-node: point on the camera
+		HitRecord camHit = new HitRecord();
+		camHit.position = r.origin;
+		eyeNodes.add(new PathNode(camHit,1,new Spectrum(1), 1,0,0,false));
+		
 		HitRecord hit = root.intersect(r);
 
-		int eyeBounce = 1;
+		int eyeBounce = 2;
 		Spectrum alpha = new Spectrum(1);
-		boolean isSpecular = false;
+		boolean specular = false;
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
 				break;
@@ -165,49 +173,69 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 			
-			// TODO: maybe add emission, at least if eyeBounce big enough?
-			if (hit.material.evaluateEmission(hit, hit.w) != null){
-				break;
-			}
-			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+//			// maybe add emission?
+//			if (hit.material.evaluateEmission(hit, hit.w) != null){
+//				break;
+//			}
 			
-			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
-			HitRecord newHit = root.intersect(newRay);
-			
-			if (newHit == null){
-				break;
-			}
-		
-			alpha.mult(newSample.brdf);
-			
-			float cosTerm = newSample.w.dot(hit.normal);
-			
-			if (!isSpecular){
-				alpha.mult(cosTerm);
-			}
-			alpha.mult(1/(newSample.p));;
-			
-			float cos1 = hit.normal.dot(newSample.w);
-
-			float geometryTerm = (newHit.normal.dot(StaticVecmath.negate(newSample.w)))/StaticVecmath.dist2(newHit.position,hit.position);
-			if (!isSpecular){
-				geometryTerm *= cos1;
-			}
-			// TODO pL
+			// TODO: compute those terms
+			float geometryTerm = 1;
 			float pL = 0;
-			
-			// TODO pE
 			float pE = 0;
 			
-			eyeNodes.add(new PathNode(newHit,eyeBounce,alpha,geometryTerm,pL,pE, isSpecular));
-			isSpecular = newSample.isSpecular;
+			eyeNodes.add(new PathNode(hit,eyeBounce,alpha,geometryTerm,pL,pE,specular));
+			
+			// get to next node
+			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+			specular = newSample.isSpecular;
+			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
+			hit = root.intersect(newRay);
+			
 			eyeBounce++;
+		
+//			alpha.mult(newSample.brdf);
+//			
+//			float cosTerm = newSample.w.dot(hit.normal);
+//			
+//			if (!specular){
+//				alpha.mult(cosTerm);
+//			}
+//			alpha.mult(1/(newSample.p));;
+//			
+//			float cos1 = hit.normal.dot(newSample.w);
+//
+//			float geometryTerm = (newHit.normal.dot(StaticVecmath.negate(newSample.w)))/StaticVecmath.dist2(newHit.position,hit.position);
+//			if (!specular){
+//				geometryTerm *= cos1;
+//			}
+			
+//			eyeNodes.add(new PathNode(newHit,eyeBounce,alpha,geometryTerm,pL,pE, specular));
+//			specular = newSample.isSpecular;
 		}
 		
 		return eyeNodes;
 	}
 	
 	private Spectrum connect(PathNode eye, PathNode light) {
+		
+		if (light.bounce == 1 && eye.bounce == 1){
+			// Accounts for directly visible lights - ignore that one
+		}
+		
+		if (light.bounce == 0){ 
+			// Don't connect - only take the eye-hitRecord; if the material is emissive, return emission, else evaluateBRDF.
+		}
+		
+		if (light.bounce == 1){
+			// Should be directly connecting to a light source -- maybe assert that light.hitRecord.material has an emission?
+		}
+		
+		assert(eye.bounce > 0);
+		
+		if (eye.bounce == 1){
+			// Write contribution to separate buffer
+		}
+		
 		// Direction of the connecting ray
 		Vector3f connectionDir = StaticVecmath.sub(light.hitRecord.position,eye.hitRecord.position);
 		float d = connectionDir.lengthSquared();
@@ -278,6 +306,15 @@ public class BDPathTracingIntegrator implements Integrator {
 	private class PathNode{
 		HitRecord hitRecord;
 		boolean specular;
+		
+		/* Corresponds to s in light subpath and t in eye subpath.
+		 * - Light subpath: 
+		 * 			- bounce = 0 	==> 	no connection to light source is made - all segments are sampled from light
+		 * 			- bounce = 1 	==> 	each vertex of the eye subpath will be connected with the (same) point on the light source
+		 * - Eye subpath:
+		 * 			- bounce = 0 	==> 	...? ignore for now (light image?)
+		 * 			- bounce = 1 	==> 	each light hit will be connected to the eye
+		 */
 		int bounce;
 		Spectrum alpha;
 		float geometryTerm;
