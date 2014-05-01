@@ -61,21 +61,18 @@ public class BDPathTracingIntegrator implements Integrator {
 	
 	private ArrayList<PathNode> createLightSubPath() {
 		ArrayList<PathNode> lightNodes = new ArrayList<PathNode>();
-		
-		// Add the "zero"-node: no hitRecord necessary because s = 0 means
-		// that the light source will not be sampled (whole subpath comes from the eye)
-		lightNodes.add(new PathNode(null,0,new Spectrum(1),1,0,0,false));
-		
+				
 		// Sample a random light source
 		LightGeometry lightSource = lightList.getRandomLightSource();		
 		HitRecord lightHit = lightSource.sample(sampler.makeSamples(1, 2)[0]);
+		
+		// TODO: Compute all the alpha's, geometry terms and probabilities!
 		
 		// Compute alpha:
 		// alpha = 1/p(y0) = 1/(1/area * 1/#lightSources) = 1/(lightHit.p * 1/#lightSources) = #lightSources/lightHit.p
 		Spectrum alpha = new Spectrum(lightList.size()/lightHit.p);
 		
 		// Geometry term
-		// TODO not sure...?
 		float geometryTerm = 1;
 		
 		// compute pL: probability for sampling the vertex from a light.
@@ -85,7 +82,6 @@ public class BDPathTracingIntegrator implements Integrator {
 		float pL = lightHit.p/lightList.size();
 		
 		// compute pE: probability for sampling the PREVIOUS vertex from the eye, via the now current vertex
-		// TODO: No idea what this should be...
 		// My guess is 0 because the probability that, starting from the current vertex on the light source, 
 		// the eye subpath would never continue, because simply the emitted light would somehow be added
 		float pE = 0;
@@ -173,10 +169,13 @@ public class BDPathTracingIntegrator implements Integrator {
 				break;
 			}
 			
-//			// maybe add emission?
-//			if (hit.material.evaluateEmission(hit, hit.w) != null){
-//				break;
-//			}
+			if (hit.material.evaluateEmission(hit, hit.w) != null){
+				// TODO: 	This should be added to eyeNodes, too:
+				// 			Last node of the eye subpath (then, break subpath).
+				//			Will then be handled by the connect()-method (corresponds to
+				// 			the case of s = 0)
+				break;
+			}
 			
 			// TODO: compute those terms
 			float geometryTerm = 1;
@@ -222,8 +221,8 @@ public class BDPathTracingIntegrator implements Integrator {
 			// Accounts for directly visible lights - ignore that one
 		}
 		
-		if (light.bounce == 0){ 
-			// Don't connect - only take the eye-hitRecord; if the material is emissive, return emission, else evaluateBRDF.
+		if (eye.hitRecord.material.evaluateEmission(eye.hitRecord, eye.hitRecord.w) != null){ // that's the case of s = 0!
+			// Don't connect - only take the eye-hitRecord; return emission. TODO: some scaling stuff with probabilities
 		}
 		
 		if (light.bounce == 1){
@@ -244,7 +243,6 @@ public class BDPathTracingIntegrator implements Integrator {
 		// Geometry term (G in the green part on p.23)
 		float cosTheta1;
 		
-		// TODO No idea if this makes sense
 		if (eye.specular){
 			cosTheta1 = 1;
 		}else{
