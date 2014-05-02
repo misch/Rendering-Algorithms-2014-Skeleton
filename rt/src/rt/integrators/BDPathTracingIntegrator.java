@@ -59,7 +59,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 	}
 	
-	private ArrayList<PathNode> createLightSubPath() {
+	private ArrayList<PathNode>() {
 		ArrayList<PathNode> lightNodes = new ArrayList<PathNode>();
 				
 		// Sample a random light source
@@ -186,20 +186,20 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			// get to next node
 			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
+			float cosTerm = newSample.w.dot(hit.normal);
+			
 			specular = newSample.isSpecular;
 			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
 			hit = root.intersect(newRay);
 			
 			eyeBounce++;
 		
-//			alpha.mult(newSample.brdf);
-//			
-//			float cosTerm = newSample.w.dot(hit.normal);
-//			
-//			if (!specular){
-//				alpha.mult(cosTerm);
-//			}
-//			alpha.mult(1/(newSample.p));;
+			alpha.mult(newSample.brdf);
+
+			if (!specular){
+				alpha.mult(cosTerm);
+			}
+			alpha.mult(1/(newSample.p));;
 //			
 //			float cos1 = hit.normal.dot(newSample.w);
 //
