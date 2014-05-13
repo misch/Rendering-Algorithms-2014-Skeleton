@@ -26,7 +26,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	LightList lightList;
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
-	private final int MAX_LIGHT_BOUNCES = 1;
+	private final int MAX_LIGHT_BOUNCES = 5;
 	private final int MAX_EYE_BOUNCES = 5;
 	private Spectrum[][] lightImg;
 	private int[][] nSamples;
@@ -142,13 +142,14 @@ public class BDPathTracingIntegrator implements Integrator {
 			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
 
 			if(newSample == null){
-				return lightNodes;
+				break;
 			}
+			
 			specular = newSample.isSpecular;
 			Ray r = new Ray(hit.position,newSample.w,0,true);
 			HitRecord newHit = root.intersect(r);
 			
-			if (newHit == null){
+			if (newHit == null || newHit.material.evaluateEmission(newHit, newSample.w) != null){
 				break;
 			}
 			
@@ -263,6 +264,7 @@ public class BDPathTracingIntegrator implements Integrator {
 				
 		Spectrum emission = eye.hitRecord.material.evaluateEmission(eye.hitRecord, eye.hitRecord.w);
 		if (emission != null && (eye.bounce == 2 || eye.specular)){ // that's the case of s = 0!
+
 			return new Spectrum(emission);
 		}
 				
@@ -317,7 +319,6 @@ public class BDPathTracingIntegrator implements Integrator {
 				Spectrum em = light.hitRecord.material.evaluateEmission(light.hitRecord, StaticVecmath.negate(lightDir));
 				if (em == null){
 					em = new Spectrum(light.hitRecord.material.evaluateBRDF(light.hitRecord, StaticVecmath.negate(lightDir), light.hitRecord.w));
-					em = new Spectrum(1,1,0);
 				}
 				
 				float cosTerm = light.hitRecord.normal.dot(StaticVecmath.negate(lightDir));
