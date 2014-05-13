@@ -275,12 +275,42 @@ public class BDPathTracingIntegrator implements Integrator {
 			float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, eye.hitRecord.position);
 			if (d > lengthShadowHitToHitRecord + 1e-3f){
 				return new Spectrum(1,1,0);
+	private void connectToCamera(PathNode light, Vector3f cameraPosition) {
+		Vector3f lightDir = StaticVecmath.sub(light.hitRecord.position,cameraPosition);
+		float distanceToCamera = lightDir.lengthSquared();
+		lightDir.normalize();
+		
+		Ray lightRay = new Ray(light.hitRecord.position,StaticVecmath.negate(lightDir),0,true);
+		HitRecord lightToCam = root.intersect(lightRay);
+		
+		if (lightToCam == null || distanceToCamera <= StaticVecmath.dist2(light.hitRecord.position, lightToCam.position) + 1e-3f){
+			int[] pixels = this.scene.getCamera().getPixel(lightRay);
+		
+			if(pixels[0] >= 0 && pixels[0] < scene.getFilm().getWidth() && pixels[1] >= 0 && pixels[1] < scene.getFilm().getHeight()){
+				Spectrum em = light.hitRecord.material.evaluateEmission(light.hitRecord, StaticVecmath.negate(lightDir));
+				if (em == null){
+					em = new Spectrum(light.hitRecord.material.evaluateBRDF(light.hitRecord, StaticVecmath.negate(lightDir), light.hitRecord.w));
+					em = new Spectrum(1,1,0);
+				}
+				
+				float cosTerm = light.hitRecord.normal.dot(StaticVecmath.negate(lightDir));
+				cosTerm /= distanceToCamera;
+				em.mult(cosTerm);
+				// TODO: ??? cosine between look-at direction and StaticVecmath.negate(lightDir) ???
+				lightImg[pixels[0]][pixels[1]].add(em);
 			}
 		}
 		
-		return c_st;
 	}
 
+	public Spectrum[][] getLightImg(){
+		return this.lightImg;
+	}
+	
+	public int[][] getNSamples(){
+		return this.nSamples;
+	}
+	
 	private float russianRouletteProbability(int bounce) {
 		if (bounce <= 3){
 			return 0;
