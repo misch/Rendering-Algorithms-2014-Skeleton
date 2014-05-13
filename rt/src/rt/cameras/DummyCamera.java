@@ -30,4 +30,16 @@ public class DummyCamera implements Camera {
 		return new Ray(new Vector3f(0.f,0.f,0.f), new Vector3f(x, y, 1.f));
 	}
 
+	@Override
+	public int[] getPixel(Ray worldRayTowardsCam) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Vector3f getLookAtDirection() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

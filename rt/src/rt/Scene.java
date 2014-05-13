@@ -58,5 +58,7 @@ public abstract class Scene {
 	public void prepare()
 	{
 	}
+	
+	public void finish(){ }
 
 }

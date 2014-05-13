@@ -36,12 +36,26 @@ public class BoxFilterFilm implements Film {
 	
 	public void addSample(double x, double y, Spectrum s)
 	{
+		this.addMultSamples(x,y,s,1);
+//		if((int)x>=0 && (int)x<width && (int)y>=0 && (int)y<height)
+//		{
+//			unnormalized[(int)x][(int)y].r += s.r;
+//			unnormalized[(int)x][(int)y].g += s.g;
+//			unnormalized[(int)x][(int)y].b += s.b;
+//			nSamples[(int)x][(int)y]++;
+//			image[(int)x][(int)y].r = unnormalized[(int)x][(int)y].r/nSamples[(int)x][(int)y];
+//			image[(int)x][(int)y].g = unnormalized[(int)x][(int)y].g/nSamples[(int)x][(int)y];
+//			image[(int)x][(int)y].b = unnormalized[(int)x][(int)y].b/nSamples[(int)x][(int)y];
+//		}
+	}
+	
+	public void addMultSamples(double x, double y, Spectrum s, int samples){
 		if((int)x>=0 && (int)x<width && (int)y>=0 && (int)y<height)
 		{
 			unnormalized[(int)x][(int)y].r += s.r;
 			unnormalized[(int)x][(int)y].g += s.g;
 			unnormalized[(int)x][(int)y].b += s.b;
-			nSamples[(int)x][(int)y]++;
+			nSamples[(int)x][(int)y] += samples;
 			image[(int)x][(int)y].r = unnormalized[(int)x][(int)y].r/nSamples[(int)x][(int)y];
 			image[(int)x][(int)y].g = unnormalized[(int)x][(int)y].g/nSamples[(int)x][(int)y];
 			image[(int)x][(int)y].b = unnormalized[(int)x][(int)y].b/nSamples[(int)x][(int)y];

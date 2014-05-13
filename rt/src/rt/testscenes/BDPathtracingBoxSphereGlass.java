@@ -44,8 +44,8 @@ public class BDPathtracingBoxSphereGlass extends Scene {
 		IntersectableList objects = new IntersectableList();	
 		
 		Sphere sphere = new Sphere(new Vector3f(-.5f,-0.2f,1.f), .5f);
-		sphere.material = new Refractive(1.3f);
-//		sphere.material = new Diffuse();
+//		sphere.material = new Refractive(1.3f);
+		sphere.material = new Diffuse();
 		objects.add(sphere);
 
 		// Right, red wall
@@ -83,12 +83,12 @@ public class BDPathtracingBoxSphereGlass extends Scene {
 		lightList.add(rectangleLight);
 	}
 	
-//	public void finish()
-//	{
-//		if(integratorFactory instanceof BDPathTracingIntegratorFactory)
-//		{
-//			((BDPathTracingIntegratorFactory)integratorFactory).writeLightImage("../output/testscenes/lightimage");
+	public void finish()
+	{
+		if(integratorFactory instanceof BDPathTracingIntegratorFactory)
+		{
+			((BDPathTracingIntegratorFactory)integratorFactory).writeLightImage("../output/testscenes/lightimage");
 //			((BDPathTracingIntegratorFactory)integratorFactory).addLightImage(film);
-//		}
-//	}
+		}
+	}
 }
