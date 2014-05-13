@@ -76,6 +76,7 @@ public class AreaLight implements LightGeometry {
 		hitRecord.position = randomPosition;
 		
 		hitRecord.material = areaLightMaterial;
+		hitRecord.intersectable = this;
 
 		Vector3f normal = new Vector3f();
 		normal.cross(vec1, vec2);
