@@ -27,7 +27,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
 	private final int MAX_LIGHT_BOUNCES = 5;
-	private final int MAX_EYE_BOUNCES = 5;
+	private final int MAX_EYE_BOUNCES = 2;
 	private Spectrum[][] lightImg;
 	private int[][] nSamples;
 	private Scene scene;
@@ -125,8 +125,9 @@ public class BDPathTracingIntegrator implements Integrator {
 			alpha = new Spectrum(alpha);
 			alpha.mult(lightHit.material.evaluateEmission(lightHit, emissionSample.w));
 			alpha.mult(lightHit.normal.dot(emissionSample.w)/emissionSample.p);
-			
-			lightNodes.add(new PathNode(hit,2,alpha,1,0,0,false));
+			geometryTerm = lightHit.normal.dot(emissionSample.w) * hit.normal.dot(hit.w);
+			geometryTerm /= StaticVecmath.dist2(lightHit.position,hit.position);
+			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,0,0,false));
 		} else{
 			return lightNodes;
 		}
@@ -160,6 +161,9 @@ public class BDPathTracingIntegrator implements Integrator {
 				alpha.mult(Math.max(hit.normal.dot(newSample.w),0)); // cos(theta_i-2 --> theta_i-2)
 			}
 			
+			geometryTerm = hit.normal.dot(newSample.w);
+			geometryTerm *= newHit.normal.dot(newHit.w);
+			geometryTerm /= StaticVecmath.dist2(hit.position, newHit.position);
 //			float Gp = 1/emissionSample.p;
 //			
 //			if (!specular){
@@ -178,7 +182,7 @@ public class BDPathTracingIntegrator implements Integrator {
 //			pE = 0;		
 			
 			// add path node and update hit
-			lightNodes.add(new PathNode(newHit,lightBounce,alpha,1,0,0,specular));
+			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,0,0,specular));
 			hit = newHit;
 			
 			lightBounce++;
@@ -189,23 +193,20 @@ public class BDPathTracingIntegrator implements Integrator {
 
 	private ArrayList<PathNode> createEyeSubPath(Ray r){
 		ArrayList<PathNode> eyeNodes = new ArrayList<>();
-
-		// Add t=1-node: point on the camera
-//		HitRecord camHit = new HitRecord();
-//		camHit.position = r.origin;
-//		eyeNodes.add(new PathNode(camHit,1,new Spectrum(1), 1,0,0,false));
 		
 		HitRecord hit = root.intersect(r);
 
+		if (hit == null){
+			return eyeNodes;
+		}
 		int eyeBounce = 2;
 		Spectrum alpha = new Spectrum(1);
 		boolean specular = false;
+		float geometryTerm = Math.max(hit.normal.dot(hit.w),0)/StaticVecmath.dist2(hit.position, r.origin);
+		// TODO: ??? multiply geometryTerm by cosine between look-at and r?
+		assert(geometryTerm >= 0);
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
-				break;
-			}
-			
-			if (hit == null){
 				break;
 			}
 			
@@ -215,7 +216,6 @@ public class BDPathTracingIntegrator implements Integrator {
 			}
 			
 			// TODO: compute those terms
-			float geometryTerm = 1;
 			float pL = 0;
 			float pE = 0;
 			
@@ -227,9 +227,14 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			specular = newSample.isSpecular;
 			Ray newRay = new Ray(hit.position, newSample.w, eyeBounce+1, true);
-			hit = new HitRecord();
 			hit = root.intersect(newRay);
 			
+			if (hit == null){
+				break;
+			}
+			
+			geometryTerm = cosTerm * hit.normal.dot(hit.w);
+			geometryTerm /= StaticVecmath.dist2(newRay.origin, hit.position);
 			
 			alpha = new Spectrum(alpha);
 			alpha.mult(newSample.brdf);
