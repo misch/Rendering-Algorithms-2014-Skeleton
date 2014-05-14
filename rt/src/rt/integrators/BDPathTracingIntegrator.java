@@ -171,7 +171,7 @@ public class BDPathTracingIntegrator implements Integrator {
 			if (!specular){
 				alpha.mult(Math.max(hit.normal.dot(newSample.w),0)); // cos(theta_i-2 --> theta_i-2)
 			}
-			
+			alpha.mult(1/newSample.p);
 			geometryTerm = hit.normal.dot(newSample.w);
 			geometryTerm *= newHit.normal.dot(newHit.w);
 			geometryTerm /= StaticVecmath.dist2(hit.position, newHit.position);
