@@ -127,7 +127,18 @@ public class BDPathTracingIntegrator implements Integrator {
 			alpha.mult(lightHit.normal.dot(emissionSample.w)/emissionSample.p);
 			geometryTerm = lightHit.normal.dot(emissionSample.w) * hit.normal.dot(hit.w);
 			geometryTerm /= StaticVecmath.dist2(lightHit.position,hit.position);
-			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,0,0,false));
+
+			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			pL = emissionSample.p;
+			pL /= hit.normal.dot(hit.w);
+			pL *= geometryTerm;
+			
+			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			pE = hit.material.getDirectionalProbability(hit, hit.w);
+			pE /= lightHit.normal.dot(emissionSample.w);
+			pE *= geometryTerm;
+			
+			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,pL,pE,false));
 		} else{
 			return lightNodes;
 		}
@@ -171,18 +182,19 @@ public class BDPathTracingIntegrator implements Integrator {
 //			}
 //			alpha.mult(Gp);
 //			
-//			float d = StaticVecmath.dist2(lightHit.position, hit.position);
-//			geometryTerm = (lightHit.normal.dot(emissionSample.w) * hit.normal.dot(hit.w))/d;
-//			
-//			// pL = geometryTerm * (emissionSample.p/newHit.normal.dot(newHit.w));
-//			// the cosine-term cancels out; to avoid numerical blah, just write it out easier:
-//			pL = (lightHit.normal.dot(emissionSample.w)/d) * (emissionSample.p);
-//			
-//			// pE seems to be complicated to calculate...
-//			pE = 0;		
+
+			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			pL = newSample.p;
+			pL /= newHit.normal.dot(newHit.w);
+			pL *= geometryTerm;
+
+			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			pE = newHit.material.getDirectionalProbability(newHit, newHit.w);
+			pE /= hit.normal.dot(newSample.w);
+			pE *= geometryTerm;
 			
 			// add path node and update hit
-			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,0,0,specular));
+			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,pE,specular));
 			hit = newHit;
 			
 			lightBounce++;
@@ -205,19 +217,20 @@ public class BDPathTracingIntegrator implements Integrator {
 		float geometryTerm = Math.max(hit.normal.dot(hit.w),0)/StaticVecmath.dist2(hit.position, r.origin);
 		// TODO: ??? multiply geometryTerm by cosine between look-at and r?
 		assert(geometryTerm >= 0);
+		
+		float pL = 0; 	// TODO: not sure... 
+						// But the probability to hit the camera position from the first hit is 0 because cam is infinitely small...?
+						// Could also be simply the probability to sample this direction... O.o
+		float pE = hit.normal.dot(hit.w)/StaticVecmath.dist2(hit.position, r.origin);
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
 				break;
 			}
 			
 			if (hit.material.evaluateEmission(hit, hit.w) != null){ // will be handled by connect()-method (corresponds to case of s = 0
-				eyeNodes.add(new PathNode(hit,eyeBounce,alpha,0,0,0,specular));
+				eyeNodes.add(new PathNode(hit,eyeBounce,alpha,0,pE,0,specular));
 				break; // last node 
 			}
-			
-			// TODO: compute those terms
-			float pL = 0;
-			float pE = 0;
 			
 			eyeNodes.add(new PathNode(hit,eyeBounce,alpha,geometryTerm,pL,pE,specular));
 			
@@ -243,6 +256,16 @@ public class BDPathTracingIntegrator implements Integrator {
 				alpha.mult(cosTerm);
 			}
 			alpha.mult(1/(newSample.p));
+			
+			// TODO Maybe do a simpler calculation since [hit.normal.dot(hit.w)] could be cancelled out?!
+			pE = newSample.p/(hit.normal.dot(hit.w));
+			pE *= geometryTerm;
+			
+			// TODO Maybe do a simpler calculation since [cosTerm] could be cancelled out!
+			pL = hit.material.getDirectionalProbability(hit, hit.w);
+			pL /= cosTerm;
+			pL *= geometryTerm;
+			
 			eyeBounce++;
 		}
 		
