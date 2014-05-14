@@ -328,7 +328,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		c_st.mult(eye.alpha);
 		c_st.mult(light.alpha);
 			
-		return c_st;
+		return c_st; // This corresponds to C*_st in Veach, p.302 (or p. 305, eq. (10.8))
 		
 	}
 
