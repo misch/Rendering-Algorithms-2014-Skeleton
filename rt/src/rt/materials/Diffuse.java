@@ -85,7 +85,7 @@ public class Diffuse implements Material {
 		assert(Math.abs(direction.length()) -1 < 1e-6f);
 		direction.normalize();
 		
-		float probability = (float) (direction.dot(hitRecord.normal)/Math.PI);
+		float probability = getDirectionalProbability(hitRecord,direction);
 		
 		ShadingSample shadingSample = new ShadingSample(evaluateBRDF(hitRecord,hitRecord.w,direction), new Spectrum(),direction,false,probability);
 		return shadingSample;
@@ -102,6 +102,10 @@ public class Diffuse implements Material {
 
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
 		return new ShadingSample();
+	}
+	
+	public float getDirectionalProbability(HitRecord hitRecord, Vector3f wOut){
+		return (float) (wOut.dot(hitRecord.normal)/Math.PI);
 	}
 	
 }

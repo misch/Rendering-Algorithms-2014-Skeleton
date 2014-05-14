@@ -128,4 +128,6 @@ public interface Material {
 	 * Indicate whether the material casts shadows or not. 
 	 */
 	public boolean castsShadows();
+	
+	public float getDirectionalProbability(HitRecord hitRecord, Vector3f wOut);
 }

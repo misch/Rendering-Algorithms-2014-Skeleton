@@ -83,5 +83,11 @@ public class Reflective implements Material {
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
 		return new ShadingSample();
 	}
+
+	@Override
+	public float getDirectionalProbability(HitRecord hitRecord, Vector3f wOut) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }
