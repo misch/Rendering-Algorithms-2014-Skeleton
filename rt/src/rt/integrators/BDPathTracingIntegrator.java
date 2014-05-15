@@ -100,14 +100,10 @@ public class BDPathTracingIntegrator implements Integrator {
 		// p = 1/(area*#lightSources)
 		float pL = lightHit.p/lightList.size();
 		
-		// compute pE: probability for sampling the PREVIOUS vertex from the eye, via the now current vertex
-		// My guess is 0 because the probability that, starting from the current vertex on the light source, 
-		// the eye subpath would never continue, because simply the emitted light would somehow be added
-		float pE = 0;
-		
 		// Add node to path
 		if (MAX_LIGHT_BOUNCES >= 1){
-			lightNodes.add(new PathNode(lightHit,1,alpha,geometryTerm, pL, pE,false));
+			// pE gets updated later, if this was not the last node
+			lightNodes.add(new PathNode(lightHit,1,alpha,geometryTerm, pL, 0,false));
 		} else{
 			return lightNodes;
 		}
@@ -134,11 +130,16 @@ public class BDPathTracingIntegrator implements Integrator {
 			pL *= geometryTerm;
 			
 			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			float pE;
 			pE = hit.material.getDirectionalProbability(hit, hit.w);
 			pE /= lightHit.normal.dot(emissionSample.w);
 			pE *= geometryTerm;
 			
-			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,pL,pE,false));
+			// Add pE to the last light node 'cause it's pE(y_{i-1})
+			lightNodes.get(lightNodes.size()).probabilityEye = pE;
+			
+			// pE gets updated later, if this was not the last node
+			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,pL,0,false));
 		} else{
 			return lightNodes;
 		}
@@ -189,12 +190,15 @@ public class BDPathTracingIntegrator implements Integrator {
 			pL *= geometryTerm;
 
 			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
+			float pE;
 			pE = newHit.material.getDirectionalProbability(newHit, newHit.w);
 			pE /= hit.normal.dot(newSample.w);
 			pE *= geometryTerm;
+			lightNodes.get(lightNodes.size()-1).probabilityEye = pE;
 			
 			// add path node and update hit
-			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,pE,specular));
+			// pE gets updated later, if this was not the last node
+			lightNodes.add(new PathNode(newHit,lightBounce,alpha,geometryTerm,pL,0,specular));
 			hit = newHit;
 			
 			lightBounce++;
@@ -218,9 +222,6 @@ public class BDPathTracingIntegrator implements Integrator {
 		// TODO: ??? multiply geometryTerm by cosine between look-at and r?
 		assert(geometryTerm >= 0);
 		
-		float pL = 0; 	// TODO: not sure... 
-						// But the probability to hit the camera position from the first hit is 0 because cam is infinitely small...?
-						// Could also be simply the probability to sample this direction... O.o
 		float pE = hit.normal.dot(hit.w)/StaticVecmath.dist2(hit.position, r.origin);
 		while (true){			
 			if (eyeBounce > MAX_EYE_BOUNCES){
@@ -228,11 +229,12 @@ public class BDPathTracingIntegrator implements Integrator {
 			}
 			
 			if (hit.material.evaluateEmission(hit, hit.w) != null){ // will be handled by connect()-method (corresponds to case of s = 0
-				eyeNodes.add(new PathNode(hit,eyeBounce,alpha,0,pE,0,specular));
+				eyeNodes.add(new PathNode(hit,eyeBounce,alpha,1,pE,0,specular));
 				break; // last node 
 			}
 			
-			eyeNodes.add(new PathNode(hit,eyeBounce,alpha,geometryTerm,pL,pE,specular));
+			// pL gets updated later, if this was not the last node
+			eyeNodes.add(new PathNode(hit,eyeBounce,alpha,geometryTerm,1,pE,specular)); // z1
 			
 			// get to next node
 			ShadingSample newSample = hit.material.getShadingSample(hit, sampler.makeSamples(1, 2)[0]);
@@ -262,9 +264,12 @@ public class BDPathTracingIntegrator implements Integrator {
 			pE *= geometryTerm;
 			
 			// TODO Maybe do a simpler calculation since [cosTerm] could be cancelled out!
+			float pL;
 			pL = hit.material.getDirectionalProbability(hit, hit.w);
 			pL /= cosTerm;
 			pL *= geometryTerm;
+			// update pL of last node 'cause it's pL(z_{i-1})
+			eyeNodes.get(eyeNodes.size()-2).probabilityLight = pL;
 			
 			eyeBounce++;
 		}
