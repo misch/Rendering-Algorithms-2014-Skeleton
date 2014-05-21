@@ -13,8 +13,8 @@ import java.io.*;
  * all configuration information for the renderer.
  */
 public class Main {
-	public static int[] debugPixel;// = {63,128-20}; // if defined, then only a certain number of pixels will be rendered
-	public static int debugWindowSize = 10; // size 0 will render only one pixel
+	public static int[] debugPixel;// = {339,360-285}; // if defined, then only a certain number of pixels will be rendered
+	public static int debugWindowSize = 0; // size 0 will render only one pixel
 	/** 
 	 * The scene to be rendered.
 	 */
@@ -32,7 +32,7 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
 //	public static Scene scene = new rt.testscenes.GlossyScene();
 //	public static Scene scene = new rt.testscenes.ImportanceSampling();
-	public static Scene scene = new rt.testscenes.BDPathtracingBoxSphereGlass();
+	public static Scene scene = new rt.testscenes.Textures();
 	
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
@@ -93,7 +93,7 @@ public class Main {
 				for(int j=task.bottom; j<task.top; j++)
 				{
 					for(int i=task.left; i<task.right; i++)
-					{											
+					{								
 						float samples[][] = task.integrator.makePixelSamples(task.sampler, task.scene.getSPP());
 
 						// For all samples of the pixel

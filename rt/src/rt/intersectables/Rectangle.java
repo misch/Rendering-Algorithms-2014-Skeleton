@@ -29,24 +29,26 @@ public class Rectangle extends Plane implements Intersectable {
 		normal.normalize();
 		return normal;
 	}
-	
-	private static float getPlaneDistance(Point3f position, Vector3f vec1, Vector3f vec2) {
+
+	private static float getPlaneDistance(Point3f position, Vector3f vec1,
+			Vector3f vec2) {
 		Vector3f p = new Vector3f(position);
-		Vector3f n = getNormal(vec1,vec2);
+		Vector3f n = getNormal(vec1, vec2);
 		float distance = (n.dot(p));
 		return -distance;
 	}
-	
+
 	@Override
 	public HitRecord intersect(Ray r) {
 		HitRecord h = super.intersect(r);
 		if (h == null)
 			return null;
-		
+
 		Vector3f posToHit = new Vector3f();
 		posToHit.sub(h.position, this.position);
-		
-		// Project onto (normalized) edges: If projected length is within edge length,
+
+		// Project onto (normalized) edges: If projected length is within edge
+		// length,
 		// then the hitpoint is inside the rectangle light.
 		Vector3f edge1 = new Vector3f(vec1);
 		edge1.normalize();
@@ -54,11 +56,17 @@ public class Rectangle extends Plane implements Intersectable {
 		edge2.normalize();
 		float length1 = posToHit.dot(edge1);
 		float length2 = posToHit.dot(edge2);
-		
-		boolean isInside = 	   length1 >= 0 && length1 <= vec1.length()
-							&& length2 >= 0 && length2 <= vec2.length();
-							
-		return isInside ? h : null;
+
+		boolean isInside = length1 >= 0 && length1 <= vec1.length()
+				&& length2 >= 0 && length2 <= vec2.length();
+
+		if (isInside) {
+			h.u = length1/vec1.length();
+			h.v = length2/vec2.length();
+//			System.out.println("u: " + h.u + "\t v: " + h.v);
+			return h;
+		}
+		return null;
 	}
 
 }
