@@ -81,7 +81,8 @@ public class Textures extends Scene {
 		CSGSolid doubleCone = new CSGNode(outerCone, innerCone, CSGNode.OperationType.SUBTRACT);
 		
 		Sphere sphere = new Sphere();
-		sphere.material = new Refractive(1.1f);
+//		sphere.material = new Refractive(1.1f);
+		sphere.material = new Textured("../textures/chess.jpg");
 		
 		// Place it in the scene
 		Matrix4f rot = new Matrix4f();

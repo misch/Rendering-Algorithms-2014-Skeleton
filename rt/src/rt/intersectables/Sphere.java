@@ -77,8 +77,11 @@ public class Sphere implements Intersectable {
 		// surface
 		Vector3f wIn = new Vector3f(r.direction);
 		wIn.negate();
-
-		return new HitRecord(t, position, normal, wIn, this, material, 0.f, 0.f);
+		
+		float u = 0.5f - (float) (Math.asin(position.y)/Math.PI);
+		float v = 0.5f + (float) (Math.atan(position.x/position.z)/(2*Math.PI));
+		
+		return new HitRecord(t, position, normal, wIn, this, material, u, v);
 	}
 
 	@Override
