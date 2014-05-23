@@ -19,6 +19,7 @@ import rt.materials.Reflective;
 import rt.materials.Refractive;
 import rt.materials.Textured;
 import rt.materials.XYZGrid;
+import rt.samplers.OneSamplerFactory;
 //import rt.samplers.OneSamplerFactory;
 import rt.samplers.RandomSamplerFactory;
 import rt.tonemappers.ClampTonemapper;
@@ -35,7 +36,8 @@ public class Textures extends Scene {
 		height = 360;
 		
 		// Specify pixel sampler to be used
-		samplerFactory = new RandomSamplerFactory();
+//		samplerFactory = new RandomSamplerFactory();
+		samplerFactory = new OneSamplerFactory();
 	
 		// Number of samples per pixel
 		SPP = 32;
@@ -56,8 +58,9 @@ public class Textures extends Scene {
 		
 		// Specify which integrator and sampler to use
 //		integratorFactory = new WhittedIntegratorFactory();
+		integratorFactory = new PointLightIntegratorFactory();
 //		integratorFactory = new BDPathTracingIntegratorFactory(this);
-		integratorFactory = new PathTracingIntegratorFactory();
+//		integratorFactory = new PathTracingIntegratorFactory();
  
 		
 		// TODO
@@ -80,9 +83,12 @@ public class Textures extends Scene {
 		CSGInstance innerCone = new CSGInstance(outerCone, trafo);		
 		CSGSolid doubleCone = new CSGNode(outerCone, innerCone, CSGNode.OperationType.SUBTRACT);
 		
-		Sphere sphere = new Sphere();
+		Sphere thing = new Sphere();
+		thing.material = new Textured("../textures/grass.jpg");
+//		thing.material = new Diffuse();
+		Bumpy sphere = new Bumpy(thing, "../textures/bump1.png");
 //		sphere.material = new Refractive(1.1f);
-		sphere.material = new Textured("../textures/chess.jpg");
+		
 		
 		// Place it in the scene
 		Matrix4f rot = new Matrix4f();
@@ -132,9 +138,11 @@ public class Textures extends Scene {
 		// Ground and back plane
 		XYZGrid grid = new XYZGrid(new Spectrum(0.2f, 0.f, 0.f), new Spectrum(1.f, 1.f, 1.f), 0.1f, new Vector3f(0.f, 0.3f, 0.f));
 //		Plane groundPlane = new Plane(new Vector3f(0.f, 1.f, 0.f), 1.5f);
-		Rectangle groundPlane = new Rectangle(new Point3f(-20,-1.5f,0),new Vector3f(0,0,40), new Vector3f(40,0,0));
+		Rectangle groundPlane = new Rectangle(new Point3f(-5,-1.5f,0),new Vector3f(0,0,10), new Vector3f(10,0,0));
 //		groundPlane.material = grid;
-		groundPlane.material = new Textured("../textures/chess.jpg");
+		groundPlane.material = new Textured("../textures/grass.jpg");
+//		groundPlane.material = new Diffuse();
+		Bumpy bumpyGroundPlane = new Bumpy(groundPlane,"../textures/bump4.jpg");
 		Plane backPlane = new Plane(new Vector3f(0.f, 0.f, 1.f), 3.15f);
 		backPlane.material = grid;		
 		
@@ -142,7 +150,7 @@ public class Textures extends Scene {
 		IntersectableList intersectableList = new IntersectableList();
 		intersectableList.add(sphere);
 		intersectableList.add(soap);
-		intersectableList.add(groundPlane);
+		intersectableList.add(bumpyGroundPlane);
 		intersectableList.add(backPlane);
 		
 		// Set the root node for the scene
