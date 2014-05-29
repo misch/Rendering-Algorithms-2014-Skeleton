@@ -1,5 +1,7 @@
 package rt;
 
+import javax.vecmath.Tuple3f;
+
 /**
  * Stores a spectrum of color values. In this implementation, we work with RGB colors.
  */
@@ -28,6 +30,10 @@ public class Spectrum {
 	public Spectrum(Spectrum s)
 	{
 		this(s.r,s.g,s.b);
+	}
+	
+	public Spectrum(Tuple3f t){
+		this(t.x,t.y,t.z);
 	}
 	
 	public void mult(float t)
