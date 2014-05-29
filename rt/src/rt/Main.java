@@ -192,14 +192,13 @@ public class Main {
 		
 		System.out.printf("\n");
 		System.out.printf("Image computed in %d ms.\n", timer.timeElapsed());
-		
+		scene.finish();
 		// Tone map output image and writ to file
 		BufferedImage image = scene.getTonemapper().process(scene.getFilm());
 		try
 		{
 			ImageIO.write(image, "png", new File(scene.getOutputFilename()+".png"));
 		} catch (IOException e) {}
-	scene.finish();
 	}
 	
 	

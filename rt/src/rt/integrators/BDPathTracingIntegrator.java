@@ -29,7 +29,6 @@ public class BDPathTracingIntegrator implements Integrator {
 	private final int MAX_LIGHT_BOUNCES = 5;
 	private final int MAX_EYE_BOUNCES = 2;
 	private Spectrum[][] lightImg;
-	private int[][] nSamples;
 	private Scene scene;
 	
 	public BDPathTracingIntegrator(Scene scene)
@@ -39,17 +38,9 @@ public class BDPathTracingIntegrator implements Integrator {
 		this.scene = scene;
 		this.lightImg = new Spectrum[scene.getFilm().getWidth()][scene.getFilm().getHeight()];
 		
-		for (int i = 0; i < lightImg[0].length; i++){
-			for(int j = 0; j < lightImg[1].length; j++){
+		for (int i = 0; i < scene.getFilm().getWidth(); i++){
+			for(int j = 0; j < scene.getFilm().getHeight(); j++){
 				this.lightImg[i][j] = new Spectrum();
-			}
-		}
-		
-		// initialize nSamples with 1's - will not be changed later because we want to have the lightimage to be unnormalized!
-		this.nSamples = new int[scene.getFilm().getWidth()][scene.getFilm().getHeight()];
-		for (int i = 0; i < nSamples[0].length; i++){
-			for (int j = 0; j < nSamples[1].length; j++){
-				this.nSamples[i][j] = 1;
 			}
 		}
 	}
@@ -368,9 +359,9 @@ public class BDPathTracingIntegrator implements Integrator {
 		return this.lightImg;
 	}
 	
-	public int[][] getNSamples(){
-		return this.nSamples;
-	}
+//	public int[][] getNSamples(){
+//		return this.nSamples;
+//	}
 	
 	private float russianRouletteProbability(int bounce) {
 		if (bounce <= 3){

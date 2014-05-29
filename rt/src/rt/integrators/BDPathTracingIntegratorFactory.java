@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import rt.Film;
 import rt.Integrator;
 import rt.IntegratorFactory;
 import rt.Scene;
@@ -37,13 +38,14 @@ public class BDPathTracingIntegratorFactory implements IntegratorFactory {
 	}
 	
 	public void writeLightImage(String path){
-		BoxFilterFilm film = new BoxFilterFilm(scene.getFilm().getWidth(), scene.getFilm().getHeight());
+		int width = scene.getFilm().getWidth(), height = scene.getFilm().getHeight();
+		BoxFilterFilm film = new BoxFilterFilm(width, height);
+		
 		for (BDPathTracingIntegrator integrator : integrators){
 			Spectrum[][] lightImg = integrator.getLightImg();
-			int[][] nSamples = integrator.getNSamples();
-			for (int x = 0; x < film.getWidth(); x++){
-				for (int y = 0; y < film.getHeight(); y++){
-					film.addMultSamples((double)x, (double)y, lightImg[x][y], nSamples[x][y]);
+			for (int x = 0; x < width; x++){
+				for (int y = 0; y < height; y++){
+					film.addLightImg(x, y, lightImg[x][y]);
 				}
 			}
 		}
@@ -57,16 +59,20 @@ public class BDPathTracingIntegratorFactory implements IntegratorFactory {
 		} catch (IOException e) {System.out.println("Could not write image to \n"+ path);}
 	}
 
-//	public void addLightImage(Film film){
-//		for (BDPathTracingIntegrator integrator : integrators){
-//			Spectrum[][] lightImg = integrator.getLightImage();
-//			float[][] nSamples = integrator.getNSamples();
-//			for (int x = 0; x < film.getWidth(); x++){
-//				for (int y = 0; y < film.getHeight(); y++){
-//					film.addMultSamples(x, y, lightImg[x][y], nSamples[x][y]);
-//				}
-//			}
-//		}
-//	}
+	public void addLightImage(Film film){
+		float width = film.getWidth(), height = film.getHeight();
+		
+		for (BDPathTracingIntegrator integrator : integrators){
+			Spectrum[][] lightImg = integrator.getLightImg();
+
+			for (int x = 0; x < width; x++){
+				for (int y = 0; y < height; y++){
+					Spectrum lightImgSpec = new Spectrum(lightImg[x][y]);
+					lightImgSpec.mult(1f/(scene.getSPP()));
+					film.addLightImg(x, y, lightImgSpec);
+				}
+			}
+		}
+	}
 
 }

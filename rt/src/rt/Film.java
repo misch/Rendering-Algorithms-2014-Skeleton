@@ -38,5 +38,10 @@ public interface Film {
 	 * @return height in pixels
 	 */
 	public int getHeight();
+	
+	/**
+	 * Adds (unnormalized - see Eq. (10.10) in Veach's thesis) light image to normal image. 
+	 */
+	public void addLightImg(double x, double y, Spectrum s);
 
 }
