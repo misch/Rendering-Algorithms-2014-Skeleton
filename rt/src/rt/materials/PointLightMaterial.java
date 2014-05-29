@@ -31,8 +31,12 @@ public class PointLightMaterial implements Material {
 	 * Return a random direction over the full sphere of directions.
 	 */
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
-		// To be implemented
-		return null;
+		float pi = (float)Math.PI;
+		float theta = sample[0] * 2 * pi;
+		float z = sample[1] * 2 - 1;
+		float s = (float)Math.sqrt(1 - z*z);
+		Vector3f randomDir = new Vector3f(s*(float)Math.cos(theta), s*(float)Math.sin(theta), z);
+		return new ShadingSample(new Spectrum(), new Spectrum(emission), randomDir, false, 1/(4*pi));
 	}
 
 	/** 

@@ -27,7 +27,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
 	private final int MAX_LIGHT_BOUNCES = 5;
-	private final int MAX_EYE_BOUNCES = 2;
+	private final int MAX_EYE_BOUNCES = 5;
 	private Spectrum[][] lightImg;
 	private Scene scene;
 	
@@ -68,7 +68,6 @@ public class BDPathTracingIntegrator implements Integrator {
 			}
 		}
 		return outgoing;
-		
 	}
 	
 	private ArrayList<PathNode> createLightSubPath() {
@@ -101,6 +100,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		// Get new direction
 		ShadingSample emissionSample = lightHit.material.getEmissionSample(lightHit, sampler.makeSamples(1,2)[0]);
+
 		Ray newRay = new Ray(lightHit.position, emissionSample.w, 1, true);
 		HitRecord hit = root.intersect(newRay); // y1
 		
@@ -111,8 +111,9 @@ public class BDPathTracingIntegrator implements Integrator {
 		if (MAX_LIGHT_BOUNCES >= 2){
 			alpha = new Spectrum(alpha);
 			alpha.mult(lightHit.material.evaluateEmission(lightHit, emissionSample.w));
-			alpha.mult(lightHit.normal.dot(emissionSample.w)/emissionSample.p);
-			geometryTerm = lightHit.normal.dot(emissionSample.w) * hit.normal.dot(hit.w);
+			float cosTerm = lightHit.normal == null ? 1 : lightHit.normal.dot(emissionSample.w);
+			alpha.mult(cosTerm/emissionSample.p);
+			geometryTerm = cosTerm * hit.normal.dot(hit.w);
 			geometryTerm /= StaticVecmath.dist2(lightHit.position,hit.position);
 
 			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
@@ -123,11 +124,11 @@ public class BDPathTracingIntegrator implements Integrator {
 			// TODO Simpler calculation? Cosine factor in geometry term cancels out...!
 			float pE;
 			pE = hit.material.getDirectionalProbability(hit, hit.w);
-			pE /= lightHit.normal.dot(emissionSample.w);
+			pE /= cosTerm;
 			pE *= geometryTerm;
 			
 			// Add pE to the last light node 'cause it's pE(y_{i-1})
-			lightNodes.get(lightNodes.size()).probabilityEye = pE;
+			lightNodes.get(lightNodes.size()-1).probabilityEye = pE;
 			
 			// pE gets updated later, if this was not the last node
 			lightNodes.add(new PathNode(hit,2,alpha,geometryTerm,pL,0,false));
@@ -260,7 +261,9 @@ public class BDPathTracingIntegrator implements Integrator {
 			pL /= cosTerm;
 			pL *= geometryTerm;
 			// update pL of last node 'cause it's pL(z_{i-1})
-			eyeNodes.get(eyeNodes.size()-2).probabilityLight = pL;
+			if (eyeNodes.size() >= 2){
+				eyeNodes.get(eyeNodes.size()-2).probabilityLight = pL;
+			}
 			
 			eyeBounce++;
 		}
@@ -300,7 +303,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		cosTheta1 = Math.max(eye.hitRecord.normal.dot(connectionDir),0);
 		
-		float cosTheta2 = Math.max(light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir)),0);
+		float cosTheta2 = light.hitRecord.normal == null ? 1 : Math.max(light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir)),0);
 		
 		float geometryTerm = (cosTheta1 * cosTheta2)/d;
 		
@@ -345,9 +348,9 @@ public class BDPathTracingIntegrator implements Integrator {
 					em = new Spectrum(light.hitRecord.material.evaluateBRDF(light.hitRecord, StaticVecmath.negate(lightDir), light.hitRecord.w));
 				}
 				
-				float cosTerm = light.hitRecord.normal.dot(StaticVecmath.negate(lightDir));
+				float cosTerm = light.hitRecord.normal == null ? 1 : light.hitRecord.normal.dot(StaticVecmath.negate(lightDir));
 				cosTerm /= distanceToCamera;
-				em.mult(cosTerm);
+				cosTerm = Math.abs(cosTerm);
 				// TODO: ??? cosine between look-at direction and StaticVecmath.negate(lightDir) ???
 				lightImg[pixels[0]][pixels[1]].add(em);
 			}
