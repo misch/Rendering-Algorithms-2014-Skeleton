@@ -42,6 +42,12 @@ public abstract class CSGSolid implements Intersectable {
 	
 	public HitRecord intersect(Ray r) {
 
+		float[] tValues = this.getBoundingBox().intersect(r);
+
+		if (tValues == null) { // If bounding box of root is not intersected,
+			return null;
+		}
+		
 		// Get the intersection interval boundaries
 		ArrayList<IntervalBoundary> intervalBoundaries = getIntervalBoundaries(r);
 		

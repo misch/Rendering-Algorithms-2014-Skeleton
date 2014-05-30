@@ -23,10 +23,9 @@ public class CSGDodecahedron extends CSGSolid {
 	 * (1) the top and bottom faces are uniform pentagons, (2) dihedral angles between 
 	 * all faces are pi - arctan(2).
 	 */
-	public CSGDodecahedron()
+	public CSGDodecahedron(Material material)
 	{
 		Vector3f normal;
-		Material diffuseMaterial = new Diffuse(new Spectrum(1.f, 0.f, 0.f));
 		
 		// Make CSG planes
 		CSGPlane planes[] = new CSGPlane[12];
@@ -34,7 +33,7 @@ public class CSGDodecahedron extends CSGSolid {
 		// Bottom half
 		normal  = new Vector3f(0.f, -1.f, 0.f);
 		planes[0] = new CSGPlane(normal, -1.f);				
-		planes[0].material = diffuseMaterial;
+		planes[0].material = material;
 
 		for(int i=0; i<5; i++)
 		{
@@ -51,13 +50,13 @@ public class CSGDodecahedron extends CSGSolid {
 			
 			normal = new Vector3f(x, y, z);
 			planes[i+1] = new CSGPlane(normal, -1.f);				
-			planes[i+1].material = diffuseMaterial;
+			planes[i+1].material = material;
 		}
 		
 		// Top half
 		normal = new Vector3f(0.f, 1.f, 0.f);
 		planes[6] = new CSGPlane(normal, -1.f);				
-		planes[6].material = diffuseMaterial;
+		planes[6].material = material;
 
 		for(int i=0; i<5; i++)
 		{
@@ -72,7 +71,7 @@ public class CSGDodecahedron extends CSGSolid {
 			
 			normal = new Vector3f(x, y, z);
 			planes[i+7] = new CSGPlane(normal, -1.f);				
-			planes[i+7].material = diffuseMaterial;
+			planes[i+7].material = material;
 		}
 				
 		// Build CSG tree
@@ -89,6 +88,10 @@ public class CSGDodecahedron extends CSGSolid {
 		// Return root
 		root = new CSGNode(node3, nodes2[2], CSGNode.OperationType.INTERSECT);
 	}
+	
+	public CSGDodecahedron(){
+		this(new Diffuse(new Spectrum(1,0,0)));
+	}
 
 	ArrayList<IntervalBoundary> getIntervalBoundaries(Ray r)
 	{
@@ -97,7 +100,6 @@ public class CSGDodecahedron extends CSGSolid {
 
 	@Override
 	public AxisAlignedBoundingBox getBoundingBox() {
-		// TODO Auto-generated method stub
-		return null;
+		return new AxisAlignedBoundingBox(new Point3f(-1,-1,-1), new Point3f(1,1,1));
 	}
 }

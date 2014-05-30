@@ -3,6 +3,7 @@ package rt.intersectables;
 import java.util.ArrayList;
 
 import javax.vecmath.Point2f;
+import javax.vecmath.Point3f;
 import javax.vecmath.Vector3f;
 
 import rt.HitRecord;
@@ -10,7 +11,6 @@ import rt.Material;
 import rt.MathUtil;
 import rt.Ray;
 import rt.Spectrum;
-import rt.intersectables.CSGSolid.BoundaryType;
 import rt.materials.Diffuse;
 
 public class CSGSphere extends CSGSolid {
@@ -104,7 +104,6 @@ public class CSGSphere extends CSGSolid {
 
 	@Override
 	public AxisAlignedBoundingBox getBoundingBox() {
-		// TODO Auto-generated method stub
-		return null;
+		return new AxisAlignedBoundingBox(new Point3f(-1,-1,-1), new Point3f(1,1,1));
 	}
 }
