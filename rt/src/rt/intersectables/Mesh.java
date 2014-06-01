@@ -25,12 +25,18 @@ public class Mesh extends Aggregate {
 	public float[] normals;
 	
 	/**
+	 * Array of texture coordinates
+	 */
+	public float[] texCoords;
+	
+	/**
 	 * Index array. Each triangle is defined by three consecutive
 	 * indices in this array. The indices refer to the {@link Mesh#vertices} 
 	 * and {@link Mesh#normals} arrays that store vertex and normal coordinates.
 	 */
 	public int[] indices;
 	
+
 	/**
 	 * Array of triangles stored in the mesh.
 	 */
@@ -44,13 +50,14 @@ public class Mesh extends Aggregate {
 	/**
 	 * Make a mesh from arrays with vertices, normals, and indices.
 	 */
-	public Mesh(float[] vertices, float[] normals, int[] indices)
+	public Mesh(float[] vertices, float[] normals, int[] indices, float[] texCoords)
 	{
 		material = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
 		
 		this.vertices = vertices;
 		this.normals = normals;
 		this.indices = indices;
+		this.texCoords = texCoords;
 		triangles = new MeshTriangle[indices.length/3];	
 		
 		float 	xMin = Float.POSITIVE_INFINITY, 
@@ -75,6 +82,14 @@ public class Mesh extends Aggregate {
 		}
 		
 		this.boundingBox = new AxisAlignedBoundingBox(xMin, xMax, yMin, yMax, zMin, zMax);
+	}
+	
+	/**
+	 * Make a mesh from arrays with vertices, normals, and indices.
+	 */
+	public Mesh(float[] vertices, float[] normals, int[] indices)
+	{
+		this(vertices, normals, indices, null);
 	}
 	
 	public Iterator<Intersectable> iterator() {

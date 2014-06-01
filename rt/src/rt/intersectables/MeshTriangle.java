@@ -71,17 +71,15 @@ public class MeshTriangle implements Intersectable {
 			position.scaleAdd(t, r.origin);
 			
 			Vector3f interpolatedNormal = new Vector3f();
-			Vector3f weighted_n0 = new Vector3f(n0);
 
+			Vector3f weighted_n0 = new Vector3f(n0);
 			weighted_n0.scale(1-beta-gamma);
 			
 			Vector3f weighted_n1 = new Vector3f(n1);
-
 			weighted_n1.scale(beta);
 
 			Vector3f weighted_n2 = new Vector3f(n2);
 			weighted_n2.scale(gamma);
-			
 
 			interpolatedNormal.add(weighted_n0, weighted_n1);
 			interpolatedNormal.add(weighted_n2);
@@ -93,7 +91,26 @@ public class MeshTriangle implements Intersectable {
 			wIn.negate();
 			wIn.normalize();
 
-			return new HitRecord(t,position,interpolatedNormal,wIn,this,mesh.material,0.f,0.f);
+			// Texture coordinates
+			float texCoords[] = mesh.normals;
+			Vector2f t0 = new Vector2f(texCoords[v0*2], texCoords[v0*2 + 1]);
+			Vector2f t1 = new Vector2f(texCoords[v1*2], texCoords[v1*2 + 1]);
+			Vector2f t2 = new Vector2f(texCoords[v2*2], texCoords[v2*2 + 1]);
+
+			Vector2f interpolatedTexCoords = new Vector2f();
+			Vector2f weighted_t0 = new Vector2f(t0);
+			weighted_t0.scale(1-beta-gamma);
+			
+			Vector2f weighted_t1 = new Vector2f(t1);
+			weighted_t1.scale(beta);
+
+			Vector2f weighted_t2 = new Vector2f(t2);
+			weighted_t2.scale(gamma);
+
+			interpolatedTexCoords.add(weighted_t0, weighted_t1);
+			interpolatedTexCoords.add(weighted_t2);
+			
+			return new HitRecord(t,position,interpolatedNormal,wIn,this,mesh.material,interpolatedTexCoords.x,interpolatedTexCoords.y);
 		}
 		else{
 			return null;
