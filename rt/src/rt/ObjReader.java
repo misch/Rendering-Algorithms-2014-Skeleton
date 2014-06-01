@@ -88,11 +88,10 @@ public class ObjReader {
 			else if(s[0].compareTo("f")==0)
 			{
 				// Indices
-				int[][] indices = new int[3][3];
+				int[][] indices = new int[s.length-1][3];
 				
 				// For all vertices
-				int i=1;
-				while(i < s.length)
+				for(int i = 1; i < s.length; i++)
 				{	
 					// Get indices for vertex position, tex. coords., and normals
 					String[] ss = s[i].split("/");
@@ -114,9 +113,38 @@ public class ObjReader {
 						hasTexCoords = false;
 						hasNormals = false;
 					}
-					i++;
+					
+					if(ss.length == 2)
+					{
+						hasTexCoords = true;
+						hasNormals = false;
+					}
+					
+					if(ss.length == 3)
+					{
+						hasTexCoords = true;
+						hasNormals = true;
+					}
 				}
-				faces.add(indices);
+				
+				if (s.length == 4){
+					faces.add(indices);
+				}else if (s.length == 5){
+					int[][] firstTriangle = new int[3][3];
+					int[][] secondTriangle = new int[3][3];
+					
+					for (int k = 0; k < 3; k++){
+						firstTriangle[0][k] = indices[0][k];
+						firstTriangle[1][k] = indices[1][k];
+						firstTriangle[2][k] = indices[2][k];
+						secondTriangle[0][k] = indices[2][k];
+						secondTriangle[1][k] = indices[3][k];
+						secondTriangle[2][k] = indices[0][k];
+					}
+					faces.add(firstTriangle);
+					faces.add(secondTriangle);
+				}
+				
 			}
 			else if(s[0].length()>0 && s[0].charAt(0)!='#')
 			{
