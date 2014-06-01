@@ -32,7 +32,8 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.AreaLightSceneMarco();
 //	public static Scene scene = new rt.testscenes.GlossyScene();
 //	public static Scene scene = new rt.testscenes.ImportanceSampling();
-	public static Scene scene = new rt.testscenes.Textures();
+//	public static Scene scene = new rt.testscenes.Textures();
+	public static Scene scene = new rt.testscenes.TestSceneMisch();
 	
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;

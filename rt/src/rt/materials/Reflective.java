@@ -3,6 +3,7 @@ package rt.materials;
 import javax.vecmath.Vector3f;
 
 import rt.*;
+import rt.Material.ShadingSample;
 
 /**
  * A basic diffuse material.
@@ -65,10 +66,9 @@ public class Reflective implements Material {
 		return null;
 	}
 	
-	// To be implemented for path tracer!
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample)
 	{
-		return null;	
+		return evaluateSpecularReflection(hitRecord);	
 	}
 		
 	public boolean castsShadows()
@@ -81,7 +81,7 @@ public class Reflective implements Material {
 	}
 
 	public ShadingSample getEmissionSample(HitRecord hitRecord, float[] sample) {
-		return new ShadingSample();
+		return null;
 	}
 
 	@Override

@@ -15,7 +15,7 @@ import rt.Spectrum;
 import rt.cameras.PinholeCamera;
 import rt.films.BoxFilterFilm;
 import rt.integrators.BDPathTracingIntegratorFactory;
-import rt.integrators.PathTracingIntegratorFactory;
+import rt.integrators.WhittedIntegratorFactory;
 import rt.intersectables.BSPAccelerator;
 import rt.intersectables.Bumpy;
 import rt.intersectables.CSGDodecahedron;
@@ -43,7 +43,7 @@ public class TestSceneMisch extends Scene {
 	public TestSceneMisch()
 	{
 		// Output file name
-		outputFilename = new String("../output/testscenes/Misch");
+		outputFilename = new String("../output/testscenes/Misch_whitted");
 
 		// Image width and height in pixels
 		width = 640;
@@ -54,7 +54,7 @@ public class TestSceneMisch extends Scene {
 //		samplerFactory = new OneSamplerFactory();
 	
 		// Number of samples per pixel
-		SPP = 512;
+		SPP = 8;
 
 		outputFilename = outputFilename + " " + String.format("%d", SPP) + "SPP";
 		outputFilename = outputFilename + " " + String.format("%d", width) + "x";
@@ -71,11 +71,11 @@ public class TestSceneMisch extends Scene {
 		tonemapper = new ClampTonemapper();
 		
 		// Specify which integrator and sampler to use
-//		integratorFactory = new WhittedIntegratorFactory();
+		integratorFactory = new WhittedIntegratorFactory();
 //		integratorFactory = new PointLightIntegratorFactory();
 //		integratorFactory = new AreaLightIntegratorFactory();
 //		integratorFactory = new BDPathTracingIntegratorFactory(this);
-		integratorFactory = new PathTracingIntegratorFactory();
+//		integratorFactory = new PathTracingIntegratorFactory();
 //		integratorFactory = new DebugIntegratorFactory();
  
 		// TODO
@@ -94,27 +94,30 @@ public class TestSceneMisch extends Scene {
 		CSGInstance innerCone = new CSGInstance(outerCone, trafo);		
 		CSGSolid doubleCone = new CSGNode(outerCone, innerCone, CSGNode.OperationType.SUBTRACT);
 		
-		Sphere sphere = new Sphere(new Vector3f(0,10,0), 3);
-		CSGDodecahedron hacke = new CSGDodecahedron(new Reflective()); 
+		Mesh mesh;
+		try {
+
+			mesh = ObjReader.read("../obj/disco.obj", 1.f);
+		} catch (IOException e) {
+			System.out.printf("Could not read .obj file\n");
+			return;
+		}
 		
+		mesh.material = new Reflective();
+		BSPAccelerator acc = new BSPAccelerator(mesh);
 		
 		Matrix4f t = new Matrix4f();
 		t.setIdentity();
 		
 		// Instance one
 		t.setScale(2.5f);
-		t.setTranslation(new Vector3f(0, 10, 0));
-		Matrix4f rot = new Matrix4f();
-		rot.setIdentity();
-		rot.rotX((float)Math.toRadians(30.f));
-		t.mul(rot);
+		t.setTranslation(new Vector3f(0, 19, 0));
 		
-		Instance instanceHacke = new Instance(hacke, t);
-		
+		Instance instanceHacke = new Instance(acc, t);
 		
 		
 		// Place it in the scene
-		rot = new Matrix4f();
+		Matrix4f rot = new Matrix4f();
 		rot.setIdentity();
 		rot.rotX(-(float)Math.PI/2.f);
 		Matrix4f trans = new Matrix4f();
@@ -197,24 +200,24 @@ public class TestSceneMisch extends Scene {
 		Rectangle top2 = new Rectangle(new Point3f(-5,6,-20), new Vector3f(5,0,0), new Vector3f(0,0,-15));
 		top2.material = alu;
 		
-		Mesh mesh;
+		Mesh mesh2;
 		try
 		{
 			
-			mesh = ObjReader.read("../obj/teapot.obj", 1.f);
+			mesh2 = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch(IOException e) 
 		{
 			System.out.printf("Could not read .obj file\n");
 			return;
 		}
-		mesh.material = new Refractive(1.3f);
+		mesh2.material = new Refractive(1.3f);
 		t = new Matrix4f();
 		t.setIdentity();
-		BSPAccelerator acc = new BSPAccelerator(mesh);
+		BSPAccelerator acc2 = new BSPAccelerator(mesh2);
 		// Instance one
 		t.setScale(2);
 		t.setTranslation(new Vector3f(5, 7, -22));
-		Instance instanceTeapot = new Instance(acc, t);
+		Instance instanceTeapot = new Instance(acc2, t);
 		
 		try
 		{
@@ -226,7 +229,8 @@ public class TestSceneMisch extends Scene {
 			return;
 		}
 		
-		mesh.material = new Reflective();
+		Spectrum ext = new Spectrum(3.f, 2.88f, 1.846f);
+		mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.25f, 0.306f, 1.426f), ext);
 		
 		t = new Matrix4f();
 		t.setIdentity();
@@ -259,8 +263,8 @@ public class TestSceneMisch extends Scene {
 		Random rand = new Random();
 		
 		for (int i = 0; i > -41; i -= 10){
-			addLightCube(new Vector3f(-25,10,i), new Vector3f(-23,12,i-2), new Spectrum(80,80,60-60*rand.nextFloat()), intersectableList);
-			addLightCube(new Vector3f(23,10,i), new Vector3f(25,12,i-2), new Spectrum(80,80,60-60*rand.nextFloat()), intersectableList);
+			addLightCube(new Vector3f(-25,10,i), new Vector3f(-23,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
+			addLightCube(new Vector3f(23,10,i), new Vector3f(25,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
 		}
 
 //		AreaLight light = new AreaLight(new Vector3f(10,13,-15), new Vector3f(0,2,-5), new Vector3f(-5,0,0), new Spectrum(5000));

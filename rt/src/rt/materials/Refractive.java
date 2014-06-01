@@ -96,7 +96,6 @@ public class Refractive implements Material {
 		return new ShadingSample(brdf,new Spectrum(), t, true, 1-rSchlick(hitRecord));
 	}
 
-	// To be implemented for path tracer!
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample) {
 		if (sample[0] < rSchlick(hitRecord)){
 			return evaluateSpecularReflection(hitRecord);

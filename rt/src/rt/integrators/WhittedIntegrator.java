@@ -83,7 +83,7 @@ public class WhittedIntegrator implements Integrator {
 			Spectrum tmp = new Spectrum();
 			tmp.add(reflection);
 			tmp.add(refraction);
-			return refraction;
+			return tmp;
 		}
 		
 			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
@@ -94,7 +94,6 @@ public class WhittedIntegrator implements Integrator {
 			while(it.hasNext())
 			{
 				LightGeometry lightSource = it.next();
-			
 				
 				// Make direction from hit point to light source position; this is only supposed to work with point lights
 				float[][] sample = sampler.makeSamples(1, 2);
