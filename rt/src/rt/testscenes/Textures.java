@@ -51,7 +51,7 @@ public class Textures extends Scene {
 		outputFilename = outputFilename + String.format("%d", height);
 
 		// Specify which camera, film, and tonemapper to use
-		Vector3f eye = new Vector3f(0.f, 0.f, 5.f);
+		Vector3f eye = new Vector3f(0.f, 3.f, 3.f);
 		Vector3f lookAt = new Vector3f(0.f, -.5f, 0.f);
 		Vector3f up = new Vector3f(0.f, 1.f, 0.f);
 		float fov = 60.f;
@@ -61,9 +61,9 @@ public class Textures extends Scene {
 		tonemapper = new ClampTonemapper();
 
 		// Specify which integrator and sampler to use
-		integratorFactory = new WhittedIntegratorFactory();
-		// integratorFactory = new PointLightIntegratorFactory();
-		// integratorFactory = new BDPathTracingIntegratorFactory(this);
+//		integratorFactory = new WhittedIntegratorFactory();
+		 integratorFactory = new PointLightIntegratorFactory();
+//		 integratorFactory = new BDPathTracingIntegratorFactory(this);
 		// integratorFactory = new PathTracingIntegratorFactory();
 
 		Material refractive = new Refractive(1.1f);
@@ -82,15 +82,17 @@ public class Textures extends Scene {
 		Mesh mesh;
 		try {
 
-			mesh = ObjReader.read("../obj/cups.obj", 1.f);
+			mesh = ObjReader.read("../obj/disco.obj", 1.f);
 		} catch (IOException e) {
 			System.out.printf("Could not read .obj file\n");
 			return;
 		}
 		
+//		mesh.material = new Textured("../textures/test.jpg", new Diffuse(new Spectrum(1)));
+		mesh.material = new Diffuse();
 		BSPAccelerator acc = new BSPAccelerator(mesh);
 		Sphere thing = new Sphere();
-		thing.material = new Refractive(1.01f);
+		thing.material = new Diffuse(new Spectrum(1,0.8f,0.2f));
 		Bumpy sphere = new Bumpy(thing, "../textures/bump1.png");
 
 		// Place it in the scene
@@ -151,7 +153,7 @@ public class Textures extends Scene {
 		// Collect objects in intersectable list
 		IntersectableList intersectableList = new IntersectableList();
 		intersectableList.add(acc);
-		intersectableList.add(soap);
+//		intersectableList.add(soap);
 		intersectableList.add(bumpyGroundPlane);
 		intersectableList.add(backPlane);
 
@@ -168,10 +170,13 @@ public class Textures extends Scene {
 				14.f, 14.f));
 		LightGeometry pointLight3 = new PointLight(new Vector3f(0.f, 3.f, 1.f),
 				new Spectrum(44.f, 44.f, 44.f));
+		
+		LightGeometry pointLightAbove = new PointLight(new Vector3f(0,3,0), new Spectrum(50,50,50));
 		lightList = new LightList();
-		lightList.add(pointLight1);
-		lightList.add(pointLight2);
-		lightList.add(pointLight3);
+//		lightList.add(pointLight1);
+//		lightList.add(pointLight2);
+//		lightList.add(pointLight3);
+		lightList.add(pointLightAbove);
 	}
 
 	/**
