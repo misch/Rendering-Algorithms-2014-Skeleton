@@ -1,6 +1,7 @@
 package rt.integrators;
 
 import java.util.Iterator;
+import java.util.Random;
 
 import javax.vecmath.*;
 
@@ -62,13 +63,6 @@ public class PointLightIntegrator implements Integrator {
 				shadowRay.origin.add(scaledLightDir);
 				HitRecord shadowHit = root.intersect(shadowRay);
 
-				if(shadowHit != null){
-					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
-					if (d > lengthShadowHitToHitRecord){
-						continue;
-					}
-				}
-				
 				// Evaluate the BRDF
 				brdfValue = hitRecord.material.evaluateBRDF(hitRecord, hitRecord.w, lightDir);
 				
@@ -87,8 +81,57 @@ public class PointLightIntegrator implements Integrator {
 				// for point lights (not area lights)!
 				s.mult(1.f/(d));
 				
+				if(shadowHit != null){
+					float lengthShadowHitToHitRecord = StaticVecmath.dist2(shadowHit.position, hitRecord.position);
+					if (d > lengthShadowHitToHitRecord){
+						s.mult(0);
+					}
+				}
+				
+				Spectrum T = new Spectrum(1);
+				Spectrum L = new Spectrum();
+				Spectrum L_ve = new Spectrum(0.2f);
+				float ds = 0.05f; // fixed step size
+				Random rand = new Random();
+				float sigma_t = 0.2f;
+				float sigma_s = 0.2f;
+				for (float currentT = 0; currentT <= hitRecord.t; currentT += ds){
+					
+					Vector3f currentPoint = r.getRayAt(currentT);
+					shadowRay = new Ray(currentPoint,lightDir,0,true);
+					shadowHit = root.intersect(shadowRay);
+					
+					lightDir = StaticVecmath.sub(lightHit.position, currentPoint);
+					d = lightDir.lengthSquared();
+
+					if(shadowHit != null && d > StaticVecmath.dist2(shadowHit.position, currentPoint) + 1e-3f){
+						Spectrum shadowT = new Spectrum(1);
+						float dt = 0.05f;
+						
+						for (float currentShadowT = 0; currentShadowT < shadowHit.t; currentShadowT += dt){
+							shadowT.mult(1 - sigma_t*dt);
+						}
+						
+						Spectrum L_d = new Spectrum(shadowT);
+						L_d.mult(s);
+						L_d.mult(sigma_s * 1/(float)Math.PI);
+						L_ve.mult(L_d);
+					}
+					
+					Spectrum tmp = new Spectrum(T);
+					tmp.mult(L_ve);
+					L.add(tmp);
+					T.mult(1 - sigma_t * ds);
+				}
+				
+				L.mult(ds);
+				Spectrum L_s = new Spectrum(s);
+				L_s.mult(T);
+				L.add(L_s);
+				
 				// Accumulate
 				outgoing.add(s);
+//				outgoing.add(L);
 			}
 			
 			return outgoing;

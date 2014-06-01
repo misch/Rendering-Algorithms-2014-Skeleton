@@ -32,4 +32,10 @@ public class Ray {
 	public Ray(Vector3f origin, Vector3f direction){
 		this(origin,direction,0);
 	}
+	
+	public Vector3f getRayAt(float t){
+		Vector3f p = new Vector3f(direction);
+		p.scaleAdd(t, origin);
+		return p;
+	}
 }
