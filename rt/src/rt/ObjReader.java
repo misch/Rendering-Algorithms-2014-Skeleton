@@ -108,39 +108,24 @@ public class ObjReader {
 						}
 						k++;
 					}
-					if(ss.length == 1)
-					{
-						hasTexCoords = false;
-						hasNormals = false;
-					}
 					
-					if(ss.length == 2)
-					{
-						hasTexCoords = true;
-						hasNormals = false;
-					}
-					
-					if(ss.length == 3)
-					{
-						hasTexCoords = true;
-						hasNormals = true;
-					}
+					hasTexCoords = ss.length >= 2;
+					hasNormals = ss.length >= 3;
 				}
+				
+				
 				
 				if (s.length == 4){
 					faces.add(indices);
 				}else if (s.length == 5){
 					int[][] firstTriangle = new int[3][3];
 					int[][] secondTriangle = new int[3][3];
-					
-					for (int k = 0; k < 3; k++){
-						firstTriangle[0][k] = indices[0][k];
-						firstTriangle[1][k] = indices[1][k];
-						firstTriangle[2][k] = indices[2][k];
-						secondTriangle[0][k] = indices[2][k];
-						secondTriangle[1][k] = indices[3][k];
-						secondTriangle[2][k] = indices[0][k];
+
+					for (int i = 0; i < 3; i ++){
+						firstTriangle[i] = indices[i];
+						secondTriangle[i] = indices[(i+2)%4];
 					}
+
 					faces.add(firstTriangle);
 					faces.add(secondTriangle);
 				}
