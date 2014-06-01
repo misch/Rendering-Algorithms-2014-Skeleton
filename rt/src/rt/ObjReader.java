@@ -95,6 +95,9 @@ public class ObjReader {
 				{	
 					// Get indices for vertex position, tex. coords., and normals
 					String[] ss = s[i].split("/");
+					hasTexCoords = ss.length >= 2;
+					hasNormals = ss.length >= 3;
+					
 					int k=0;
 					while(k < ss.length)
 					{
@@ -109,8 +112,7 @@ public class ObjReader {
 						k++;
 					}
 					
-					hasTexCoords = ss.length >= 2;
-					hasNormals = ss.length >= 3;
+					
 				}
 				
 				
@@ -213,7 +215,7 @@ public class ObjReader {
 		}
 
 		reader.close();
-		return new Mesh(verticesFinal, normalsFinal, indices);
+		return new Mesh(verticesFinal, normalsFinal, indices, texCoordsFinal);
 	}
 }
  
