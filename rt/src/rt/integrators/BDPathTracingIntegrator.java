@@ -134,7 +134,7 @@ public class BDPathTracingIntegrator implements Integrator {
 //				}
 				Spectrum c = connect(eye, light, new Vector3f(r.origin));
 				
-				c.mult(weight);
+//				c.mult(weight);
 			
 				outgoing.add(c);
 			}
@@ -362,7 +362,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		
 		cosTheta1 = Math.abs(eye.hitRecord.normal.dot(connectionDir));
 		
-		float cosTheta2 = light.hitRecord.normal == null ? 1 : Math.abs(light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir)));
+		float cosTheta2 = light.hitRecord.normal == null ? 1 : Math.max(light.hitRecord.normal.dot(StaticVecmath.negate(connectionDir)),0);
 		
 		float geometryTerm = (cosTheta1 * cosTheta2)/d;
 		
