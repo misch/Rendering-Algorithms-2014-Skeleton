@@ -282,8 +282,8 @@ public class BDPathTracingIntegrator implements Integrator {
 			
 			if (hit.material.evaluateEmission(hit, hit.w) != null){ // will be handled by connect()-method (corresponds to case of s = 0
 				float pL = hit.material.getDirectionalProbability(hit, hit.w);
-				pL *= 1f/lightList.size();
-				pL *= 1f/0.25f;
+				pL *= hit.p/lightList.size();
+				
 				eyeNodes.add(new PathNode(hit,eyeBounce,alpha,1,pE,pL,specular));
 				break; // last node 
 			}
@@ -421,9 +421,6 @@ public class BDPathTracingIntegrator implements Integrator {
 		return this.lightImg;
 	}
 	
-//	public int[][] getNSamples(){
-//		return this.nSamples;
-//	}
 	
 	private float russianRouletteProbability(int bounce) {
 		if (bounce <= 3){

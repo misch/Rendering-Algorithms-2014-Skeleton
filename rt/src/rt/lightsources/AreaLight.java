@@ -53,6 +53,7 @@ public class AreaLight implements LightGeometry {
 		return null;
 		h.intersectable = this;
 		h.material = this.areaLightMaterial;
+		h.p = 1/area;
 		return h;
 	}
 
