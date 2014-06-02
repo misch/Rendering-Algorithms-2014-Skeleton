@@ -105,8 +105,7 @@ public class AreaLightMaterial implements Material {
 
 	@Override
 	public float getDirectionalProbability(HitRecord hitRecord, Vector3f wOut) {
-		// TODO Auto-generated method stub
-		return 0;
+		return (float) Math.abs((wOut.dot(hitRecord.normal)/Math.PI));
 	}
 
 

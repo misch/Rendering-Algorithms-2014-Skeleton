@@ -105,7 +105,7 @@ public class Diffuse implements Material {
 	}
 	
 	public float getDirectionalProbability(HitRecord hitRecord, Vector3f wOut){
-		return (float) (wOut.dot(hitRecord.normal)/Math.PI);
+		return (float) Math.abs((wOut.dot(hitRecord.normal)/Math.PI));
 	}
 	
 }

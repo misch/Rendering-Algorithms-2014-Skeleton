@@ -45,7 +45,9 @@ public class BDPathTracingIntegratorFactory implements IntegratorFactory {
 			Spectrum[][] lightImg = integrator.getLightImg();
 			for (int x = 0; x < width; x++){
 				for (int y = 0; y < height; y++){
-					film.addLightImg(x, y, lightImg[x][y]);
+					Spectrum lightImgSpec = new Spectrum(lightImg[x][y]);
+					lightImgSpec.mult(1f/(scene.getSPP()));
+					film.addLightImg(x, y, lightImgSpec);
 				}
 			}
 		}
