@@ -391,26 +391,27 @@ public class BDPathTracingIntegrator implements Integrator {
 	}
 
 	private void connectToCamera(PathNode light, Vector3f cameraPosition) {
-		Vector3f lightDir = StaticVecmath.sub(light.hitRecord.position,cameraPosition);
-		float distanceToCamera = lightDir.lengthSquared();
-		lightDir.normalize();
+		Vector3f lightNodeToCam = StaticVecmath.sub(cameraPosition,light.hitRecord.position);
+		float distanceToCamera2 = lightNodeToCam.lengthSquared();
+		lightNodeToCam.normalize();
 		
-		Ray lightRay = new Ray(light.hitRecord.position,StaticVecmath.negate(lightDir),0,true);
-		HitRecord lightToCam = root.intersect(lightRay);
+		Ray lightRay = new Ray(light.hitRecord.position,lightNodeToCam,0,true);
+		HitRecord camHit = root.intersect(lightRay);
 		
-		if (lightToCam == null || distanceToCamera <= StaticVecmath.dist2(light.hitRecord.position, lightToCam.position) + 1e-3f){
+		if (camHit == null || distanceToCamera2 <= StaticVecmath.dist2(light.hitRecord.position, camHit.position) + 1e-3f){
 			int[] pixels = this.scene.getCamera().getPixel(lightRay);
 		
 			if(pixels[0] >= 0 && pixels[0] < scene.getFilm().getWidth() && pixels[1] >= 0 && pixels[1] < scene.getFilm().getHeight()){
-				Spectrum em = light.hitRecord.material.evaluateEmission(light.hitRecord, StaticVecmath.negate(lightDir));
+				Spectrum em = light.hitRecord.material.evaluateEmission(light.hitRecord, lightNodeToCam);
 				if (em == null){
-					em = new Spectrum(light.hitRecord.material.evaluateBRDF(light.hitRecord, StaticVecmath.negate(lightDir), light.hitRecord.w));
+					em = new Spectrum(light.hitRecord.material.evaluateBRDF(light.hitRecord,lightNodeToCam, light.hitRecord.w));
+					em.mult(light.alpha);
 				}
 				
-				float cosTerm = light.hitRecord.normal == null ? 1 : light.hitRecord.normal.dot(StaticVecmath.negate(lightDir));
-				cosTerm /= distanceToCamera;
+				float cosTerm = light.hitRecord.normal == null ? 1 : light.hitRecord.normal.dot(lightNodeToCam);
+				cosTerm /= distanceToCamera2;
 				cosTerm = Math.abs(cosTerm);
-				// TODO: ??? cosine between look-at direction and StaticVecmath.negate(lightDir) ???
+				em.mult(cosTerm);
 				lightImg[pixels[0]][pixels[1]].add(em);
 			}
 		}
