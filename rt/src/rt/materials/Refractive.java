@@ -13,13 +13,19 @@ import rt.Material.ShadingSample;
 public class Refractive implements Material {
 
 	float refractionIndex;
+	Spectrum color;
 
 	/**
 	 * @param refractionIndex
 	 *            the index of refraction
 	 */
-	public Refractive(float refractionIndex) {
+	public Refractive(float refractionIndex, Spectrum color) {
 		this.refractionIndex = refractionIndex;
+		this.color = color;
+	}
+	
+	public Refractive(float refractionIndex){
+		this(refractionIndex, new Spectrum(1));
 	}
 
 	/**
@@ -96,7 +102,9 @@ public class Refractive implements Material {
 
 		Spectrum brdf = new Spectrum(1,1,1);
 		brdf.mult(1-rSchlick(hitRecord));
-		return new ShadingSample(brdf,new Spectrum(), t, true, 1-rSchlick(hitRecord));
+		ShadingSample result = new ShadingSample(brdf,new Spectrum(), t, true, 1-rSchlick(hitRecord));
+		result.brdf.mult(color);
+		return result;
 	}
 
 	public ShadingSample getShadingSample(HitRecord hitRecord, float[] sample) {
