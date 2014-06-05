@@ -24,7 +24,7 @@ public class WhittedIntegrator implements Integrator {
 
 	LightList lightList;
 	Intersectable root;
-	static final int MAX_DEPTH = 10;
+	static final int MAX_DEPTH = 5;
 	Sampler sampler = new RandomSampler();
 	
 	public WhittedIntegrator(Scene scene)
@@ -43,7 +43,7 @@ public class WhittedIntegrator implements Integrator {
 		HitRecord hitRecord = root.intersect(r);
 		
 		if (hitRecord == null){
-			return new Spectrum(0,0,0);
+			return new Spectrum();
 		}
 		
 		Spectrum emission = hitRecord.material.evaluateEmission(hitRecord, hitRecord.w);
@@ -51,16 +51,14 @@ public class WhittedIntegrator implements Integrator {
 			return new Spectrum(emission);
 		}
 		
-		Spectrum reflection = new Spectrum(0,0,0);
-		Spectrum refraction = new Spectrum(0,0,0);
+		Spectrum reflection = new Spectrum();
+		Spectrum refraction = new Spectrum();
 		if(hitRecord.material.hasSpecularReflection() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularReflection(hitRecord);
 
 			reflection = new Spectrum(sample.brdf);
 			
-			Vector3f posPlusEps = new Vector3f();
-			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
-			Ray reflectedRay = new Ray(posPlusEps, sample.w, r.depth+1);
+			Ray reflectedRay = new Ray(hitRecord.position, sample.w, r.depth+1,true);
 			reflection.mult(integrate(reflectedRay));
 		}
 		
@@ -68,14 +66,12 @@ public class WhittedIntegrator implements Integrator {
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
 			if (sample.w == null){
-				return new Spectrum(0,0,0);
+				return new Spectrum();
 			}
 			
 			refraction = new Spectrum(sample.brdf);
 			
-			Vector3f posPlusEps = new Vector3f();
-			posPlusEps.scaleAdd(1e-3f, sample.w,hitRecord.position);
-			Ray refractedRay = new Ray(posPlusEps, sample.w, r.depth+1);
+			Ray refractedRay = new Ray(hitRecord.position, sample.w, r.depth+1, true);
 			refraction.mult(integrate(refractedRay));
 		}
 		
@@ -86,7 +82,7 @@ public class WhittedIntegrator implements Integrator {
 			return tmp;
 		}
 		
-			Spectrum outgoing = new Spectrum(0.f, 0.f, 0.f);
+			Spectrum outgoing = new Spectrum();
 			Spectrum brdfValue;
 			
 			// Iterate over all light sources
@@ -102,10 +98,7 @@ public class WhittedIntegrator implements Integrator {
 				float d = lightDir.lengthSquared();
 				lightDir.normalize();
 				
-				Ray shadowRay = new Ray(hitRecord.position,lightDir);
-				Vector3f scaledLightDir = new Vector3f(lightDir);
-				scaledLightDir.scale(1e-3f);
-				shadowRay.origin.add(scaledLightDir);
+				Ray shadowRay = new Ray(hitRecord.position,lightDir,0,true);
 				HitRecord shadowHit = root.intersect(shadowRay);
 
 				if(shadowHit != null){

@@ -26,7 +26,7 @@ public class BDPathTracingIntegrator implements Integrator {
 	LightList lightList;
 	Intersectable root;
 	Sampler sampler = new RandomSampler();
-	private final int MAX_LIGHT_BOUNCES = 1;
+	private final int MAX_LIGHT_BOUNCES = 5;
 	private final int MAX_EYE_BOUNCES = 5;
 	private Spectrum[][] lightImg;
 	private Scene scene;
@@ -94,8 +94,10 @@ public class BDPathTracingIntegrator implements Integrator {
 				pL*=cosTerm2;
 				pL /= StaticVecmath.dist2(eye.hitRecord.position, y_sMinus1.hitRecord.position);
 				v = pL/eye.probabilityEye;
+
 			}else{
 				v = eye.probabilityLight/eye.probabilityEye;
+
 				
 			}
 			vValues.put(eye.bounce-1, v);
@@ -110,7 +112,7 @@ public class BDPathTracingIntegrator implements Integrator {
 				float weight;
 				
 //				if (eye.hitRecord.material.evaluateEmission(eye.hitRecord, eye.hitRecord.w) != null){
-//					weight = 0.2f;
+//					weight = 1f;
 //				}else{
 					float sumU = 0;
 					for (int i = 1; i <= light.bounce; i++){
@@ -127,15 +129,24 @@ public class BDPathTracingIntegrator implements Integrator {
 						for (int j=1; j <= i; j++){
 							prodV *= vValues.get(eye.bounce-j);
 						}
+
 						sumV += prodV;
 					}
-				
 					weight = 1f/(sumU + 1 + sumV);
 //				}
 				Spectrum c = connect(eye, light, new Vector3f(r.origin));
+				int pathLength = eye.bounce + light.bounce;
+//				int possibilities = 1;
+//				for (int s = 1; s < light.bounce; s++){
+//					for(int t = 1; t < eye.bounce; t++){
+//						possibilities++;
+//					}
+//				}
 				
-//				c.mult(weight);
-			
+				int possibilities = (pathLength + 1) - (pathLength - (eyeSubPath.size()+2)) - (pathLength - (lightSubPath.size()+1));
+				float uniformWeight = 1f/possibilities;
+				c.mult(uniformWeight);
+				
 				outgoing.add(c);
 			}
 		}
@@ -271,7 +282,7 @@ public class BDPathTracingIntegrator implements Integrator {
 		int eyeBounce = 2;
 		Spectrum alpha = new Spectrum(1);
 		boolean specular = false;
-		float geometryTerm = Math.max(hit.normal.dot(hit.w),0)/StaticVecmath.dist2(hit.position, r.origin);
+		float geometryTerm = Math.abs(hit.normal.dot(hit.w))/StaticVecmath.dist2(hit.position, r.origin);
 		// TODO: ??? multiply geometryTerm by cosine between look-at and r?
 		
 		float pE = Math.abs(hit.normal.dot(hit.w))/StaticVecmath.dist2(hit.position, r.origin);

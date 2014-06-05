@@ -18,18 +18,15 @@ import rt.integrators.BDPathTracingIntegratorFactory;
 import rt.integrators.WhittedIntegratorFactory;
 import rt.intersectables.BSPAccelerator;
 import rt.intersectables.Bumpy;
-import rt.intersectables.CSGDodecahedron;
 import rt.intersectables.CSGInstance;
 import rt.intersectables.CSGNode;
 import rt.intersectables.CSGPlane;
 import rt.intersectables.CSGSolid;
 import rt.intersectables.CSGTwoSidedInfiniteCone;
-import rt.intersectables.CSGUnitCylinder;
 import rt.intersectables.Instance;
 import rt.intersectables.IntersectableList;
 import rt.intersectables.Mesh;
 import rt.intersectables.Rectangle;
-import rt.intersectables.Sphere;
 import rt.lightsources.AreaLight;
 import rt.materials.Diffuse;
 import rt.materials.Reflective;
@@ -46,15 +43,21 @@ public class TestSceneMisch extends Scene {
 		outputFilename = new String("../output/testscenes/Misch_whitted");
 
 		// Image width and height in pixels
+//		width = 1024;
+//		height = 580;
+		
 		width = 640;
 		height = 360;
+		
+//		width = 228;
+//		height = 128;
 		
 		// Specify pixel sampler to be used
 		samplerFactory = new RandomSamplerFactory();
 //		samplerFactory = new OneSamplerFactory();
 	
 		// Number of samples per pixel
-		SPP = 8;
+		SPP = 4;
 
 		outputFilename = outputFilename + " " + String.format("%d", SPP) + "SPP";
 		outputFilename = outputFilename + " " + String.format("%d", width) + "x";
@@ -78,92 +81,29 @@ public class TestSceneMisch extends Scene {
 //		integratorFactory = new PathTracingIntegratorFactory();
 //		integratorFactory = new DebugIntegratorFactory();
  
-		// TODO
-//		Material refractive = new Refractive(1.3f);
-//		Material refractive = new Diffuse(new Spectrum(1.f, 1.f, 1.f));
-//		Material refractive = new rt.materials.Blinn(new Spectrum(1f, 1f, 1f), new Spectrum(.4f, .4f, .4f), 50.f);
-//		Material refractive = new Reflective(new Spectrum(1,1,1));
-		Material refractive = new Refractive(1.1f);
-		
-		// Make a conical "bowl" by subtracting cross-sections of two cones
-		CSGSolid outerCone = coneCrossSection(60.f, refractive);
-		// Make an inner cone and subtract it
-		Matrix4f trafo = new Matrix4f();
-		trafo.setIdentity();
-		trafo.setTranslation(new Vector3f(0.f, 0.f, 0.25f));
-		CSGInstance innerCone = new CSGInstance(outerCone, trafo);		
-		CSGSolid doubleCone = new CSGNode(outerCone, innerCone, CSGNode.OperationType.SUBTRACT);
-		
-		Mesh mesh;
+		Mesh discoMesh;
 		try {
 
-			mesh = ObjReader.read("../obj/disco.obj", 1.f);
+			discoMesh = ObjReader.read("../obj/disco.obj", 1.f);
 		} catch (IOException e) {
 			System.out.printf("Could not read .obj file\n");
 			return;
 		}
 		
-		mesh.material = new Reflective();
-		BSPAccelerator acc = new BSPAccelerator(mesh);
+		discoMesh.material = new Reflective();
+		BSPAccelerator discoAcc = new BSPAccelerator(discoMesh);
 		
 		Matrix4f t = new Matrix4f();
 		t.setIdentity();
 		
 		// Instance one
 		t.setScale(2.5f);
-		t.setTranslation(new Vector3f(0, 19, 0));
+		t.setTranslation(new Vector3f(0, 15, -10));
 		
-		Instance instanceHacke = new Instance(acc, t);
-		
-		
-		// Place it in the scene
-		Matrix4f rot = new Matrix4f();
-		rot.setIdentity();
-		rot.rotX(-(float)Math.PI/2.f);
-		Matrix4f trans = new Matrix4f();
-		trans.setIdentity();
-		trans.setTranslation(new Vector3f(-1.5f,-1.5f, 0f));
-		trans.mul(rot);		
-		doubleCone = new CSGInstance(doubleCone, trans);
-		
-		// Something like a"soap bar"
-		Material yellow = new Diffuse(new Spectrum(1.f, 0.8f, 0.2f));
-		CSGSolid soap = new CSGUnitCylinder(yellow);
-		CSGSolid cap = new CSGTwoSidedInfiniteCone(yellow);
-		// Smoothen the edges
-		trans.setIdentity();
-		trans.m23 = -0.8f;
-		CSGSolid cap1 = new CSGInstance(cap, trans); 
-		soap = new CSGNode(soap, cap1, CSGNode.OperationType.INTERSECT);
-		trans.m23 = 1.8f;
-		CSGSolid cap2 = new CSGInstance(cap, trans); 
-		soap = new CSGNode(soap, cap2, CSGNode.OperationType.INTERSECT);
-		
-		// Transform it and place it in the scene
-		Matrix4f scale = new Matrix4f();
-		// Make it elliptical and rotate a bit around the cylinder axis
-		scale.setIdentity();
-		scale.m11 = 0.5f;
-		scale.m22 = 0.5f;
-		trafo = new Matrix4f();
-		trafo.rotZ((float)Math.toRadians(-20));
-		trafo.mul(scale);
-		// Rotate it "up"
-		rot = new Matrix4f();
-		rot.setIdentity();
-		rot.rotX(-(float)Math.PI/2.f);		
-		rot.mul(trafo);
-		
-		// Place in scene by translating
-		trans = new Matrix4f();
-		trans.setIdentity();
-		trans.setTranslation(new Vector3f(1.5f, -1.5f, 1.f));
-		trans.mul(rot);
-		soap = new CSGInstance(soap, trans);
+		Instance discoInstance = new Instance(discoAcc, t);
 		
 		// ground plane
 		Rectangle groundPlane = new Rectangle(new Point3f(25,0,50),new Vector3f(0,0,-100), new Vector3f(-50,0,0));
-//		groundPlane.material = new Textured("../textures/grass_big.jpg");
 		groundPlane.material = new Diffuse();
 		
 		// left
@@ -200,49 +140,52 @@ public class TestSceneMisch extends Scene {
 		Rectangle top2 = new Rectangle(new Point3f(-5,6,-20), new Vector3f(5,0,0), new Vector3f(0,0,-15));
 		top2.material = alu;
 		
-		Mesh mesh2;
+		Mesh teapot1;
 		try
 		{
 			
-			mesh2 = ObjReader.read("../obj/teapot.obj", 1.f);
+			teapot1 = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch(IOException e) 
 		{
 			System.out.printf("Could not read .obj file\n");
 			return;
 		}
-		mesh2.material = new Refractive(1.3f);
+		teapot1.material = new Refractive(1.1f);
+//		teapot1.material = new Diffuse(new Spectrum(1,0,0));
 		t = new Matrix4f();
 		t.setIdentity();
-		BSPAccelerator acc2 = new BSPAccelerator(mesh2);
+		BSPAccelerator teapot1Acc = new BSPAccelerator(teapot1);
 		// Instance one
 		t.setScale(2);
 		t.setTranslation(new Vector3f(5, 7, -22));
-		Instance instanceTeapot = new Instance(acc2, t);
+		Instance teapot1Instance = new Instance(teapot1Acc, t);
 		
+		Mesh teapot2;
 		try
 		{
 			
-			mesh = ObjReader.read("../obj/teapot.obj", 1.f);
+			teapot2 = ObjReader.read("../obj/teapot.obj", 1.f);
 		} catch(IOException e) 
 		{
 			System.out.printf("Could not read .obj file\n");
 			return;
 		}
 		
-		Spectrum ext = new Spectrum(3.f, 2.88f, 1.846f);
-		mesh.material = new rt.materials.Glossy( 8.f, new Spectrum(0.25f, 0.306f, 1.426f), ext);
+//		Spectrum ext = new Spectrum(3.f, 2.88f, 1.846f);
+//		teapot2.material = new rt.materials.Glossy( 8.f, new Spectrum(0.25f, 0.306f, 1.426f), ext);
+		teapot2.material = new Diffuse();
 		
 		t = new Matrix4f();
 		t.setIdentity();
 		t.setScale(2);
 		t.setTranslation(new Vector3f(-3, 7, -19));
-		rot = new Matrix4f();
+		Matrix4f rot = new Matrix4f();
 		rot.setIdentity();
 		rot.rotY(-(float)Math.PI/3.f);	
 		rot.rotX((float)Math.PI/3.f);
 		t.mul(rot);
-		acc = new BSPAccelerator(mesh);
-		Instance instanceTeapot2 = new Instance(acc, t);
+		BSPAccelerator teapot2Acc = new BSPAccelerator(teapot2);
+		Instance teapot2Instance = new Instance(teapot2Acc, t);
 		
 		// Collect objects in intersectable list
 		IntersectableList intersectableList = new IntersectableList();
@@ -251,28 +194,39 @@ public class TestSceneMisch extends Scene {
 		intersectableList.add(bumpyBackPlane);
 		intersectableList.add(bumpyRightPlane);
 		intersectableList.add(topPlane);
-		intersectableList.add(instanceHacke);
+		intersectableList.add(discoInstance);
 		intersectableList.add(bumpyFrontBar);
 		intersectableList.add(bumpyLeftBar);
 		intersectableList.add(top1);
 		intersectableList.add(top2);
-		intersectableList.add(instanceTeapot);
-		intersectableList.add(instanceTeapot2);
+		intersectableList.add(teapot1Instance);
+		intersectableList.add(teapot2Instance);
 		
 		lightList = new LightList();
 		Random rand = new Random();
 		
-		for (int i = 0; i > -41; i -= 10){
-			addLightCube(new Vector3f(-25,10,i), new Vector3f(-23,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
-			addLightCube(new Vector3f(23,10,i), new Vector3f(25,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
-		}
-
-//		AreaLight light = new AreaLight(new Vector3f(10,13,-15), new Vector3f(0,2,-5), new Vector3f(-5,0,0), new Spectrum(5000));
+//		for (int i = 0; i > -41; i -= 10){
+//			addLightCube(new Vector3f(-25,10,i), new Vector3f(-23,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
+//			addLightCube(new Vector3f(23,10,i), new Vector3f(25,12,i-2), new Spectrum(800,800,600-600*rand.nextFloat()), intersectableList);
+			
+//		}
+//		AreaLight light = new AreaLight(new Vector3f(10,19.5f,-15), new Vector3f(0,0,-0.5f), new Vector3f(-0.5f,0,0), new Spectrum(500));
+//		PointLight light = new PointLight(new Vector3f(10,19.5f,-15), new Spectrum(200));
+//		AreaLight light2 = new AreaLight(new Vector3f(0, 19.5f, -20), new Vector3f(0,0,-0.5f), new Vector3f(-0.5f,0,0), new Spectrum(500));
+//		PointLight light2 = new PointLight(new Vector3f(0, 19.5f, -20), new Spectrum(500));
+//		AreaLight light3 = new AreaLight(new Vector3f(5, 19.5f, 5), new Vector3f(0,0,-0.5f), new Vector3f(-0.5f,0,0), new Spectrum(500));
 		// Set the root node for the scene
 		root = intersectableList;
+		AreaLight bigLight = new AreaLight(new Vector3f(20,19.5f,20), new Vector3f(-40,0,0), new Vector3f(0,0,-70), new Spectrum(10000));
 		
+		lightList.add(bigLight);
+		intersectableList.add(bigLight);
 //		lightList.add(light);
+//		lightList.add(light2);
+//		lightList.add(light3);
 //		intersectableList.add(light);
+//		intersectableList.add(light2);
+//		intersectableList.add(light3);
 		// light sources
 //		addLights();
 	}

@@ -13,7 +13,7 @@ import java.io.*;
  * all configuration information for the renderer.
  */
 public class Main {
-	public static int[] debugPixel;// = {339,360-285}; // if defined, then only a certain number of pixels will be rendered
+	public static int[] debugPixel;// = {69,128-13}; // if defined, then only a certain number of pixels will be rendered
 	public static int debugWindowSize = 0; // size 0 will render only one pixel
 	/** 
 	 * The scene to be rendered.
@@ -34,6 +34,7 @@ public class Main {
 //	public static Scene scene = new rt.testscenes.ImportanceSampling();
 //	public static Scene scene = new rt.testscenes.Textures();
 	public static Scene scene = new rt.testscenes.TestSceneMisch();
+//	public static Scene scene = new rt.testscenes.BDPathtracingBoxSphereGlass();
 	
 	static LinkedList<RenderTask> queue;
 	static Counter tasksLeft;
@@ -124,7 +125,7 @@ public class Main {
 	
 	public static void main(String[] args)
 	{			
-		int taskSize = 32;	// Each task renders a square image block of this size
+		int taskSize = 4;	// Each task renders a square image block of this size
 		int nThreads;
 		if (debugPixel == null){
 			nThreads = 4;	// Number of threads to be used for rendering

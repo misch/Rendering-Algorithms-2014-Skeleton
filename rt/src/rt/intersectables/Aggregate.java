@@ -14,7 +14,6 @@ public abstract class Aggregate implements Intersectable {
 	protected AxisAlignedBoundingBox boundingBox;
 	
 	public HitRecord intersect(Ray r) {
-
 		HitRecord hitRecord = null;
 		float t = Float.MAX_VALUE;
 		
