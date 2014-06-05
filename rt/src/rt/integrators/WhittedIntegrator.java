@@ -59,20 +59,22 @@ public class WhittedIntegrator implements Integrator {
 			reflection = new Spectrum(sample.brdf);
 			
 			Ray reflectedRay = new Ray(hitRecord.position, sample.w, r.depth+1,true);
-			reflection.mult(integrate(reflectedRay));
+			Spectrum spec = integrate(reflectedRay);
+			reflection.mult(spec);
 		}
 		
 		if(hitRecord.material.hasSpecularRefraction() && r.depth < MAX_DEPTH){
 			ShadingSample sample = hitRecord.material.evaluateSpecularRefraction(hitRecord);
 			
-			if (sample.w == null){
+			if (sample == null){
 				return new Spectrum();
 			}
 			
 			refraction = new Spectrum(sample.brdf);
 			
 			Ray refractedRay = new Ray(hitRecord.position, sample.w, r.depth+1, true);
-			refraction.mult(integrate(refractedRay));
+			Spectrum spec = integrate(refractedRay);
+			refraction.mult(spec);
 		}
 		
 		if (hitRecord.material.hasSpecularReflection() || hitRecord.material.hasSpecularRefraction()){
