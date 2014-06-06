@@ -40,23 +40,18 @@ public class TestSceneMisch extends Scene {
 		 width = 1024;
 		 height = 580;
 
-//		width = 640;
-//		height = 360;
-
-//		 width = 400;
-//		 height = 200;
 		// Specify pixel sampler to be used
 		samplerFactory = new RandomSamplerFactory();
 		// samplerFactory = new OneSamplerFactory();
 
 		// Number of samples per pixel
-		SPP = 32;
+		SPP = 1024;
 
-		// outputFilename = outputFilename + "_" + String.format("%d", SPP) +
-		// "SPP";
-		// outputFilename = outputFilename + "_" + String.format("%d", width) +
-		// "x";
-		// outputFilename = outputFilename + String.format("%d", height);
+		 outputFilename = outputFilename + "_" + String.format("%d", SPP) +
+		 "SPP";
+		 outputFilename = outputFilename + "_" + String.format("%d", width) +
+		 "x";
+		 outputFilename = outputFilename + String.format("%d", height);
 
 		// Specify which camera, film, and tonemapper to use
 		Vector3f eye = new Vector3f(-20.f, 10f, -17.f);
@@ -390,17 +385,13 @@ public class TestSceneMisch extends Scene {
 
 		 // Set the root node for the scene
 		root = intersectableList;
-//		AreaLight bigLight = new AreaLight(new Vector3f(20, 19.5f, 20),
-//				new Vector3f(-40, 0, 0), new Vector3f(0, 0, -70), new Spectrum(
-//						10000));
-		
+
+		// light sources
 		AreaLight barLight = new AreaLight(new Vector3f(24.99f,12,-30), new Vector3f(0,2.5f,0), new Vector3f(0,0,-2.5f), new Spectrum(200));
 		AreaLight barLight2 = new AreaLight(new Vector3f(24.99f,7,-35), new Vector3f(0,2.5f,0), new Vector3f(0,0,-2.5f), new Spectrum(200));
 
-//		lightList.add(bigLight);
 		lightList.add(barLight);
 		lightList.add(barLight2);
-//		intersectableList.add(bigLight);
 		intersectableList.add(barLight);
 		intersectableList.add(barLight2);
 		 lightList.add(light);
@@ -411,49 +402,7 @@ public class TestSceneMisch extends Scene {
 		 intersectableList.add(light2);
 		 intersectableList.add(light3);
 		 intersectableList.add(light4);
-		// light sources
-		// addLights();
 	}
-
-//	private void addLightCube(Vector3f botFrontLeft, Vector3f topBackRight,
-//			Spectrum emission, IntersectableList intersectableList) {
-//		float bot = botFrontLeft.y, front = botFrontLeft.z, left = botFrontLeft.x, top = topBackRight.y, back = topBackRight.z, right = topBackRight.x;
-//		Spectrum spec = new Spectrum(emission);
-//
-//		AreaLight frontLight = new AreaLight(new Vector3f(botFrontLeft),
-//				new Vector3f(right - left, 0, 0),
-//				new Vector3f(0, top - bot, 0), spec);
-//		AreaLight leftLight = new AreaLight(new Vector3f(botFrontLeft),
-//				new Vector3f(0, top - bot, 0),
-//				new Vector3f(0, 0, back - front), spec);
-//		AreaLight botLight = new AreaLight(new Vector3f(botFrontLeft),
-//				new Vector3f(0, 0, back - front), new Vector3f(right - left, 0,
-//						0), spec);
-//		AreaLight rightLight = new AreaLight(new Vector3f(topBackRight),
-//				new Vector3f(0, 0, front - back),
-//				new Vector3f(0, bot - top, 0), spec);
-//		AreaLight backLight = new AreaLight(new Vector3f(topBackRight),
-//				new Vector3f(0, bot - top, 0),
-//				new Vector3f(left - right, 0, 0), spec);
-//		AreaLight topLight = new AreaLight(new Vector3f(topBackRight),
-//				new Vector3f(left - right, 0, 0), new Vector3f(0, 0, front
-//						- back), spec);
-//
-//		lightList.add(frontLight);
-//		lightList.add(rightLight);
-//		lightList.add(backLight);
-//		lightList.add(leftLight);
-//		lightList.add(topLight);
-//		lightList.add(botLight);
-//
-//		intersectableList.add(botLight);
-//		intersectableList.add(topLight);
-//		intersectableList.add(backLight);
-//		intersectableList.add(leftLight);
-//		intersectableList.add(rightLight);
-//		intersectableList.add(frontLight);
-//
-//	}
 
 	public void finish() {
 		if (integratorFactory instanceof BDPathTracingIntegratorFactory) {
